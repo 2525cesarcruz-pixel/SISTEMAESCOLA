@@ -235,8 +235,14 @@ header { justify-content:space-between; }
 
 /* ── PRINT ── */
 @media print {
-  body > *:not(#impressao) { display:none !important; }
-  #impressao { display:block !important; }
+  body.print-doc-only * { visibility:hidden !important; }
+  body.print-doc-only #impressao,
+  body.print-doc-only #impressao * { visibility:visible !important; }
+  body.print-doc-only #impressao {
+    display:block !important;
+    position:absolute; left:0; top:0; width:100%;
+  }
+  .no-print { display:none !important; }
 }
 #impressao { display:none; }
 .hidden { display:none !important; }
@@ -526,7 +532,7 @@ header { justify-content:space-between; }
     <div class="pv-head">
       <h2>📋 Ficha do Servidor — Prévia</h2>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-verde" onclick="window.print()">🖨 Imprimir</button>
+        <button class="btn btn-verde" onclick="imprimirPreviaServidor()">🖨 Imprimir</button>
         <button class="btn btn-sec" onclick="voltarForm()">← Editar</button>
         <button class="btn btn-ouro" onclick="abrirPainel()" style="font-size:.8rem">🗄️ Ver Servidores</button>
       </div>
@@ -571,7 +577,7 @@ header { justify-content:space-between; }
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center">
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-sec" onclick="voltarParaForm()">← Editar Cadastro</button>
-            <button class="btn btn-verde" onclick="renderImpressaoFicha();window.print()">🖨 Imprimir Ficha</button>
+            <button class="btn btn-verde" onclick="imprimirPreviaServidor()">🖨 Imprimir Ficha</button>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn" style="background:var(--verde5);color:var(--verde);font-weight:700;border:1.5px solid var(--verde4)" onclick="pularUploadSrv()">Fazer upload depois →</button>
@@ -1039,42 +1045,66 @@ function gerarFichaHTML(){
 </div>`;
 }
 
-/** Monta #impressao com #doc (cabeçalho/rodapé municipal) + ficha no .doc-body */
-function renderImpressaoFicha(){
-  const impressao = document.getElementById('impressao');
-  if (!impressao) return;
-  impressao.textContent = '';
+function montarFichaServidorInstitucional(){
   const doc = document.createElement('div');
-  doc.id = 'doc';
-  doc.className = 'doc doc--portrait';
+  doc.className = 'doc doc-a4 doc--portrait ficha-servidor-doc';
+
   const header = document.createElement('div');
-  header.id = 'doc-header';
-  const contentWrapper = document.createElement('div');
-  contentWrapper.id = 'doc-content';
-  const body = document.createElement('div');
-  body.id = 'doc-body';
-  body.className = 'doc-body';
+  header.className = 'doc-header-wrap';
+  const bodyWrap = document.createElement('div');
+  bodyWrap.className = 'doc-body';
   const footer = document.createElement('div');
-  footer.id = 'doc-footer';
-  contentWrapper.appendChild(body);
-  doc.appendChild(header);
-  doc.appendChild(contentWrapper);
-  doc.appendChild(footer);
-  if (window.InstitucionalLayout) {
-    if (typeof window.InstitucionalLayout.renderHeader === 'function')
-      window.InstitucionalLayout.renderHeader(header, { titulo: 'Ficha do Servidor' });
-    if (typeof window.InstitucionalLayout.renderFooter === 'function')
-      window.InstitucionalLayout.renderFooter(footer);
+  footer.className = 'doc-footer-wrap';
+
+  if (window.InstitucionalLayout && typeof window.InstitucionalLayout.renderHeader === 'function') {
+    window.InstitucionalLayout.renderHeader(header, { titulo: 'Ficha do Servidor' });
   }
-  body.innerHTML = gerarFichaHTML();
-  impressao.appendChild(doc);
+  if (window.InstitucionalLayout && typeof window.InstitucionalLayout.renderFooter === 'function') {
+    window.InstitucionalLayout.renderFooter(footer);
+  }
+
+  bodyWrap.innerHTML = gerarFichaHTML();
+  doc.appendChild(header);
+  doc.appendChild(bodyWrap);
+  doc.appendChild(footer);
+  return doc;
+}
+
+function renderImpressaoFicha(){
+  const preview = document.getElementById('preview-inner');
+  const impressao = document.getElementById('impressao');
+  if (!preview || !impressao) return;
+
+  const docPreview = montarFichaServidorInstitucional();
+  preview.innerHTML = '';
+  preview.appendChild(docPreview);
+
+  const docPrint = docPreview.cloneNode(true);
+  impressao.innerHTML = '';
+  impressao.appendChild(docPrint);
+}
+
+function imprimirPreviaServidor(){
+  const cleanup = () => {
+    document.body.classList.remove('print-doc-only');
+    document.documentElement.classList.remove('print-doc-only');
+  };
+
+  renderImpressaoFicha();
+  document.body.classList.add('print-doc-only');
+  document.documentElement.classList.add('print-doc-only');
+
+  window.addEventListener('afterprint', cleanup, { once:true });
+  try {
+    window.print();
+  } finally {
+    setTimeout(cleanup, 1200);
+  }
 }
 
 // ─── VISUALIZAR ───────────────────────────────────────────────────────────────
 async function visualizar(){
   salvarTudo();
-  const html = gerarFichaHTML();
-  document.getElementById('preview-inner').innerHTML = html;
   renderImpressaoFicha();
   setServidorFlowMode('preview');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1337,7 +1367,7 @@ async function verServidor(id){
   renderImpressaoFicha();
   Object.assign(S,Stmp);
   fecharPainel();
-  window.print();
+  imprimirPreviaServidor();
 }
 async function exportarCSV(){
   const lista=await lerServidores(); if(!lista.length){alert('Nenhum servidor.'); return;}
