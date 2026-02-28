@@ -644,10 +644,6 @@ header { justify-content:space-between; }
           <p style="color:var(--verde4);font-size:.75rem;margin-top:2px">E. M. Getúlio Vargas — 2026</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button onclick="exportarCSV()"
-            style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
-            color:#fff;border-radius:8px;padding:7px 14px;font-size:.78rem;
-            font-weight:700;cursor:pointer;">⬇ CSV</button>
           <button onclick="fecharPainel()"
             style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
             color:#fff;border-radius:8px;padding:7px 14px;font-size:.78rem;
@@ -1369,16 +1365,6 @@ async function verServidor(id){
   fecharPainel();
   imprimirPreviaServidor();
 }
-async function exportarCSV(){
-  const lista=await lerServidores(); if(!lista.length){alert('Nenhum servidor.'); return;}
-  const cols=['nome','dataNasc','sexo','cpf','rg','cargo','turno','vinculo','matriculaFunc','dataAdmissao','cargaHoraria','telefone','email','naturalidade','_salvoEm'];
-  const csv='﻿'+[cols.join(';'),...lista.map(s=>cols.map(c=>'"'+(s[c]||'').replace(/"/g,'""')+'"').join(';'))].join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download='servidores_'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.csv';
-  a.click();
-}
-
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 function showToast(msg){
   const t=document.createElement('div'); t.className='toast'; t.textContent=msg;

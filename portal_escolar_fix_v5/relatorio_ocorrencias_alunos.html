@@ -64,7 +64,7 @@ th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06
       <label class="small"><b>Fim</b></label>
       <input type="date" id="fim">
       <button class="btn btn-azul" onclick="carregar()">Aplicar</button>
-      <button class="btn btn-sec" onclick="baixarCSV()">⬇ CSV</button>
+      <button class="btn btn-sec" id="btn-pdf" onclick="baixarPDFOcorrenciasAlunos()">⬇ Baixar PDF</button>
       <button class="btn btn-sec" onclick="imprimirRelatorioOcorrenciasAlunos()">🖨 Imprimir</button>
       <div style="flex:1"></div>
       <button class="btn btn-sec" onclick="window.location.href='index.html'">🏠 Portal</button>
@@ -98,6 +98,8 @@ th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06
 <!-- Container para impressão (padrão municipal): apenas #doc é impresso -->
 <div id="doc" class="doc doc-a4 doc--portrait" style="display:none"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="institucional.js"></script>
 <script>
 // Guard já executado no início; requireLogin é assíncrono
@@ -166,6 +168,10 @@ async function carregar(){
     </div>
   `;
 
+  const hasDados = dados.length > 0;
+  const btnPdf = document.getElementById('btn-pdf');
+  if(btnPdf) btnPdf.disabled = !hasDados;
+
   // tabela
   const tb = document.getElementById('tbody');
   if(!dados.length){
@@ -188,45 +194,93 @@ async function carregar(){
   }).join('');
 }
 
-function imprimirRelatorioOcorrenciasAlunos() {
+function renderDocumentoOcorrenciasAlunos(){
   const kpis = document.getElementById('kpis');
   const container = document.querySelector('.container');
   const cards = container ? container.querySelectorAll('.card') : [];
   const cardLista = cards.length >= 2 ? cards[1] : null;
-  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') {
-    window.print();
-    return;
-  }
-  const { body } = window.InstitucionalLayout.render({
+  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') return null;
+
+  const rendered = window.InstitucionalLayout.render({
     titulo: 'Relatório de Ocorrências — Alunos',
     orientacao: 'portrait'
   });
-  if (body) {
-    body.textContent = '';
-    if (kpis) body.appendChild(kpis.cloneNode(true));
-    if (cardLista) body.appendChild(cardLista.cloneNode(true));
-  
-    const ass = document.createElement('div');
-    ass.className = 'doc-assinaturas';
-    ass.innerHTML = '<div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Direção Escolar</div></div><div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Secretaria Escolar</div></div>';
-    body.appendChild(ass);
-  }
+  if (!rendered || !rendered.body) return null;
+
+  const body = rendered.body;
+  body.textContent = '';
+  const info = document.createElement('p');
+  info.className = 'small';
+  info.style.margin = '0 0 10px 0';
+  info.textContent = 'Gerado em: ' + new Date().toLocaleString('pt-BR');
+  body.appendChild(info);
+
+  if (kpis) body.appendChild(kpis.cloneNode(true));
+  if (cardLista) body.appendChild(cardLista.cloneNode(true));
+
+  const ass = document.createElement('div');
+  ass.className = 'doc-assinaturas';
+  ass.innerHTML = '<div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Direção Escolar</div></div><div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Secretaria Escolar</div></div>';
+  body.appendChild(ass);
+  return rendered.doc;
+}
+
+async function imprimirRelatorioOcorrenciasAlunos() {
+  await carregar();
+  const doc = renderDocumentoOcorrenciasAlunos();
+  if (!doc) { window.print(); return; }
   window.InstitucionalLayout.preparePrint();
 }
 
-function baixarCSV(){
-  if(!dados.length){ alert('Sem dados para exportar.'); return; }
-  const header = ['id','aluno_id','aluno_nome','tipo','data','turma','turno','etapa','detalhes_json','criado_em'];
-  const lines = [header.join(';')].concat(dados.map(o=>{
-    const det = JSON.stringify(o.detalhes||{}).replaceAll('"','""');
-    const vals = [o.id,o.aluno_id,o.aluno_nome,o.tipo,o.data,o.turma,o.turno,o.etapa,`"${det}"`,o.criado_em];
-    return vals.map(v=>String(v??'').replaceAll('\n',' ').replaceAll('\r',' ')).join(';');
-  }));
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'relatorio_ocorrencias_alunos.csv';
-  a.click();
+async function baixarPDFOcorrenciasAlunos(){
+  const btn = document.getElementById('btn-pdf');
+  const txt = btn ? btn.textContent : '⬇ Baixar PDF';
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Gerando...'; }
+  try{
+    await carregar();
+    const doc = renderDocumentoOcorrenciasAlunos();
+    if(!doc || !window.jspdf || !window.html2canvas) throw new Error('Dependências de PDF indisponíveis.');
+
+    const clone = doc.cloneNode(true);
+    clone.style.display = 'block';
+    clone.style.position = 'fixed';
+    clone.style.left = '-10000px';
+    clone.style.top = '0';
+    clone.style.width = doc.offsetWidth ? doc.offsetWidth + 'px' : '794px';
+    clone.style.maxWidth = 'none';
+    document.body.appendChild(clone);
+
+    const canvas = await window.html2canvas(clone, { scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false });
+    clone.remove();
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const W = pdf.internal.pageSize.getWidth();
+    const H = pdf.internal.pageSize.getHeight();
+    const margin = 8;
+    const usableW = W - margin*2;
+    const usableH = H - margin*2;
+    const pageSlicePx = Math.floor((usableH * canvas.width) / usableW);
+
+    let srcY = 0;
+    while(srcY < canvas.height){
+      const sliceH = Math.min(pageSlicePx, canvas.height - srcY);
+      const slice = document.createElement('canvas');
+      slice.width = canvas.width;
+      slice.height = sliceH;
+      slice.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+      if(srcY > 0) pdf.addPage();
+      const outH = (sliceH * usableW) / canvas.width;
+      pdf.addImage(slice.toDataURL('image/png'), 'PNG', margin, margin, usableW, outH);
+      srcY += sliceH;
+    }
+
+    pdf.save('relatorio_ocorrencias_alunos_' + new Date().toISOString().slice(0,10) + '.pdf');
+  }catch(e){
+    alert('Erro ao gerar PDF: ' + (e.message || e));
+  }finally{
+    if(btn){ btn.disabled = dados.length===0; btn.textContent = txt; }
+  }
 }
 
 // init
