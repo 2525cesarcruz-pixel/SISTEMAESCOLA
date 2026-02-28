@@ -720,6 +720,44 @@ const S = {
 const PILLS_V  = {};
 let etapaAtual = 1;
 let painelLogado = false;
+const SERVIDOR_FLOW_KEY = 'servidor_flow_mode';
+const SERVIDOR_STEP_KEY = 'servidor_step_atual';
+
+function setServidorFlowMode(mode){
+  const form = document.getElementById('form-area');
+  const preview = document.getElementById('preview-area');
+  const fim = document.getElementById('area-finalizacao');
+  if(!form || !preview || !fim) return;
+  form.classList.toggle('hidden', mode !== 'form');
+  preview.classList.toggle('hidden', mode !== 'preview');
+  fim.classList.toggle('hidden', mode !== 'finalizacao');
+  try{ sessionStorage.setItem(SERVIDOR_FLOW_KEY, mode); }catch(_e){}
+}
+
+function restaurarEstadoFluxoServidor(){
+  let etapaSalva = 1;
+  try{ etapaSalva = Number(sessionStorage.getItem(SERVIDOR_STEP_KEY) || '1') || 1; }catch(_e){}
+  etapaSalva = Math.min(4, Math.max(1, etapaSalva));
+  for(let i=1;i<=4;i++){
+    const sec = document.getElementById('etapa-'+i);
+    if(sec) sec.classList.toggle('hidden', i !== etapaSalva);
+  }
+  etapaAtual = etapaSalva;
+  const pct = Math.round(etapaAtual/4*100);
+  const fill = document.getElementById('prog-fill');
+  const pctEl = document.getElementById('prog-pct');
+  const txt = document.getElementById('prog-txt');
+  if(fill) fill.style.width = pct+'%';
+  if(pctEl) pctEl.textContent = pct+'%';
+  if(txt) txt.textContent = 'Etapa '+etapaAtual+' de 4';
+  buildStepper();
+
+  let modo = 'form';
+  try{ modo = sessionStorage.getItem(SERVIDOR_FLOW_KEY) || 'form'; }catch(_e){}
+  if(!['form','preview','finalizacao'].includes(modo)) modo = 'form';
+  if(modo !== 'finalizacao') modo = 'form';
+  setServidorFlowMode(modo);
+}
 const SENHA_PAINEL = '1234'; // fallback local alinhado com o banco
 
 // ─── STEPPER ─────────────────────────────────────────────────────────────────
@@ -751,6 +789,7 @@ function ir(n){
   document.getElementById('prog-pct').textContent  = pct+'%';
   document.getElementById('prog-txt').textContent  = 'Etapa '+n+' de 4';
   buildStepper();
+  try{ sessionStorage.setItem(SERVIDOR_STEP_KEY, String(etapaAtual)); }catch(_e){}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -1037,8 +1076,7 @@ async function visualizar(){
   const html = gerarFichaHTML();
   document.getElementById('preview-inner').innerHTML = html;
   renderImpressaoFicha();
-  document.getElementById('form-area').classList.add('hidden');
-  document.getElementById('preview-area').classList.remove('hidden');
+  setServidorFlowMode('preview');
   window.scrollTo({top:0,behavior:'smooth'});
   // Auto-save
   if(S.nome.trim()){
@@ -1046,14 +1084,11 @@ async function visualizar(){
   }
 }
 function voltarForm(){
-  document.getElementById('preview-area').classList.add('hidden');
-  document.getElementById('area-finalizacao').classList.add('hidden');
-  document.getElementById('form-area').classList.remove('hidden');
+  setServidorFlowMode('form');
 }
 
 function voltarParaForm(){
-  document.getElementById('area-finalizacao').classList.add('hidden');
-  document.getElementById('form-area').classList.remove('hidden');
+  setServidorFlowMode('form');
 }
 
 function confirmarVoltarInicio(){
@@ -1068,9 +1103,7 @@ async function finalizarCadastro(){
   if(S.nome.trim()){
     try{ await salvarServidor(); }catch(e){}
   }
-  document.getElementById('form-area').classList.add('hidden');
-  document.getElementById('preview-area').classList.add('hidden');
-  document.getElementById('area-finalizacao').classList.remove('hidden');
+  setServidorFlowMode('finalizacao');
   document.getElementById('nome-servidor-finalizado').textContent = S.nome ? '👤 ' + S.nome : '';
   buildDocsSrvUpload();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1324,7 +1357,7 @@ function showToast(msg){
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 populaEstado('natEstado'); populaEstado('endEstado');
-buildStepper();
+restaurarEstadoFluxoServidor();
 // Data de cadastro automática
 document.getElementById('dataCadastro').value = new Date().toLocaleDateString('pt-BR');
 
@@ -1408,6 +1441,7 @@ document.getElementById('dataCadastro').value = new Date().toLocaleDateString('p
         
         // Vai para etapa 1
         ir(1);
+        setServidorFlowMode('form');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
         // Mostra aviso
