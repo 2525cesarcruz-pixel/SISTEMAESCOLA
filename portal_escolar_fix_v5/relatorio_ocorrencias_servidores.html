@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Ocorrências (Servidores) — E. M. Getúlio Vargas</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="institucional.css">
+<style>
+:root{
+  --verde:#2E7D32; --roxo:#6A1B9A; --roxo2:#EDE7F6;
+  --cinza:#F0F4F9; --borda:#DDE3EC; --texto:#0F1923; --sub:#5A6880;
+  --sombra:0 4px 24px rgba(15,25,35,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:var(--texto);min-height:100vh}
+.page-header{background:linear-gradient(135deg,var(--roxo),#4A148C);padding:20px 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.page-header h1{color:#fff;font-size:1.1rem;font-weight:900}
+.page-header p{color:rgba(255,255,255,.78);font-size:.78rem;margin-top:2px}
+.header-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:none;border-radius:10px;padding:10px 18px;font-size:.82rem;font-weight:900;cursor:pointer;transition:.2s;font-family:inherit}
+.btn-sec{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.btn-sec:hover{background:rgba(255,255,255,.22)}
+.btn-branco{background:#fff;color:#4A148C}
+.btn-branco:hover{background:#f2eaff}
+.btn-verde{background:var(--verde);color:#fff}
+.btn-verde:hover{filter:brightness(.95)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+
+.conteudo{padding:22px;max-width:1200px;margin:0 auto}
+.filtros-bar{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:14px 16px;
+  display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;box-shadow:var(--sombra)}
+.filtros-bar label{font-size:.72rem;color:var(--sub);font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.filtros-bar input,.filtros-bar select{
+  border:1.5px solid var(--borda);border-radius:10px;padding:9px 10px;font-size:.84rem;
+  font-family:inherit;background:#fff;min-width:160px
+}
+.sep{width:1px;height:34px;background:var(--borda);margin:0 6px}
+
+.totais-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.total-card{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:14px 16px;box-shadow:var(--sombra)}
+.total-card .k{font-size:.72rem;color:var(--sub);font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.total-card .v{font-size:1.35rem;font-weight:900;margin-top:4px}
+.total-card .s{font-size:.78rem;color:var(--sub);margin-top:2px}
+@media(max-width:900px){ .totais-grid{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:520px){ .totais-grid{grid-template-columns:1fr} }
+
+#loading{text-align:center;padding:40px 20px}
+.spinner{width:44px;height:44px;border:4px solid var(--borda);border-top-color:var(--roxo);
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.vazio{text-align:center;padding:40px 20px;color:var(--sub)}
+.vazio span{font-size:2.5rem;display:block;margin-bottom:8px}
+
+.grp{background:#fff;border:1px solid var(--borda);border-radius:18px;box-shadow:var(--sombra);margin:14px 0;overflow:hidden}
+.grp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;
+  background:linear-gradient(135deg,var(--roxo2),#fff)}
+.grp-head h3{font-size:1rem;font-weight:900;color:#3b0a58}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.badge{font-size:.72rem;font-weight:900;border-radius:999px;padding:5px 10px;display:inline-flex;gap:6px;align-items:center}
+.badge-total{background:#111827;color:#fff}
+.badge-cargo{background:#f3f4f6;color:#374151;border:1px solid #e5e7eb}
+.badge-tipo{background:var(--roxo2);color:#4A148C;border:1px solid #e3d2ef}
+.lista{padding:10px 16px 16px}
+.item{display:flex;gap:12px;align-items:flex-start;padding:10px 10px;border-radius:12px}
+.item:nth-child(odd){background:#faf7ff}
+.item .dt{min-width:110px;font-weight:900;color:#1f2937;font-size:.82rem}
+.item .tp{min-width:140px;font-weight:900;color:#4A148C;font-size:.8rem}
+.item .tx{flex:1;color:#111827;font-size:.86rem}
+.item .sub{color:var(--sub);font-size:.76rem;margin-top:2px}
+.small{font-size:.74rem;color:var(--sub)}
+@media print{
+  .page-header .header-btns,.filtros-bar{display:none!important}
+  body{background:#fff}
+  .grp,.total-card{box-shadow:none}
+  .conteudo{padding:0}
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>📋 Relatório Geral de Ocorrências — Servidores</h1>
+    <p>E. M. Getúlio Vargas — Nova Ubiratã/MT · <span id="data-geracao"></span></p>
+  </div>
+  <div class="header-btns">
+    <button class="btn btn-sec" onclick="window.location.href='index.html'">🏠 Voltar</button>
+    <button class="btn btn-branco" onclick="exportarCSV()" id="btn-csv" disabled>⬇ Exportar CSV</button>
+    <button class="btn btn-verde" onclick="imprimirRelatorioOcorrenciasServidores()" id="btn-print" disabled>🖨 Imprimir</button>
+  </div>
+</div>
+
+<div class="conteudo">
+  <div class="filtros-bar">
+    <div>
+      <label>Data inicial</label><br>
+      <input type="date" id="fil-inicio">
+    </div>
+    <div>
+      <label>Data final</label><br>
+      <input type="date" id="fil-fim">
+    </div>
+
+    <div class="sep"></div>
+
+    <div>
+      <label>Tipo</label><br>
+      <select id="fil-tipo">
+        <option value="">Todos</option>
+        <option value="atestado">Atestado</option>
+        <option value="saida_part">Saída Particular</option>
+        <option value="ajuste_ponto">Ajuste de Ponto</option>
+        <option value="saida_serv">Saída p/ Serviço</option>
+      </select>
+    </div>
+
+    <div class="sep"></div>
+
+    <div style="flex:1;min-width:220px">
+      <label>Buscar servidor</label><br>
+      <input type="text" id="fil-busca" placeholder="Digite o nome do servidor...">
+    </div>
+
+    <button class="btn btn-sec" style="margin-left:auto" onclick="aplicarFiltros()">Aplicar</button>
+    <button class="btn btn-branco" onclick="limparFiltros()">Limpar</button>
+  </div>
+
+  <div class="totais-grid" id="totais-grid" style="display:none"></div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <p style="color:var(--sub);font-size:.88rem;font-weight:700">Carregando ocorrências...</p>
+  </div>
+
+  <div id="area-relatorio" style="display:none"></div>
+</div>
+
+<!-- Container para impressão (padrão municipal): apenas #doc é impresso -->
+<div id="doc" class="doc doc--portrait" style="display:none"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-auth.js"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js"></script>
+<script src="institucional.js"></script>
+<script>
+PortalAuth.requireLogin(['diretor','coordenacao','secretaria']);
+
+function imprimirRelatorioOcorrenciasServidores() {
+  const totaisGrid = document.getElementById('totais-grid');
+  const areaRelatorio = document.getElementById('area-relatorio');
+  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') {
+    window.print();
+    return;
+  }
+  const { body } = window.InstitucionalLayout.render({
+    titulo: 'Relatório de Ocorrências — Servidores',
+    orientacao: 'portrait'
+  });
+  if (body) {
+    body.textContent = '';
+    if (totaisGrid) body.appendChild(totaisGrid.cloneNode(true));
+    if (areaRelatorio) body.appendChild(areaRelatorio.cloneNode(true));
+  }
+  window.InstitucionalLayout.preparePrint();
+}
+
+let todas = [];
+let filtradas = [];
+
+const LABEL_TIPO = { atestado:'Atestado', saida_part:'Saída Particular', ajuste_ponto:'Ajuste de Ponto', saida_serv:'Saída p/ Serviço' };
+
+function setDefaultsDatas(){
+  const fim = new Date();
+  const ini = new Date();
+  ini.setDate(ini.getDate()-30);
+  document.getElementById('fil-fim').value = fim.toISOString().slice(0,10);
+  document.getElementById('fil-inicio').value = ini.toISOString().slice(0,10);
+}
+
+function normalizarNome(x){ return String(x||'').trim().toLowerCase(); }
+
+async function carregarOcorrencias(){
+  document.getElementById('data-geracao').textContent = new Date().toLocaleString('pt-BR');
+  setDefaultsDatas();
+
+  try{
+    const dt = new Date(); dt.setFullYear(dt.getFullYear()-1);
+    const iso = dt.toISOString().slice(0,10);
+
+    let rows = await supaFetch('/rest/v1/ocorrencias_servidores?select=servidor_id,servidor_nome,cargo,tipo,data,criado_em,dias,subtipo,hora_saida,comunicou,destino,motivo,atividade,obs&order=criado_em.desc&data=gte.'+iso);
+    if(!Array.isArray(rows)) rows = [];
+
+    if(rows.length===0){
+      const isoTs = dt.toISOString();
+      rows = await supaFetch('/rest/v1/ocorrencias_servidores?select=servidor_id,servidor_nome,cargo,tipo,data,criado_em,dias,subtipo,hora_saida,comunicou,destino,motivo,atividade,obs&order=criado_em.desc&criado_em=gte.'+encodeURIComponent(isoTs));
+      if(!Array.isArray(rows)) rows = [];
+    }
+
+    todas = rows;
+    aplicarFiltros();
+  }catch(e){
+    console.error(e);
+    document.getElementById('loading').innerHTML = '<div class="vazio"><span>⚠️</span>Erro ao carregar ocorrências.</div>';
+  }
+}
+
+function aplicarFiltros(){
+  const ini = document.getElementById('fil-inicio').value;
+  const fim = document.getElementById('fil-fim').value;
+  const tipo = document.getElementById('fil-tipo').value;
+  const busca = normalizarNome(document.getElementById('fil-busca').value);
+
+  filtradas = todas.filter(o => {
+    const dataBase = (o.data ? String(o.data).slice(0,10) : (o.criado_em ? String(o.criado_em).slice(0,10) : ''));
+    if(ini && dataBase && dataBase < ini) return false;
+    if(fim && dataBase && dataBase > fim) return false;
+    if(tipo && (o.tipo||'') !== tipo) return false;
+    if(busca && !normalizarNome(o.servidor_nome).includes(busca)) return false;
+    return true;
+  });
+
+  renderTotais();
+  renderLista();
+}
+
+function limparFiltros(){
+  setDefaultsDatas();
+  document.getElementById('fil-tipo').value = '';
+  document.getElementById('fil-busca').value = '';
+  aplicarFiltros();
+}
+
+function renderTotais(){
+  const grid = document.getElementById('totais-grid');
+  const total = filtradas.length;
+  const servidores = new Set(filtradas.map(x => x.servidor_id || x.servidor_nome || '—')).size;
+
+  const porTipo = {};
+  filtradas.forEach(o => { porTipo[o.tipo||'N/I'] = (porTipo[o.tipo||'N/I']||0)+1; });
+
+  const topTipo = Object.entries(porTipo).sort((a,b)=>b[1]-a[1])[0];
+  const topTipoTxt = topTipo ? (LABEL_TIPO[topTipo[0]]||topTipo[0]) : '—';
+  const topTipoN = topTipo ? topTipo[1] : 0;
+
+  grid.innerHTML = `
+    <div class="total-card"><div class="k">Ocorrências</div><div class="v">${total}</div><div class="s">no período filtrado</div></div>
+    <div class="total-card"><div class="k">Servidores</div><div class="v">${servidores}</div><div class="s">com ocorrência</div></div>
+    <div class="total-card"><div class="k">Tipo mais comum</div><div class="v" style="font-size:1.05rem">${topTipoTxt}</div><div class="s">${topTipoN} registro(s)</div></div>
+    <div class="total-card"><div class="k">Gerado em</div><div class="v" style="font-size:1.05rem">${new Date().toLocaleDateString('pt-BR')}</div><div class="s">${new Date().toLocaleTimeString('pt-BR')}</div></div>
+  `;
+  grid.style.display = 'grid';
+
+  document.getElementById('btn-csv').disabled = total===0;
+  document.getElementById('btn-print').disabled = total===0;
+}
+
+function detalheOcorrencia(o){
+  let det = '';
+  if(o.tipo==='atestado') det = (o.dias?o.dias+' dia(s) · ':'') + (o.subtipo||'');
+  else if(o.tipo==='saida_part') det = (o.hora_saida?('Saída: '+o.hora_saida+' · '):'') + (o.comunicou||'');
+  else if(o.tipo==='ajuste_ponto') det = (o.subtipo?o.subtipo+' · ':'') + (o.comunicou||'');
+  else if(o.tipo==='saida_serv') det = (o.destino?('Destino: '+o.destino+' · '):'') + (o.hora_saida?('Saída: '+o.hora_saida):'');
+  return det.trim();
+}
+function observacao(o){ return (o.motivo||o.atividade||o.obs||'').trim(); }
+
+function agruparPorServidor(lista){
+  const map = {};
+  lista.forEach(o => {
+    const key = o.servidor_id || o.servidor_nome || '—';
+    if(!map[key]) map[key] = { nome:o.servidor_nome||'—', cargo:o.cargo||'', itens:[] };
+    map[key].itens.push(o);
+  });
+  return Object.values(map).sort((a,b)=> (b.itens.length - a.itens.length) || a.nome.localeCompare(b.nome,'pt-BR'));
+}
+
+function renderLista(){
+  document.getElementById('loading').style.display = 'none';
+  const area = document.getElementById('area-relatorio');
+  area.style.display = 'block';
+
+  if(!filtradas.length){
+    area.innerHTML = '<div class="vazio"><span>📭</span>Nenhuma ocorrência encontrada com os filtros selecionados.</div>';
+    return;
+  }
+
+  const grupos = agruparPorServidor(filtradas);
+
+  area.innerHTML = grupos.map(g => {
+    const tipos = {};
+    g.itens.forEach(x => tipos[x.tipo||'N/I'] = (tipos[x.tipo||'N/I']||0)+1);
+    const top = Object.entries(tipos).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+    const badges = `
+      <div class="badges">
+        <span class="badge badge-total">📌 ${g.itens.length} ocorrência(s)</span>
+        ${g.cargo ? `<span class="badge badge-cargo">👔 ${g.cargo}</span>` : ''}
+        ${top.map(t => `<span class="badge badge-tipo">${LABEL_TIPO[t[0]]||t[0]}: ${t[1]}</span>`).join('')}
+      </div>
+    `;
+
+    const itens = g.itens
+      .sort((a,b)=> String(b.criado_em||b.data||'').localeCompare(String(a.criado_em||a.data||'')))
+      .map(o => {
+        const dt = (o.data ? String(o.data).slice(0,10) : (o.criado_em ? String(o.criado_em).slice(0,10) : '—'));
+        const tipo = LABEL_TIPO[o.tipo] || o.tipo || '—';
+        const det = detalheOcorrencia(o);
+        const obs = observacao(o);
+        return `
+          <div class="item">
+            <div class="dt">${dt ? dt.split('-').reverse().join('/') : '—'}</div>
+            <div class="tp">${tipo}</div>
+            <div class="tx">
+              <div>${det || '<span class="small">—</span>'}</div>
+              ${obs ? `<div class="sub">📝 ${obs}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+    return `
+      <div class="grp">
+        <div class="grp-head">
+          <div>
+            <h3>${g.nome}</h3>
+            ${badges}
+          </div>
+        </div>
+        <div class="lista">${itens}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function csvEscape(v){
+  const s = String(v ?? '');
+  if(/[",\n]/.test(s)) return '"' + s.replaceAll('"','""') + '"';
+  return s;
+}
+
+function exportarCSV(){
+  if(!filtradas.length) return;
+  const header = ['servidor_nome','cargo','data','tipo','detalhe','observacao','criado_em'];
+  const lines = [header.join(',')];
+
+  filtradas.forEach(o => {
+    const data = (o.data ? String(o.data).slice(0,10) : (o.criado_em ? String(o.criado_em).slice(0,10) : ''));
+    const row = [
+      o.servidor_nome||'',
+      o.cargo||'',
+      data,
+      LABEL_TIPO[o.tipo] || o.tipo || '',
+      detalheOcorrencia(o),
+      observacao(o),
+      o.criado_em||''
+    ].map(csvEscape).join(',');
+    lines.push(row);
+  });
+
+  const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'relatorio_ocorrencias_servidores_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('fil-inicio').addEventListener('change', aplicarFiltros);
+document.getElementById('fil-fim').addEventListener('change', aplicarFiltros);
+document.getElementById('fil-tipo').addEventListener('change', aplicarFiltros);
+document.getElementById('fil-busca').addEventListener('input', () => {
+  clearTimeout(window._tBusca);
+  window._tBusca = setTimeout(aplicarFiltros, 180);
+});
+
+carregarOcorrencias();
+</script>
+</body>
+</html>

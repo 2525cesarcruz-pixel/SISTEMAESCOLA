@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentos Oficiais — E.M. Getúlio Vargas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="institucional.css">
+  <style>
+    :root { --azul:#1565C0; --azul2:#0D47A1; --borda:#DDE3EC; --cinza:#F0F4F9; --texto:#0F1923; --sub:#5A6880; --erro:#C62828; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--cinza); color: var(--texto); min-height: 100vh; padding-bottom: 40px; }
+    .page-header { background: linear-gradient(135deg, var(--azul), var(--azul2)); color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .page-header h1 { font-size: 1.1rem; font-weight: 800; }
+    .page-header p { font-size: .8rem; opacity: .9; margin-top: 2px; }
+    .btn { border: none; border-radius: 10px; padding: 10px 18px; font-size: .85rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: .2s; }
+    .btn-sec { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.4); }
+    .btn-verde { background: #2E7D32; color: #fff; }
+    .btn-verde:hover { background: #1B5E20; }
+    .conteudo { max-width: 920px; margin: 0 auto; padding: 24px 16px; }
+    .nav-docs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .nav-docs .btn { background: #fff; color: var(--azul); border: 1.5px solid var(--borda); }
+    .nav-docs .btn.ativo { background: var(--azul); color: #fff; }
+    .card { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,.06); border: 1px solid var(--borda); margin-bottom: 20px; padding: 20px; }
+    .card h3 { font-size: .95rem; margin-bottom: 14px; color: var(--azul2); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .campo { margin-bottom: 12px; }
+    .campo.full { grid-column: 1 / -1; }
+    .campo label { display: block; font-size: .72rem; font-weight: 700; color: var(--sub); margin-bottom: 4px; }
+    .campo input, .campo select, .campo textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--borda); border-radius: 8px; font-size: .9rem; font-family: inherit; }
+    .campo textarea { min-height: 100px; resize: vertical; }
+    .doc-actions-bar { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .msg.erro { background: #FFEBEE; color: var(--erro); padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: .85rem; }
+    #preview-area { width: 100%; }
+    #doc { margin: 24px auto 0; width: 100%; max-width: 210mm; min-width: 280px; background: #fff; box-shadow: 0 2px 20px rgba(0,0,0,.12); border-radius: 4px; overflow: hidden; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase-auth.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="institucional.js"></script>
+  <script>
+    (async function(){
+      const u = await (window.PortalAuth && PortalAuth.requireLogin ? PortalAuth.requireLogin(['diretor', 'secretaria', 'coordenacao']) : Promise.resolve(null));
+      if (!u) return;
+    })();
+  </script>
+
+  <div class="page-header">
+    <div>
+      <h1>📄 Documentos Oficiais</h1>
+      <p>E.M. Getúlio Vargas — Nova Ubiratã/MT · Emissão e impressão</p>
+    </div>
+    <button class="btn btn-sec" onclick="window.location.href='index.html'">🏠 Voltar ao Portal</button>
+  </div>
+
+  <div class="conteudo">
+    <div id="msg" class="msg erro hidden"></div>
+    <div class="nav-docs" id="nav-docs"></div>
+    <div id="form-area" class="card"></div>
+    <div id="preview-area" class="hidden">
+      <div class="doc-actions-bar">
+        <button class="btn btn-verde" onclick="imprimirDocumento()">🖨 Imprimir / Salvar PDF</button>
+        <button class="btn btn-sec" onclick="novaEmissao()">Nova emissão</button>
+      </div>
+      <div id="doc"></div>
+    </div>
+  </div>
+
+  <script>
+    const TIPOS = [
+      { id: 'atestado_vagas', label: 'Atestado de Vagas', assinantes: ['secretario'] },
+      { id: 'atestado_matricula', label: 'Atestado de Matrícula', assinantes: ['diretora', 'secretario'] },
+      { id: 'declaracao_matricula', label: 'Declaração de Matrícula', assinantes: ['diretora'] },
+      { id: 'declaracao_frequencia', label: 'Declaração de Frequência', assinantes: ['diretora'] },
+      { id: 'oficio', label: 'Ofício', assinantes: ['diretora', 'coordenadora', 'secretario'] },
+      { id: 'documento_livre', label: 'Documento Livre', assinantes: ['diretora', 'coordenadora', 'secretario'] }
+    ];
+
+    const TEXTOS_FIXOS = {
+      atestado_vagas: 'Atesto, para os devidos fins e efeitos legais, que há vaga nesta Instituição de Ensino para o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, filho(a) de {NOME_PAI} e {NOME_MAE}, a ser matriculado(a) no {ANO_SERIE}, no período {TURNO}, referente ao ano letivo de {ANO_LETIVO}. Sem mais para o momento, firmo o presente atestado. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      atestado_matricula: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, natural de {NATURALIDADE}, filho(a) de {NOME_PAI} e {NOME_MAE}, encontra-se regularmente matriculado(a) nesta unidade educacional desde {DATA_MATRICULA}. Informamos que o(a) referido(a) aluno(a) está cursando {ETAPA_SERIE} da Educação Infantil/Ensino Fundamental, frequentando regularmente as aulas. Por ser verdade, datamos e assinamos o presente documento. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      declaracao_matricula: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, filho(a) de {NOME_PAI} e {NOME_MAE}, encontra-se regularmente matriculado(a) nesta unidade escolar, cursando {ETAPA_SERIE}, no turno {TURNO}, no ano letivo de {ANO_LETIVO}. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      declaracao_frequencia: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME} esteve presente às aulas no período de {DATA_INICIO} a {DATA_FIM}, cursando {ETAPA_SERIE} nesta unidade escolar. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      oficio: 'OFÍCIO Nº {NUMERO}/{ANO}/EMGV\n\nNova Ubiratã/MT, {DATA_ATUAL}.\n\nAo(À) {DESTINATARIO}\n{CARGO_DESTINATARIO}\n{INSTITUICAO}\n\nAssunto: {ASSUNTO}\n\nSenhor(a),\n\n{CORPO_DO_OFICIO}\n\nSem mais para o momento, renovamos votos de estima e consideração.\n\nAtenciosamente,'
+    };
+
+    let tipoAtual = 'atestado_vagas';
+    let autoridades = [];
+    let matriculas = [];
+    let documentoEmitido = null;
+    let usuarioLogado = null;
+
+    function showMsg(text, isError) {
+      const el = document.getElementById('msg');
+      el.textContent = text;
+      el.className = 'msg ' + (isError ? 'erro' : '');
+      el.classList.remove('hidden');
+      if (!isError) setTimeout(function() { el.classList.add('hidden'); }, 4000);
+    }
+
+    function hideMsg() {
+      document.getElementById('msg').classList.add('hidden');
+    }
+
+    async function carregarDados() {
+      try {
+        const [aut, mat] = await Promise.all([
+          window.supaFetch('/rest/v1/autoridades_assinantes?select=*&order=cargo.asc'),
+          window.supaFetch('/rest/v1/matriculas?select=id,dados').catch(function() { return []; })
+        ]);
+        autoridades = Array.isArray(aut) ? aut : [];
+        matriculas = Array.isArray(mat) ? mat : [];
+        matriculas = matriculas.filter(function(m) { return m && (m.dados || m.id); }).map(function(m) {
+          const d = m.dados || {};
+          return { id: m.id, nome: d.nome || '', data_nascimento: d.data_nascimento || d.nascimento, naturalidade: d.naturalidade || '', nome_pai: d.nome_pai || d.responsavel, nome_mae: d.nome_mae || '', etapa: d.etapa, turno: d.turno, turma: d.turma, anoLetivo: d.anoLetivo };
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function dataAtualStr() {
+      return new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+
+    function renderNav() {
+      const nav = document.getElementById('nav-docs');
+      nav.textContent = '';
+      TIPOS.forEach(function(t) {
+        const b = document.createElement('button');
+        b.className = 'btn' + (tipoAtual === t.id ? ' ativo' : '');
+        b.textContent = t.label;
+        b.onclick = function() { tipoAtual = t.id; hideMsg(); renderForm(); };
+        nav.appendChild(b);
+      });
+    }
+
+    function renderForm() {
+      renderNav();
+      const area = document.getElementById('form-area');
+      area.classList.remove('hidden');
+      document.getElementById('preview-area').classList.add('hidden');
+      area.textContent = '';
+      const t = TIPOS.find(function(x) { return x.id === tipoAtual; });
+      if (!t) return;
+
+      const h3 = document.createElement('h3');
+      h3.textContent = t.label;
+      area.appendChild(h3);
+      const grid = document.createElement('div');
+      grid.className = 'form-grid';
+
+      if (tipoAtual === 'atestado_vagas') {
+        adicionarCampo(grid, 'Nome do aluno', 'nome', 'text');
+        adicionarCampo(grid, 'Data de nascimento', 'data_nasc', 'text', 'Ex: 01/01/2015');
+        adicionarCampo(grid, 'Nome do pai', 'nome_pai', 'text');
+        adicionarCampo(grid, 'Nome da mãe', 'nome_mae', 'text');
+        adicionarCampo(grid, 'Ano/Série', 'ano_serie', 'text', 'Ex: 1º Ano');
+        adicionarCampo(grid, 'Turno', 'turno', 'text', 'Matutino/Vespertino');
+        adicionarCampo(grid, 'Ano letivo', 'ano_letivo', 'text', '2026');
+        adicionarCampo(grid, 'Observação (opcional, máx. 500)', 'observacao', 'textarea');
+        adicionarAssinanteSelect(grid, ['secretario']);
+      } else if (tipoAtual === 'atestado_matricula') {
+        const sel = document.createElement('div');
+        sel.className = 'campo full';
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Matrícula do aluno';
+        const select = document.createElement('select');
+        select.id = 'campo_matricula_id';
+        const opt0 = document.createElement('option');
+        opt0.value = '';
+        opt0.textContent = 'Selecione uma matrícula';
+        select.appendChild(opt0);
+        matriculas.forEach(function(m) {
+          const opt = document.createElement('option');
+          opt.value = m.id;
+          opt.textContent = (m.nome || 'Sem nome') + ' — ' + (m.etapa || '') + ' ' + (m.turma || '');
+          select.appendChild(opt);
+        });
+        sel.appendChild(lbl);
+        sel.appendChild(select);
+        grid.appendChild(sel);
+        adicionarCampo(grid, 'Observação (opcional)', 'observacao', 'textarea');
+        adicionarAssinanteSelect(grid, ['diretora', 'secretario']);
+      } else if (tipoAtual === 'declaracao_matricula') {
+        const sel = document.createElement('div');
+        sel.className = 'campo full';
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Matrícula do aluno';
+        const select = document.createElement('select');
+        select.id = 'campo_matricula_id';
+        const opt0 = document.createElement('option');
+        opt0.value = '';
+        opt0.textContent = 'Selecione uma matrícula';
+        select.appendChild(opt0);
+        matriculas.forEach(function(m) {
+          const opt = document.createElement('option');
+          opt.value = m.id;
+          opt.textContent = (m.nome || 'Sem nome') + ' — ' + (m.etapa || '') + ' ' + (m.turma || '');
+          select.appendChild(opt);
+        });
+        sel.appendChild(lbl);
+        sel.appendChild(select);
+        grid.appendChild(sel);
+        adicionarCampo(grid, 'Observação (opcional)', 'observacao', 'textarea');
+        adicionarAssinanteSelect(grid, ['diretora']);
+      } else if (tipoAtual === 'declaracao_frequencia') {
+        const sel = document.createElement('div');
+        sel.className = 'campo full';
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Matrícula do aluno';
+        const select = document.createElement('select');
+        select.id = 'campo_matricula_id';
+        const opt0 = document.createElement('option');
+        opt0.value = '';
+        opt0.textContent = 'Selecione uma matrícula';
+        select.appendChild(opt0);
+        matriculas.forEach(function(m) {
+          const opt = document.createElement('option');
+          opt.value = m.id;
+          opt.textContent = (m.nome || 'Sem nome') + ' — ' + (m.etapa || '') + ' ' + (m.turma || '');
+          select.appendChild(opt);
+        });
+        sel.appendChild(lbl);
+        sel.appendChild(select);
+        grid.appendChild(sel);
+        adicionarCampo(grid, 'Data início (período)', 'data_inicio', 'date');
+        adicionarCampo(grid, 'Data fim (período)', 'data_fim', 'date');
+        adicionarCampo(grid, 'Observação (opcional)', 'observacao', 'textarea');
+        adicionarAssinanteSelect(grid, ['diretora']);
+      } else if (tipoAtual === 'oficio') {
+        adicionarCampo(grid, 'Destinatário', 'destinatario', 'text');
+        adicionarCampo(grid, 'Cargo do destinatário', 'cargo_destinatario', 'text');
+        adicionarCampo(grid, 'Instituição', 'instituicao', 'text');
+        adicionarCampo(grid, 'Assunto', 'assunto', 'text');
+        const corpo = document.createElement('div');
+        corpo.className = 'campo full';
+        const lc = document.createElement('label');
+        lc.textContent = 'Corpo do ofício';
+        const ta = document.createElement('textarea');
+        ta.id = 'campo_corpo_oficio';
+        ta.placeholder = 'Texto do ofício...';
+        corpo.appendChild(lc);
+        corpo.appendChild(ta);
+        grid.appendChild(corpo);
+        adicionarCampo(grid, 'Observação (opcional)', 'observacao', 'textarea');
+        adicionarAssinanteSelect(grid, ['diretora', 'coordenadora', 'secretario'], true);
+      } else if (tipoAtual === 'documento_livre') {
+        adicionarCampo(grid, 'Título do documento', 'titulo_doc', 'text', 'DOCUMENTO OFICIAL — MODELO LIVRE');
+        const corpo = document.createElement('div');
+        corpo.className = 'campo full';
+        const lc = document.createElement('label');
+        lc.textContent = 'Corpo do documento';
+        const ta = document.createElement('textarea');
+        ta.id = 'campo_corpo_livre';
+        ta.placeholder = 'Conteúdo do documento...';
+        corpo.appendChild(lc);
+        corpo.appendChild(ta);
+        grid.appendChild(corpo);
+        adicionarCampo(grid, 'Observação (opcional)', 'observacao', 'textarea');
+        adicionarAssinanteSelect(grid, ['diretora', 'coordenadora', 'secretario'], true);
+      }
+      area.appendChild(grid);
+
+      const btnEmitir = document.createElement('button');
+      btnEmitir.className = 'btn btn-verde';
+      btnEmitir.style.marginTop = '16px';
+      btnEmitir.textContent = 'Gerar prévia e emitir';
+      btnEmitir.onclick = gerarEmitir;
+      area.appendChild(btnEmitir);
+    }
+
+    function adicionarCampo(grid, label, id, type, placeholder) {
+      const div = document.createElement('div');
+      div.className = 'campo';
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      const inp = type === 'textarea' ? document.createElement('textarea') : document.createElement('input');
+      inp.type = type;
+      inp.id = 'campo_' + id;
+      if (placeholder) inp.placeholder = placeholder;
+      div.appendChild(lbl);
+      div.appendChild(inp);
+      grid.appendChild(div);
+    }
+
+    function adicionarAssinanteSelect(grid, cargos, escolhaUnica) {
+      cargos.forEach(function(cargo) {
+        const aut = autoridades.find(function(a) { return a.cargo === cargo && a.ativo; });
+        if (!aut) return;
+        const div = document.createElement('div');
+        div.className = 'campo full';
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Assinatura: ' + (cargo === 'diretora' ? 'Diretora' : cargo === 'secretario' ? 'Secretário(a)' : 'Coordenadora');
+        const sel = document.createElement('select');
+        sel.id = 'modo_assinatura_' + cargo;
+        const optF = document.createElement('option');
+        optF.value = 'FISICA';
+        optF.textContent = 'Assinatura física (linha)';
+        const optD = document.createElement('option');
+        optD.value = 'DIGITAL';
+        optD.textContent = 'Assinatura digital (PNG)';
+        sel.appendChild(optF);
+        sel.appendChild(optD);
+        if (aut.assinatura_png_path) sel.value = 'DIGITAL';
+        div.appendChild(lbl);
+        div.appendChild(sel);
+        grid.appendChild(div);
+      });
+      if (escolhaUnica && cargos.length > 1) {
+        const div = document.createElement('div');
+        div.className = 'campo full';
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Quem assina o ofício/documento';
+        const sel = document.createElement('select');
+        sel.id = 'campo_assinante_unico';
+        cargos.forEach(function(c) {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c === 'diretora' ? 'Diretora' : c === 'secretario' ? 'Secretário(a)' : 'Coordenadora';
+          sel.appendChild(opt);
+        });
+        div.appendChild(lbl);
+        div.appendChild(sel);
+        grid.appendChild(div);
+      }
+    }
+
+    function getVal(id) {
+      const el = document.getElementById(id);
+      return el ? (el.value || '').trim() : '';
+    }
+
+    function coletarDadosForm() {
+      const dados = {};
+      const t = TIPOS.find(function(x) { return x.id === tipoAtual; });
+      if (tipoAtual === 'atestado_vagas') {
+        dados.nome = getVal('campo_nome');
+        dados.data_nasc = getVal('campo_data_nasc');
+        dados.nome_pai = getVal('campo_nome_pai');
+        dados.nome_mae = getVal('campo_nome_mae');
+        dados.ano_serie = getVal('campo_ano_serie');
+        dados.turno = getVal('campo_turno');
+        dados.ano_letivo = getVal('campo_ano_letivo');
+        dados.observacao = (getVal('campo_observacao') || '').slice(0, 500);
+      } else if (tipoAtual === 'atestado_matricula' || tipoAtual === 'declaracao_matricula') {
+        const matId = getVal('campo_matricula_id');
+        const mat = matriculas.find(function(m) { return String(m.id) === String(matId); });
+        if (!mat && tipoAtual === 'atestado_matricula') { showMsg('Selecione uma matrícula.', true); return null; }
+        if (!mat && tipoAtual === 'declaracao_matricula') { showMsg('Selecione uma matrícula.', true); return null; }
+        dados.referencia_id = matId;
+        dados.nome = mat ? mat.nome : '';
+        dados.data_nasc = mat ? (mat.data_nascimento || '') : '';
+        dados.naturalidade = mat ? (mat.naturalidade || '') : '';
+        dados.nome_pai = mat ? (mat.nome_pai || '') : '';
+        dados.nome_mae = mat ? (mat.nome_mae || '') : '';
+        dados.etapa_serie = mat ? (mat.etapa || '') + (mat.turma ? ' ' + mat.turma : '') : '';
+        dados.turno = mat ? (mat.turno || '') : '';
+        dados.ano_letivo = mat ? (mat.anoLetivo || '') : '';
+        dados.data_matricula = ''; // pode ser preenchido se tiver no mat
+        dados.observacao = (getVal('campo_observacao') || '').slice(0, 500);
+      } else if (tipoAtual === 'declaracao_frequencia') {
+        const matId = getVal('campo_matricula_id');
+        const mat = matriculas.find(function(m) { return String(m.id) === String(matId); });
+        if (!mat) { showMsg('Selecione uma matrícula.', true); return null; }
+        dados.referencia_id = matId;
+        dados.nome = mat.nome;
+        dados.data_inicio = getVal('campo_data_inicio');
+        dados.data_fim = getVal('campo_data_fim');
+        dados.etapa_serie = (mat.etapa || '') + (mat.turma ? ' ' + mat.turma : '');
+        dados.observacao = (getVal('campo_observacao') || '').slice(0, 500);
+      } else if (tipoAtual === 'oficio') {
+        dados.destinatario = getVal('campo_destinatario');
+        dados.cargo_destinatario = getVal('campo_cargo_destinatario');
+        dados.instituicao = getVal('campo_instituicao');
+        dados.assunto = getVal('campo_assunto');
+        dados.corpo_oficio = getVal('campo_corpo_oficio');
+        dados.observacao = (getVal('campo_observacao') || '').slice(0, 500);
+        const assUnico = getVal('campo_assinante_unico');
+        dados.assinante_oficio = assUnico || 'diretora';
+      } else if (tipoAtual === 'documento_livre') {
+        dados.titulo_doc = getVal('campo_titulo_doc') || 'DOCUMENTO OFICIAL — MODELO LIVRE';
+        dados.corpo_livre = getVal('campo_corpo_livre');
+        dados.observacao = (getVal('campo_observacao') || '').slice(0, 500);
+        dados.assinante_livre = getVal('campo_assinante_unico') || 'diretora';
+      }
+      return dados;
+    }
+
+    function montarAssinaturasSnapshot() {
+      const snapshot = [];
+      const t = TIPOS.find(function(x) { return x.id === tipoAtual; });
+      let cargosUsar = t.assinantes;
+      if (tipoAtual === 'oficio' || tipoAtual === 'documento_livre') {
+        const unico = getVal('campo_assinante_unico');
+        cargosUsar = unico ? [unico] : [t.assinantes[0]];
+      }
+      for (let i = 0; i < cargosUsar.length; i++) {
+        const cargo = cargosUsar[i];
+        const aut = autoridades.find(function(a) { return a.cargo === cargo && a.ativo; });
+        if (!aut) continue;
+        const modoEl = document.getElementById('modo_assinatura_' + cargo);
+        const modo = modoEl ? modoEl.value : 'FISICA';
+        if (modo === 'DIGITAL' && !aut.assinatura_png_path) {
+          showMsg('Assinatura digital não cadastrada para ' + cargo + '. Cadastre em Autoridades ou use assinatura física.', true);
+          return null;
+        }
+        snapshot.push({
+          cargo: aut.cargo,
+          nome: aut.nome,
+          carimbo_linha1: aut.carimbo_linha1,
+          carimbo_linha2: aut.carimbo_linha2,
+          carimbo_linha3: aut.carimbo_linha3,
+          modo_assinatura: modo,
+          assinatura_png_path: modo === 'DIGITAL' ? aut.assinatura_png_path : null
+        });
+      }
+      return snapshot;
+    }
+
+    async function proximoNumero(tipo, ano) {
+      const url = '/rest/v1/documentos_emitidos?tipo=eq.' + encodeURIComponent(tipo) + '&ano=eq.' + ano + '&select=numero&order=numero.desc&limit=1';
+      const rows = await window.supaFetch(url);
+      const max = (Array.isArray(rows) && rows[0] && rows[0].numero != null) ? parseInt(rows[0].numero, 10) : 0;
+      return max + 1;
+    }
+
+    async function gerarEmitir() {
+      const dados = coletarDadosForm();
+      if (!dados) return;
+      const assinaturas = montarAssinaturasSnapshot();
+      if (!assinaturas || assinaturas.length === 0) {
+        showMsg('Configure as autoridades assinantes em Autoridades Assinantes.', true);
+        return;
+      }
+      const ano = new Date().getFullYear();
+      let numero;
+      for (let tentativa = 0; tentativa < 3; tentativa++) {
+        numero = await proximoNumero(tipoAtual, ano);
+        const userId = window.usuarioLogado && window.usuarioLogado.userId ? window.usuarioLogado.userId : null;
+        const payload = {
+          tipo: tipoAtual,
+          numero: numero,
+          ano: ano,
+          referencia_id: dados.referencia_id || null,
+          dados: { ...dados, assinaturas: assinaturas },
+          emitido_por: userId,
+          status: 'ATIVO'
+        };
+        try {
+          await window.supaFetch('/rest/v1/documentos_emitidos', {
+            method: 'POST',
+            prefer: 'return=representation',
+            body: JSON.stringify(payload)
+          });
+          documentoEmitido = { tipo: tipoAtual, numero, ano, dados: { ...dados, assinaturas } };
+          break;
+        } catch (e) {
+          if (e.message && e.message.indexOf('duplicate') !== -1) continue;
+          showMsg('Erro ao emitir: ' + (e.message || ''), true);
+          return;
+        }
+      }
+      renderPreview();
+      document.getElementById('form-area').classList.add('hidden');
+      document.getElementById('preview-area').classList.remove('hidden');
+      showMsg('Documento emitido: nº ' + numero + '/' + ano + '. Imprima ou salve em PDF.');
+    }
+
+    function renderPreview() {
+      const d = documentoEmitido;
+      if (!d) return;
+      const tituloDoc = getTituloDocumento(d.tipo);
+      window.InstitucionalLayout.render({ titulo: tituloDoc, orientacao: 'portrait' });
+      const body = document.getElementById('doc-body');
+      body.textContent = '';
+
+      const numeroAno = d.numero + '/' + d.ano;
+      const dataAtual = dataAtualStr();
+      const dados = d.dados;
+
+      let paragrafo = '';
+      if (d.tipo === 'atestado_vagas') {
+        paragrafo = TEXTOS_FIXOS.atestado_vagas
+          .replace(/\{NOME\}/g, dados.nome || '')
+          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
+          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
+          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
+          .replace(/\{ANO_SERIE\}/g, dados.ano_serie || '')
+          .replace(/\{TURNO\}/g, dados.turno || '')
+          .replace(/\{ANO_LETIVO\}/g, dados.ano_letivo || '')
+          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+      } else if (d.tipo === 'atestado_matricula') {
+        paragrafo = TEXTOS_FIXOS.atestado_matricula
+          .replace(/\{NOME\}/g, dados.nome || '')
+          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
+          .replace(/\{NATURALIDADE\}/g, dados.naturalidade || '')
+          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
+          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
+          .replace(/\{DATA_MATRICULA\}/g, dados.data_matricula || '')
+          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
+          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+      } else if (d.tipo === 'declaracao_matricula') {
+        paragrafo = TEXTOS_FIXOS.declaracao_matricula
+          .replace(/\{NOME\}/g, dados.nome || '')
+          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
+          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
+          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
+          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
+          .replace(/\{TURNO\}/g, dados.turno || '')
+          .replace(/\{ANO_LETIVO\}/g, dados.ano_letivo || '')
+          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+      } else if (d.tipo === 'declaracao_frequencia') {
+        paragrafo = TEXTOS_FIXOS.declaracao_frequencia
+          .replace(/\{NOME\}/g, dados.nome || '')
+          .replace(/\{DATA_INICIO\}/g, dados.data_inicio || '')
+          .replace(/\{DATA_FIM\}/g, dados.data_fim || '')
+          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
+          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+      } else if (d.tipo === 'oficio') {
+        paragrafo = TEXTOS_FIXOS.oficio
+          .replace(/\{NUMERO\}/g, String(d.numero))
+          .replace(/\{ANO\}/g, String(d.ano))
+          .replace(/\{DATA_ATUAL\}/g, dataAtual)
+          .replace(/\{DESTINATARIO\}/g, dados.destinatario || '')
+          .replace(/\{CARGO_DESTINATARIO\}/g, dados.cargo_destinatario || '')
+          .replace(/\{INSTITUICAO\}/g, dados.instituicao || '')
+          .replace(/\{ASSUNTO\}/g, dados.assunto || '')
+          .replace(/\{CORPO_DO_OFICIO\}/g, (dados.corpo_oficio || '').replace(/\n/g, '\n\n'));
+      } else if (d.tipo === 'documento_livre') {
+        const tit = document.createElement('div');
+        tit.className = 'doc-titulo-interno';
+        tit.textContent = dados.titulo_doc || 'DOCUMENTO OFICIAL — MODELO LIVRE';
+        body.appendChild(tit);
+        const linhas = (dados.corpo_livre || '').split(/\n\n+|\n/);
+        linhas.forEach(function(linha) {
+          const t = linha.trim();
+          if (!t) return;
+          const p = document.createElement('p');
+          p.textContent = t;
+          body.appendChild(p);
+        });
+      }
+
+      if (paragrafo) {
+        const blocos = paragrafo.split(/\n\n+/);
+        blocos.forEach(function(bloco) {
+          const p = document.createElement('p');
+          p.textContent = bloco.trim();
+          body.appendChild(p);
+        });
+      }
+
+      if (dados.observacao) {
+        const obs = document.createElement('p');
+        obs.style.marginTop = '12px';
+        obs.style.fontSize = '10px';
+        obs.style.color = '#555';
+        obs.textContent = dados.observacao;
+        body.appendChild(obs);
+      }
+
+      const divAss = document.createElement('div');
+      divAss.className = 'doc-assinaturas';
+      (dados.assinaturas || []).forEach(function(a) {
+        const item = document.createElement('div');
+        item.className = 'doc-assinatura-item';
+        if (a.modo_assinatura === 'DIGITAL' && a.assinatura_png_path) {
+          const img = document.createElement('img');
+          img.className = 'doc-assinatura-img';
+          img.alt = 'Assinatura';
+          getSignedUrlAssinatura(a.assinatura_png_path).then(function(url) { img.src = url; }).catch(function() {});
+          item.appendChild(img);
+        } else {
+          const linha = document.createElement('div');
+          linha.className = 'doc-assinatura-linha';
+          item.appendChild(linha);
+        }
+        const nomeEl = document.createElement('div');
+        nomeEl.className = 'doc-assinatura-nome';
+        nomeEl.textContent = a.nome || '';
+        item.appendChild(nomeEl);
+        const carimbo = [a.carimbo_linha1, a.carimbo_linha2, a.carimbo_linha3].filter(Boolean).join(' — ');
+        const carimboEl = document.createElement('div');
+        carimboEl.className = 'doc-assinatura-carimbo';
+        carimboEl.textContent = carimbo;
+        item.appendChild(carimboEl);
+        divAss.appendChild(item);
+      });
+      body.appendChild(divAss);
+    }
+
+    function getTituloDocumento(tipo) {
+      const t = TIPOS.find(function(x) { return x.id === tipo; });
+      return t ? t.label : 'Documento Oficial';
+    }
+
+    async function getSignedUrlAssinatura(path) {
+      const client = window.SupabaseAuth && window.SupabaseAuth.getClient ? window.SupabaseAuth.getClient() : null;
+      if (!client || !client.storage) return '';
+      const { data } = await client.storage.from('assinaturas-oficiais').createSignedUrl(path, 3600);
+      return (data && data.signedUrl) ? data.signedUrl : '';
+    }
+
+    function imprimirDocumento() {
+      if (window.InstitucionalLayout && window.InstitucionalLayout.preparePrint) {
+        window.InstitucionalLayout.preparePrint();
+      } else {
+        window.print();
+      }
+    }
+
+    function novaEmissao() {
+      documentoEmitido = null;
+      document.getElementById('preview-area').classList.add('hidden');
+      renderForm();
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      usuarioLogado = window.usuarioLogado || null;
+      await carregarDados();
+      renderForm();
+    });
+  </script>
+</body>
+</html>
