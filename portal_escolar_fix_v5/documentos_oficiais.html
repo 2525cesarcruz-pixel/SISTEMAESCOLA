@@ -34,6 +34,7 @@
     #doc { margin: 24px auto 0; width: 100%; max-width: 210mm; min-width: 280px; background: #fff; box-shadow: 0 2px 20px rgba(0,0,0,.12); border-radius: 4px; overflow: hidden; }
     .hidden { display: none !important; }
   </style>
+<link rel="stylesheet" href="institucional.css">
 <link rel="stylesheet" href="institucional_documentos.css" data-inst="override">
 </head>
 <body>
@@ -81,7 +82,7 @@
     ];
 
     const TEXTOS_FIXOS = {
-      atestado_vagas: 'Atesto, para os devidos fins e efeitos legais, que há vaga nesta Instituição de Ensino para o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, filho(a) de {NOME_PAI} e {NOME_MAE}, a ser matriculado(a) no {ANO_SERIE}, no período {TURNO}, referente ao ano letivo de {ANO_LETIVO}. Sem mais para o momento, firmo o presente atestado. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      atestado_vagas: 'Atesto, para os devidos fins e efeitos legais, que há vaga nesta Instituição de Ensino para o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, sob responsabilidade de {NOME_RESPONSAVEL}, a ser matriculado(a) na etapa/série {ETAPA_SERIE}, turma {TURMA}, no período {TURNO}, referente ao ano letivo de {ANO_LETIVO}. Sem mais para o momento, firmo o presente atestado. Nova Ubiratã/MT, {DATA_ATUAL}.',
       atestado_matricula: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, natural de {NATURALIDADE}, filho(a) de {NOME_PAI} e {NOME_MAE}, encontra-se regularmente matriculado(a) nesta unidade educacional desde {DATA_MATRICULA}. Informamos que o(a) referido(a) aluno(a) está cursando {ETAPA_SERIE} da Educação Infantil/Ensino Fundamental, frequentando regularmente as aulas. Por ser verdade, datamos e assinamos o presente documento. Nova Ubiratã/MT, {DATA_ATUAL}.',
       declaracao_matricula: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, filho(a) de {NOME_PAI} e {NOME_MAE}, encontra-se regularmente matriculado(a) nesta unidade escolar, cursando {ETAPA_SERIE}, no turno {TURNO}, no ano letivo de {ANO_LETIVO}. Nova Ubiratã/MT, {DATA_ATUAL}.',
       declaracao_frequencia: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME} esteve presente às aulas no período de {DATA_INICIO} a {DATA_FIM}, cursando {ETAPA_SERIE} nesta unidade escolar. Nova Ubiratã/MT, {DATA_ATUAL}.',
@@ -166,12 +167,12 @@
 
       if (tipoAtual === 'atestado_vagas') {
         adicionarCampo(grid, 'Nome do aluno', 'nome', 'text');
-        adicionarCampo(grid, 'Data de nascimento', 'data_nasc', 'text', 'Ex: 01/01/2015');
-        adicionarCampo(grid, 'Nome do pai', 'nome_pai', 'text');
-        adicionarCampo(grid, 'Nome da mãe', 'nome_mae', 'text');
-        adicionarCampo(grid, 'Ano/Série', 'ano_serie', 'text', 'Ex: 1º Ano');
-        adicionarCampo(grid, 'Turno', 'turno', 'text', 'Matutino/Vespertino');
-        adicionarCampo(grid, 'Ano letivo', 'ano_letivo', 'text', '2026');
+        adicionarCampo(grid, 'Data de nascimento', 'data_nasc', 'text', 'DD/MM/AAAA', { maskDataBR: true });
+        adicionarCampo(grid, 'Nome do responsável', 'nome_responsavel', 'text');
+        adicionarSelectCampo(grid, 'Etapa/Série', 'etapa_serie', ['Pré I','Pré II','1º Ano','2º Ano','3º Ano','4º Ano','5º Ano','6º Ano','7º Ano','8º Ano','9º Ano']);
+        adicionarSelectCampo(grid, 'Turma', 'turma', ['A','B','C','D','E'], 'A');
+        adicionarSelectCampo(grid, 'Turno', 'turno', ['Matutino','Vespertino'], 'Matutino');
+        adicionarCampo(grid, 'Ano letivo', 'ano_letivo', 'text', String(new Date().getFullYear()), { defaultValue: String(new Date().getFullYear()) });
         adicionarCampo(grid, 'Observação (opcional, máx. 500)', 'observacao', 'textarea');
         adicionarAssinanteSelect(grid, ['secretario']);
       } else if (tipoAtual === 'atestado_matricula') {
@@ -284,7 +285,11 @@
       area.appendChild(btnEmitir);
     }
 
-    function adicionarCampo(grid, label, id, type, placeholder) {
+    function maskDataBR(v) {
+      return String(v || '').replace(/\D/g, '').slice(0, 8).replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})(\d)/, '$1/$2');
+    }
+
+    function adicionarCampo(grid, label, id, type, placeholder, opts) {
       const div = document.createElement('div');
       div.className = 'campo';
       const lbl = document.createElement('label');
@@ -293,8 +298,33 @@
       inp.type = type;
       inp.id = 'campo_' + id;
       if (placeholder) inp.placeholder = placeholder;
+      if (opts && opts.defaultValue != null) inp.value = String(opts.defaultValue);
+      if (opts && opts.maskDataBR) {
+        inp.inputMode = 'numeric';
+        inp.maxLength = 10;
+        inp.addEventListener('input', function() { inp.value = maskDataBR(inp.value); });
+      }
       div.appendChild(lbl);
       div.appendChild(inp);
+      grid.appendChild(div);
+    }
+
+    function adicionarSelectCampo(grid, label, id, opcoes, defaultValue) {
+      const div = document.createElement('div');
+      div.className = 'campo';
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      const sel = document.createElement('select');
+      sel.id = 'campo_' + id;
+      (opcoes || []).forEach(function(op) {
+        const o = document.createElement('option');
+        o.value = op;
+        o.textContent = op;
+        if (defaultValue != null && String(defaultValue) === String(op)) o.selected = true;
+        sel.appendChild(o);
+      });
+      div.appendChild(lbl);
+      div.appendChild(sel);
       grid.appendChild(div);
     }
 
@@ -351,11 +381,11 @@
       if (tipoAtual === 'atestado_vagas') {
         dados.nome = getVal('campo_nome');
         dados.data_nasc = getVal('campo_data_nasc');
-        dados.nome_pai = getVal('campo_nome_pai');
-        dados.nome_mae = getVal('campo_nome_mae');
-        dados.ano_serie = getVal('campo_ano_serie');
-        dados.turno = getVal('campo_turno');
-        dados.ano_letivo = getVal('campo_ano_letivo');
+        dados.nome_responsavel = getVal('campo_nome_responsavel');
+        dados.etapa_serie = getVal('campo_etapa_serie');
+        dados.turma = getVal('campo_turma') || 'A';
+        dados.turno = getVal('campo_turno') || 'Matutino';
+        dados.ano_letivo = getVal('campo_ano_letivo') || String(new Date().getFullYear());
         dados.observacao = (getVal('campo_observacao') || '').slice(0, 500);
       } else if (tipoAtual === 'atestado_matricula' || tipoAtual === 'declaracao_matricula') {
         const matId = getVal('campo_matricula_id');
@@ -496,7 +526,7 @@
       let paragrafos = [];
       if (d.tipo === 'atestado_vagas') {
         paragrafos = [
-          'Atesto, para os devidos fins e efeitos legais, que há vaga nesta Instituição de Ensino para o(a) aluno(a) <strong>' + escHtml(dados.nome) + '</strong>, nascido(a) em <strong>' + escHtml(dados.data_nasc) + '</strong>, filho(a) de <strong>' + escHtml(dados.nome_pai) + '</strong> e <strong>' + escHtml(dados.nome_mae) + '</strong>, a ser matriculado(a) no <strong>' + escHtml(dados.ano_serie) + '</strong>, no período <strong>' + escHtml(dados.turno) + '</strong>, referente ao ano letivo de <strong>' + escHtml(dados.ano_letivo) + '</strong>.',
+          'Atesto, para os devidos fins e efeitos legais, que há vaga nesta Instituição de Ensino para o(a) aluno(a) <strong>' + escHtml(dados.nome) + '</strong>, nascido(a) em <strong>' + escHtml(dados.data_nasc) + '</strong>, sob responsabilidade de <strong>' + escHtml(dados.nome_responsavel) + '</strong>, a ser matriculado(a) na etapa/série <strong>' + escHtml(dados.etapa_serie) + '</strong>, turma <strong>' + escHtml(dados.turma) + '</strong>, no período <strong>' + escHtml(dados.turno) + '</strong>, referente ao ano letivo de <strong>' + escHtml(dados.ano_letivo) + '</strong>.',
           'Por ser verdade, firmo o presente atestado em <strong>' + escHtml(dataAtual) + '</strong>.'
         ];
       } else if (d.tipo === 'atestado_matricula') {
