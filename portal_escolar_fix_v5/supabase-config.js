@@ -7,11 +7,33 @@
     // Garante também aliases globais
     window.supaFetch = window.supaFetch || window.SupabasePortal.supaFetch;
     window.lerTabelaGenerica = window.lerTabelaGenerica || window.SupabasePortal.lerTabelaGenerica;
+    window.apiFetch = window.apiFetch || window.SupabasePortal.apiFetch;
     return;
   }
 
   const SUPA_URL = "https://efhiwhdnlqipknkmputt.supabase.co";
   const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmaGl3aGRubHFpcGtua21wdXR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjU0NzUsImV4cCI6MjA4NzEwMTQ3NX0.TzLZiRtHeBSVTSVaZ9RnNNNigD-mZ5ZsZp-jTglurNw";
+
+
+  window.API_BASE = (window.SITE_API_BASE || localStorage.getItem("SITE_API_BASE") || "https://sistemaescola-api.<seu-subdominio>.workers.dev");
+
+  async function apiFetch(path, options = {}) {
+    const fullPath = String(path || '');
+    const hasApiBase = !!(window.API_BASE && !window.API_BASE.includes('<seu-subdominio>'));
+
+    if (hasApiBase) {
+      return fetch(window.API_BASE + fullPath, options);
+    }
+
+    // fallback local/dev: usa Supabase direto quando API_BASE não está configurada
+    if (fullPath.startsWith('/supabase/rest/')) {
+      return fetch(SUPA_URL + fullPath.replace('/supabase', ''), options);
+    }
+    if (fullPath.startsWith('/supabase/storage/')) {
+      return fetch(SUPA_URL + fullPath.replace('/supabase', ''), options);
+    }
+    return fetch(fullPath, options);
+  }
 
   async function supaFetch(path, options = {}) {
     const { prefer, headers: extraHeaders, ...rest } = options || {};
@@ -97,8 +119,10 @@
   window.SupabasePortal = {
     supaFetch,
     lerTabelaGenerica,
-    buscarUsuarioPortalPorUsuario
+    buscarUsuarioPortalPorUsuario,
+    apiFetch
   };
   window.supaFetch = supaFetch;
   window.lerTabelaGenerica = lerTabelaGenerica;
+  window.apiFetch = apiFetch;
 })();

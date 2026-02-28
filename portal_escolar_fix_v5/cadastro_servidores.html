@@ -1247,11 +1247,15 @@ async function salvarServidor(){
     const ehNovo = !S._id;
     const registro = {...S, _id: S._id || ('srv_'+Date.now()), _salvoEm: new Date().toLocaleString('pt-BR'), turno: S.turno || null};
     S._id = registro._id;
-    await supaFetch('/rest/v1/servidores', {
+    const salvarRes = await window.apiFetch('/supabase/rest/v1/servidores', {
       method: 'POST',
-      prefer: 'resolution=merge-duplicates,return=minimal',
+      headers: {
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
       body: JSON.stringify({ id: registro._id, dados: registro, atualizado_em: new Date().toISOString() })
     });
+    if(!salvarRes.ok){ const errTxt = await salvarRes.text().catch(()=> ''); throw new Error(`Erro ao salvar servidor (${salvarRes.status}): ${errTxt || salvarRes.statusText}`); }
     showToast((ehNovo ? '✅ Servidor salvo: ' : '🔄 Servidor atualizado: ') + S.nome);
   } catch(e){ console.error(e); showToast('❌ Erro ao salvar. Verifique a conexão.'); }
 }
@@ -1261,7 +1265,8 @@ async function excluirServidor(id){
     // Busca o id real da tabela pelo id do objeto
     const srvRows = await supaFetch('/rest/v1/servidores?select=id,dados&dados->>_id=eq.'+id);
     const idReal = (srvRows && srvRows[0]) ? srvRows[0].id : id;
-    await supaFetch('/rest/v1/servidores?id=eq.' + idReal, { method: 'DELETE' });
+    const delRes = await window.apiFetch('/supabase/rest/v1/servidores?id=eq.' + idReal, { method: 'DELETE' });
+    if(!delRes.ok){ const errTxt = await delRes.text().catch(()=> ''); throw new Error(`Erro ao excluir servidor (${delRes.status}): ${errTxt || delRes.statusText}`); }
     renderPainel();
   } catch(e){ console.error(e); }
 }

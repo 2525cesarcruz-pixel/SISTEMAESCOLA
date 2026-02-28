@@ -305,7 +305,8 @@
       if (!reg || !reg.id) return;
       if (!confirm('Excluir este registro do livro digital?')) return;
       try {
-        await window.supaFetch('/rest/v1/livro_digital_arquivos?id=eq.' + encodeURIComponent(reg.id), { method: 'DELETE' });
+        const delRes = await window.apiFetch('/supabase/rest/v1/livro_digital_arquivos?id=eq.' + encodeURIComponent(reg.id), { method: 'DELETE' });
+        if(!delRes.ok){ const errTxt = await delRes.text().catch(()=> ''); throw new Error(`Excluir registro (${delRes.status}): ${errTxt || delRes.statusText}`); }
         await carregarLista();
       } catch (e) {
         alert('Erro ao excluir registro: ' + (e.message || e));
