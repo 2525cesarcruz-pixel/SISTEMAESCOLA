@@ -1142,6 +1142,22 @@ function atualizarContadorSrv(){
 }
 
 function salvarDossie(){
+  // DOCUMENTAÇÃO (dossiê digital servidor):
+  // - Tabela persistida: public.pastas_digitais_servidores
+  // - Chave de relacionamento: servidor_id
+  // - Payload docs (padrão atual no sistema):
+  //   {
+  //     docs: {
+  //       <tipo_doc>: {
+  //         base64: <dataUrl>,
+  //         isPDF: <bool>,
+  //         nome: <string>,
+  //         tamanho: <string>,
+  //         salvoEm: <string>
+  //       }
+  //     }
+  //   }
+  // Fluxo de upload + gravação está implementado na tela pasta_digital_servidor.html.
   const toast = document.getElementById('toast-dossie');
   toast.classList.remove('hidden');
   setTimeout(()=>{ window.location.href='pasta_digital_servidor.html'; }, 2200);
