@@ -55,6 +55,40 @@ function hasBearer(req: Request): boolean {
   return /^Bearer\s+.+/i.test(auth);
 }
 
+async function handleUpload(req: Request, env: Env): Promise<Response> {
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405, req, env);
+  if (!hasBearer(req)) return json({ error: 'Unauthorized upload without JWT' }, 401, req, env);
+
+  const fd = await req.formData();
+  const file = fd.get('file');
+  const bucket = String(fd.get('bucket') || '').trim();
+  const path = String(fd.get('path') || '').trim().replace(/^\/+/, '');
+
+  if (!(file instanceof File)) return json({ error: 'Campo file é obrigatório (multipart).' }, 400, req, env);
+  if (!bucket) return json({ error: 'Campo bucket é obrigatório.' }, 400, req, env);
+  if (!path) return json({ error: 'Campo path é obrigatório.' }, 400, req, env);
+
+  const uploadUrl = `${env.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/${encodeURIComponent(bucket)}/${path}`;
+  const upRes = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE}`,
+      apikey: env.SUPABASE_SERVICE_ROLE,
+      'Content-Type': file.type || 'application/octet-stream',
+      'x-upsert': 'true'
+    },
+    body: await file.arrayBuffer()
+  });
+
+  if (!upRes.ok) {
+    const txt = await upRes.text().catch(() => '');
+    return json({ error: 'Storage upload failed', status: upRes.status, body: txt }, upRes.status, req, env);
+  }
+
+  const publicUrl = `${env.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/public/${encodeURIComponent(bucket)}/${path}`;
+  return json({ url: publicUrl, path, bucket, size: file.size }, 200, req, env);
+}
+
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
@@ -65,6 +99,10 @@ export default {
 
     if (url.pathname === '/ping') {
       return json({ ok: true, ts: new Date().toISOString() }, 200, req, env);
+    }
+
+    if (url.pathname === '/upload') {
+      return handleUpload(req, env);
     }
 
     const target = buildTarget(url.pathname, env);
