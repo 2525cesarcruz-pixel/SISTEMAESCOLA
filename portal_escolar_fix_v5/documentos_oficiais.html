@@ -469,6 +469,38 @@
       return max + 1;
     }
 
+    function getStorageClient() {
+      return (window.SupabaseAuth && window.SupabaseAuth.getClient) ? window.SupabaseAuth.getClient() : null;
+    }
+
+    async function salvarLivroDigitalStorage(registro, numero, ano) {
+      const client = getStorageClient();
+      if (!client || !client.storage) return '';
+      const bucket = 'pastas-digitais';
+      const fileName = String((registro.tipo || 'documento') + '_' + numero + '_' + ano + '.json').replace(/[^a-zA-Z0-9._-]/g, '_');
+      const path = 'livro_digital/' + ano + '/' + fileName;
+      const payload = JSON.stringify(registro, null, 2);
+      const blob = new Blob([payload], { type: 'application/json' });
+      const up = await client.storage.from(bucket).upload(path, blob, { upsert: true, contentType: 'application/json' });
+      if (up.error) throw new Error('Falha no upload do livro digital: ' + up.error.message);
+      const pub = client.storage.from(bucket).getPublicUrl(path);
+      return (pub && pub.data && pub.data.publicUrl) ? pub.data.publicUrl : '';
+    }
+
+    async function registrarLivroDigitalLinha(ctx) {
+      await window.supaFetch('/rest/v1/livro_digital_arquivos', {
+        method: 'POST',
+        prefer: 'return=representation',
+        body: JSON.stringify({
+          tipo: ctx.tipo,
+          aluno_id: ctx.aluno_id || null,
+          servidor_id: ctx.servidor_id || null,
+          url: ctx.url,
+          meta: ctx.meta || {}
+        })
+      });
+    }
+
     async function gerarEmitir() {
       const dados = coletarDadosForm();
       if (!dados) return;
@@ -492,12 +524,35 @@
           status: 'ATIVO'
         };
         try {
-          await window.supaFetch('/rest/v1/documentos_emitidos', {
+          const createdRows = await window.supaFetch('/rest/v1/documentos_emitidos', {
             method: 'POST',
             prefer: 'return=representation',
             body: JSON.stringify(payload)
           });
+          const created = Array.isArray(createdRows) ? createdRows[0] : null;
           documentoEmitido = { tipo: tipoAtual, numero, ano, dados: { ...dados, assinaturas } };
+
+          try {
+            const urlLivro = await salvarLivroDigitalStorage(documentoEmitido, numero, ano);
+            if (urlLivro) {
+              await registrarLivroDigitalLinha({
+                tipo: tipoAtual,
+                aluno_id: dados.referencia_id || null,
+                servidor_id: null,
+                url: urlLivro,
+                meta: {
+                  numero: numero,
+                  ano: ano,
+                  documento_emitido_id: created ? created.id : null,
+                  referencia_id: dados.referencia_id || null,
+                  dados: { ...dados }
+                }
+              });
+            }
+          } catch (eLivro) {
+            console.warn('Livro digital (storage/banco) não persistido:', eLivro);
+          }
+
           break;
         } catch (e) {
           if (e.message && e.message.indexOf('duplicate') !== -1) continue;

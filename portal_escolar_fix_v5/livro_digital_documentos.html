@@ -37,6 +37,7 @@
     .modal-box textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 14px; font-family: inherit; }
     .modal-box .btns { display: flex; gap: 10px; justify-content: flex-end; }
   </style>
+<link rel="stylesheet" href="institucional.css">
 <link rel="stylesheet" href="institucional_documentos.css" data-inst="override">
 </head>
 <body>
@@ -56,7 +57,7 @@
   <div class="page-header no-print">
     <div>
       <h1>📒 Livro Digital de Documentos</h1>
-      <p>E.M. Getúlio Vargas — Nova Ubiratã/MT · Registro municipal · Visualizar, reimprimir e inutilizar</p>
+      <p>E.M. Getúlio Vargas — Nova Ubiratã/MT · Registro municipal · Ações: visualizar, baixar e excluir</p>
     </div>
     <button class="btn btn-sec" onclick="window.location.href='index.html'">🏠 Voltar ao Portal</button>
   </div>
@@ -77,6 +78,10 @@
       <select id="fil-ano">
         <option value="">Todos</option>
       </select>
+      <label>Aluno ID</label>
+      <input type="text" id="fil-aluno-id" placeholder="ID do aluno">
+      <label>Servidor ID</label>
+      <input type="text" id="fil-servidor-id" placeholder="ID do servidor">
       <label>Status</label>
       <select id="fil-status">
         <option value="">Todos</option>
@@ -165,7 +170,7 @@
 
     async function carregarLista() {
       try {
-        const rows = await window.supaFetch('/rest/v1/documentos_emitidos?select=id,tipo,numero,ano,referencia_id,dados,criado_em,status&order=criado_em.desc');
+        const rows = await window.supaFetch('/rest/v1/livro_digital_arquivos?select=id,tipo,aluno_id,servidor_id,url,created_at,meta&order=created_at.desc');
         listaDocumentos = Array.isArray(rows) ? rows : [];
         aplicarFiltros();
       } catch (e) {
@@ -174,7 +179,7 @@
         area.textContent = '';
         const p = document.createElement('p');
         p.style.color = 'var(--erro)';
-        p.textContent = 'Erro ao carregar: ' + (e.message || '');
+        p.textContent = 'Erro ao carregar: ' + (e.message || '') + ' — Se a tabela não existir, execute: portal_escolar_fix_v5/sql/20260228_livro_digital_arquivos.sql';
         area.appendChild(p);
       }
     }
@@ -183,23 +188,32 @@
       const tipo = document.getElementById('fil-tipo').value;
       const ano = document.getElementById('fil-ano').value;
       const status = document.getElementById('fil-status').value;
+      const alunoId = (document.getElementById('fil-aluno-id').value || '').trim();
+      const servidorId = (document.getElementById('fil-servidor-id').value || '').trim();
       const dataInicio = document.getElementById('fil-data-inicio').value;
       const dataFim = document.getElementById('fil-data-fim').value;
       const busca = (document.getElementById('fil-busca').value || '').trim().toLowerCase();
 
       let filtrados = listaDocumentos.filter(function(d) {
         if (tipo && d.tipo !== tipo) return false;
-        if (ano && String(d.ano) !== ano) return false;
-        if (status && d.status !== status) return false;
-        const criado = (d.criado_em || '').slice(0, 10);
+        const meta = d.meta || {};
+        const anoReg = String(meta.ano || '').trim();
+        const statusReg = String(meta.status || 'ATIVO').trim();
+        if (ano && anoReg !== ano) return false;
+        if (status && statusReg !== status) return false;
+        if (alunoId && String(d.aluno_id || '') !== alunoId) return false;
+        if (servidorId && String(d.servidor_id || '') !== servidorId) return false;
+        const criado = (d.created_at || '').slice(0, 10);
         if (dataInicio && criado < dataInicio) return false;
         if (dataFim && criado > dataFim) return false;
         if (busca) {
-          const numAno = (d.numero + '/' + d.ano).toLowerCase();
-          const dados = d.dados || {};
+          const numAno = ((meta.numero || '') + '/' + (meta.ano || '')).toLowerCase();
+          const dados = meta.dados || {};
           const nome = (dados.nome || '').toLowerCase();
           const dest = (dados.destinatario || '').toLowerCase();
-          if (numAno.indexOf(busca) === -1 && nome.indexOf(busca) === -1 && dest.indexOf(busca) === -1) return false;
+          const aid = String(d.aluno_id || '').toLowerCase();
+          const sid = String(d.servidor_id || '').toLowerCase();
+          if (numAno.indexOf(busca) === -1 && nome.indexOf(busca) === -1 && dest.indexOf(busca) === -1 && aid.indexOf(busca)===-1 && sid.indexOf(busca)===-1) return false;
         }
         return true;
       });
@@ -217,7 +231,7 @@
       const table = document.createElement('table');
       const thead = document.createElement('thead');
       const thr = document.createElement('tr');
-      ['Nº', 'Tipo', 'Ano', 'Data', 'Status', 'Ações'].forEach(function(t) {
+      ['ID', 'Tipo', 'Ano', 'Data', 'Status', 'Ações'].forEach(function(t) {
         const th = document.createElement('th');
         th.textContent = t;
         thr.appendChild(th);
@@ -231,42 +245,71 @@
       filtrados.forEach(function(d) {
         const tr = document.createElement('tr');
         const tdNum = document.createElement('td');
-        tdNum.textContent = d.numero + '/' + d.ano;
+        const meta = d.meta || {};
+        tdNum.textContent = d.id;
         tr.appendChild(tdNum);
         const tdTipo = document.createElement('td');
         tdTipo.textContent = TIPOS_LABEL[d.tipo] || d.tipo;
         tr.appendChild(tdTipo);
         const tdAno = document.createElement('td');
-        tdAno.textContent = d.ano;
+        tdAno.textContent = meta.ano || '—';
         tr.appendChild(tdAno);
         const tdData = document.createElement('td');
-        tdData.textContent = (d.criado_em || '').slice(0, 10);
+        tdData.textContent = (d.created_at || '').slice(0, 10);
         tr.appendChild(tdData);
         const tdStatus = document.createElement('td');
         const badge = document.createElement('span');
-        badge.className = 'badge ' + (d.status === 'ATIVO' ? 'badge-ativo' : 'badge-inutilizado');
-        badge.textContent = d.status || 'ATIVO';
+        const statusReg = (meta.status || 'ATIVO');
+        badge.className = 'badge ' + (statusReg === 'ATIVO' ? 'badge-ativo' : 'badge-inutilizado');
+        badge.textContent = statusReg;
         tdStatus.appendChild(badge);
         tr.appendChild(tdStatus);
         const tdAcoes = document.createElement('td');
         const btnVer = document.createElement('button');
         btnVer.className = 'btn btn-sec';
-        btnVer.textContent = 'Ver / Reimprimir';
-        btnVer.onclick = function() { abrirReimpressao(d); };
+        btnVer.textContent = 'Visualizar';
+        btnVer.onclick = function() { if (d.url) window.open(d.url, '_blank'); };
         tdAcoes.appendChild(btnVer);
-        if (d.status === 'ATIVO' && podeInutilizar) {
-          const btnInut = document.createElement('button');
-          btnInut.className = 'btn btn-vermelho';
-          btnInut.style.marginLeft = '8px';
-          btnInut.textContent = 'Inutilizar';
-          btnInut.onclick = function() { abrirModalInutilizar(d); };
-          tdAcoes.appendChild(btnInut);
+
+        const btnBaixar = document.createElement('button');
+        btnBaixar.className = 'btn btn-verde';
+        btnBaixar.style.marginLeft = '8px';
+        btnBaixar.textContent = 'Baixar';
+        btnBaixar.onclick = function() { baixarRegistro(d); };
+        tdAcoes.appendChild(btnBaixar);
+
+        if (podeInutilizar) {
+          const btnExc = document.createElement('button');
+          btnExc.className = 'btn btn-vermelho';
+          btnExc.style.marginLeft = '8px';
+          btnExc.textContent = 'Excluir';
+          btnExc.onclick = function() { excluirRegistro(d); };
+          tdAcoes.appendChild(btnExc);
         }
         tr.appendChild(tdAcoes);
         tbody.appendChild(tr);
       });
       table.appendChild(tbody);
       area.appendChild(table);
+    }
+
+    function baixarRegistro(reg) {
+      if (!reg || !reg.url) return;
+      const a = document.createElement('a');
+      a.href = reg.url;
+      a.download = (reg.tipo || 'documento') + '_' + ((reg.meta && reg.meta.ano) || new Date().getFullYear()) + '.json';
+      a.click();
+    }
+
+    async function excluirRegistro(reg) {
+      if (!reg || !reg.id) return;
+      if (!confirm('Excluir este registro do livro digital?')) return;
+      try {
+        await window.supaFetch('/rest/v1/livro_digital_arquivos?id=eq.' + encodeURIComponent(reg.id), { method: 'DELETE' });
+        await carregarLista();
+      } catch (e) {
+        alert('Erro ao excluir registro: ' + (e.message || e));
+      }
     }
 
     function abrirReimpressao(doc) {
