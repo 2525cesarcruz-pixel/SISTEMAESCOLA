@@ -17,22 +17,65 @@
 
   window.API_BASE = (window.SITE_API_BASE || localStorage.getItem("SITE_API_BASE") || "https://sistemaescola-api.<seu-subdominio>.workers.dev");
 
+  async function getPortalAccessToken() {
+    try {
+      if (window.SupabaseAuth && typeof window.SupabaseAuth.getAccessToken === 'function') {
+        const tk = await window.SupabaseAuth.getAccessToken();
+        if (tk) return tk;
+      }
+    } catch (_) {}
+
+    const lsKeys = ['sb-access-token', 'portal_token'];
+    for (const k of lsKeys) {
+      const v = localStorage.getItem(k);
+      if (v) return v;
+    }
+
+    for (const k of lsKeys) {
+      const v = sessionStorage.getItem(k);
+      if (v) return v;
+    }
+
+    return '';
+  }
+
+  function isWriteMethod(method) {
+    const m = String(method || 'GET').toUpperCase();
+    return m === 'POST' || m === 'PUT' || m === 'PATCH' || m === 'DELETE';
+  }
+
   async function apiFetch(path, options = {}) {
     const fullPath = String(path || '');
     const hasApiBase = !!(window.API_BASE && !window.API_BASE.includes('<seu-subdominio>'));
+    const method = String((options && options.method) || 'GET').toUpperCase();
+    const token = await getPortalAccessToken();
+
+    const headers = {
+      ...(options.headers || {}),
+      ...(token ? { Authorization: 'Bearer ' + token } : {})
+    };
+
+    if (!token && isWriteMethod(method)) {
+      console.warn('[apiFetch] Tentativa de escrita sem token de autenticação:', method, fullPath);
+    }
+
+    const reqOptions = {
+      ...options,
+      headers
+    };
 
     if (hasApiBase) {
-      return fetch(window.API_BASE + fullPath, options);
+      return fetch(window.API_BASE + fullPath, reqOptions);
     }
 
     // fallback local/dev: usa Supabase direto quando API_BASE não está configurada
     if (fullPath.startsWith('/supabase/rest/')) {
-      return fetch(SUPA_URL + fullPath.replace('/supabase', ''), options);
+      return fetch(SUPA_URL + fullPath.replace('/supabase', ''), reqOptions);
     }
     if (fullPath.startsWith('/supabase/storage/')) {
-      return fetch(SUPA_URL + fullPath.replace('/supabase', ''), options);
+      return fetch(SUPA_URL + fullPath.replace('/supabase', ''), reqOptions);
     }
-    return fetch(fullPath, options);
+    return fetch(fullPath, reqOptions);
   }
 
   async function supaFetch(path, options = {}) {
