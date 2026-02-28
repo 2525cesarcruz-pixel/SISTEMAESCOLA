@@ -248,11 +248,14 @@ td.sub{color:var(--sub)}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="supabase-config.js"></script>
 <script>
 // Usando lerTabelaGenerica/supaFetch do supabase-config.js
 let todasMatriculas = [];
 let matriculasFiltradas = [];
+let dadosCarregados = false;
+let carregamentoPromise = null;
 
 const lerMatriculas = () => lerTabelaGenerica('matriculas');
 
@@ -314,25 +317,82 @@ let paginaAtual = 1;
 document.getElementById('data-geracao').textContent =
   new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
 
-(async function init(){
-  try {
-    todasMatriculas = await lerMatriculas();
-    popularFiltros();
-    aplicarFiltros();
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('area-totais').style.display = '';
-    document.getElementById('area-relatorio').style.display = '';
-    document.getElementById('btn-pdf').disabled = false;
-    document.getElementById('btn-imprimir').disabled = false;
-  } catch(e){
-    const load = document.getElementById('loading');
-    load.textContent = '';
-    const span = document.createElement('span'); span.style.fontSize = '2.5rem'; span.textContent = '⚠️'; load.appendChild(span);
-    const p1 = document.createElement('p'); p1.style.cssText = 'color:#C62828;font-weight:700;margin-top:8px'; p1.textContent = 'Erro ao carregar dados'; load.appendChild(p1);
-    const p2 = document.createElement('p'); p2.style.cssText = 'color:var(--sub);font-size:.8rem;margin-top:4px'; p2.textContent = (e && e.message) || String(e); load.appendChild(p2);
-    const btn = document.createElement('button'); btn.className = 'btn btn-branco'; btn.style.cssText = 'margin-top:16px;background:var(--primario2);color:#fff'; btn.textContent = '🔄 Tentar Novamente'; btn.onclick = () => location.reload(); load.appendChild(btn);
-  }
-})();
+function setBotoesAcao(disabled){
+  const btnPdf = document.getElementById('btn-pdf');
+  const btnImp = document.getElementById('btn-imprimir');
+  if(btnPdf) btnPdf.disabled = !!disabled;
+  if(btnImp) btnImp.disabled = !!disabled;
+}
+
+async function esperarDoisFrames(){
+  await new Promise(r => requestAnimationFrame(() => r()));
+  await new Promise(r => requestAnimationFrame(() => r()));
+}
+
+function renderDocumentoInstitucional(){
+  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') return null;
+  const areaTotais = document.getElementById('area-totais');
+  const areaRelatorio = document.getElementById('area-relatorio');
+  const rendered = window.InstitucionalLayout.render({
+    titulo: 'Relatório de Matrículas por Turma',
+    orientacao: 'landscape'
+  });
+  if (!rendered || !rendered.body) return null;
+
+  const body = rendered.body;
+  body.textContent = '';
+  const info = document.createElement('p');
+  info.className = 'doc-meta';
+  info.style.margin = '0 0 10px 0';
+  info.textContent = 'Gerado em: ' + new Date().toLocaleString('pt-BR');
+  body.appendChild(info);
+
+  if (areaTotais) body.appendChild(areaTotais.cloneNode(true));
+  if (areaRelatorio) body.appendChild(areaRelatorio.cloneNode(true));
+
+  const ass = document.createElement('div');
+  ass.className = 'doc-assinaturas';
+  ass.innerHTML = '<div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Direção Escolar</div></div><div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Secretaria Escolar</div></div>';
+  body.appendChild(ass);
+  return rendered.doc;
+}
+
+async function carregarDados(force=false){
+  if (dadosCarregados && !force) return;
+  if (carregamentoPromise && !force) return carregamentoPromise;
+
+  setBotoesAcao(true);
+  carregamentoPromise = (async () => {
+    try {
+      todasMatriculas = await lerMatriculas();
+      if(force){
+        document.getElementById('fil-etapa').innerHTML = '<option value="">Todas</option>';
+        document.getElementById('fil-turma').innerHTML = '<option value="">Todas</option>';
+      }
+      popularFiltros();
+      aplicarFiltros();
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('area-totais').style.display = '';
+      document.getElementById('area-relatorio').style.display = '';
+      dadosCarregados = true;
+      setBotoesAcao(false);
+    } catch(e){
+      const load = document.getElementById('loading');
+      load.textContent = '';
+      const span = document.createElement('span'); span.style.fontSize = '2.5rem'; span.textContent = '⚠️'; load.appendChild(span);
+      const p1 = document.createElement('p'); p1.style.cssText = 'color:#C62828;font-weight:700;margin-top:8px'; p1.textContent = 'Erro ao carregar dados'; load.appendChild(p1);
+      const p2 = document.createElement('p'); p2.style.cssText = 'color:var(--sub);font-size:.8rem;margin-top:4px'; p2.textContent = (e && e.message) || String(e); load.appendChild(p2);
+      const btn = document.createElement('button'); btn.className = 'btn btn-branco'; btn.style.cssText = 'margin-top:16px;background:var(--primario2);color:#fff'; btn.textContent = '🔄 Tentar Novamente'; btn.onclick = () => carregarDados(true); load.appendChild(btn);
+      throw e;
+    } finally {
+      carregamentoPromise = null;
+    }
+  })();
+
+  return carregamentoPromise;
+}
+
+carregarDados();
 
 // ── FILTROS ───────────────────────────────────────────────────────────────
 function popularFiltros(){
@@ -400,6 +460,7 @@ function aplicarFiltros(){
   paginaAtual = 1;
   renderTotais();
   renderRelatorio();
+  renderDocumentoInstitucional();
 }
 
 // ── INDICADORES (cards) — números seguros (contagens), não dados do banco ───
@@ -594,234 +655,112 @@ function renderRelatorio(){
 }
 
 // ── IMPRIMIR (padrão municipal: apenas #doc) ─────────────────────────────────
-function imprimirRelatorioMatriculas() {
-  const areaTotais = document.getElementById('area-totais');
-  const areaRelatorio = document.getElementById('area-relatorio');
-  if (!areaTotais && !areaRelatorio) return;
-  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') {
-    window.print();
+async function imprimirRelatorioMatriculas() {
+  await carregarDados();
+  await esperarDoisFrames();
+  renderDocumentoInstitucional();
+  await esperarDoisFrames();
+
+  if (window.InstitucionalLayout && typeof window.InstitucionalLayout.preparePrint === 'function') {
+    window.InstitucionalLayout.preparePrint();
     return;
   }
-  const { body } = window.InstitucionalLayout.render({
-    titulo: 'Relatório de Matrículas por Turma',
-    orientacao: 'landscape'
-  });
-  if (body) {
-    body.textContent = '';
-    if (areaTotais) body.appendChild(areaTotais.cloneNode(true));
-    if (areaRelatorio) body.appendChild(areaRelatorio.cloneNode(true));
-  
-    const ass = document.createElement('div');
-    ass.className = 'doc-assinaturas';
-    ass.innerHTML = '<div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Direção Escolar</div></div><div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Secretaria Escolar</div></div>';
-    body.appendChild(ass);
-  }
-  window.InstitucionalLayout.preparePrint();
+  window.print();
 }
 
 // ── GERAR PDF ─────────────────────────────────────────────────────────────
 async function gerarPDF(){
   const btn = document.getElementById('btn-pdf');
-  btn.disabled = true;
-  btn.textContent = '⏳ Gerando...';
+  const oldTxt = btn ? btn.textContent : '⬇ Baixar PDF';
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Gerando...'; }
 
   try {
+    await carregarDados();
+    await esperarDoisFrames();
+    const docEl = renderDocumentoInstitucional();
+    await esperarDoisFrames();
+
+    if (!docEl || !window.jspdf || !window.html2canvas) {
+      throw new Error('Dependências de PDF indisponíveis.');
+    }
+
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-    const W = doc.internal.pageSize.getWidth();
-    let y = 0;
+    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const margin = 8;
+    const usableW = pageW - (margin * 2);
+    const usableH = pageH - (margin * 2);
 
-    const dataHoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
-    const grupos   = agruparPorTurma(matriculasFiltradas);
-    const total    = matriculasFiltradas.length;
-    const masc     = matriculasFiltradas.filter(m => getSexo(m)==='M').length;
-    const fem      = matriculasFiltradas.filter(m => getSexo(m)==='F').length;
-    const nee      = matriculasFiltradas.filter(m => getNEE(m)==='Sim').length;
+    const clone = docEl.cloneNode(true);
+    clone.style.display = 'block';
+    clone.style.position = 'fixed';
+    clone.style.left = '-10000px';
+    clone.style.top = '0';
+    clone.style.width = docEl.offsetWidth ? docEl.offsetWidth + 'px' : '1122px';
+    clone.style.maxWidth = 'none';
+    document.body.appendChild(clone);
 
-    function addCabecalho(){
-      // Fundo institucional
-      doc.setFillColor(21,101,192);
-      doc.rect(0,0,W,32,'F');
-      // Título
-      doc.setTextColor(255,255,255);
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(13);
-      doc.text('RELATÓRIO DE MATRÍCULAS POR TURMA', W/2, 10, {align:'center'});
-      doc.setFontSize(9);
-      doc.setFont('helvetica','normal');
-      doc.text('E. M. Getúlio Vargas — Nova Ubiratã/MT', W/2, 17, {align:'center'});
-      doc.text('Gerado em: ' + dataHoje, W/2, 23, {align:'center'});
-      // Filtros aplicados
-      const ano   = document.getElementById('fil-ano').value;
-      const turno = document.getElementById('fil-turno').value;
-      const etapa = document.getElementById('fil-etapa').value;
-      const filtroStr = [ano&&('Ano: '+ano), turno&&('Turno: '+turno), etapa&&('Etapa: '+etapa)].filter(Boolean).join(' · ') || 'Sem filtros adicionais';
-      doc.text(filtroStr, W/2, 29, {align:'center'});
-      y = 38;
-    }
-
-    function addRodape(){
-      const pg = doc.internal.getCurrentPageInfo().pageNumber;
-      const total = doc.internal.getNumberOfPages();
-      doc.setFillColor(240,244,249);
-      doc.rect(0, 285, W, 12, 'F');
-      doc.setTextColor(90,104,128);
-      doc.setFontSize(7);
-      doc.setFont('helvetica','normal');
-      doc.text('E. M. Getúlio Vargas · Relatório gerado em ' + dataHoje, 14, 292);
-      doc.text('Página ' + pg + ' de ' + total, W-14, 292, {align:'right'});
-    }
-
-    // ── CAPA / RESUMO ────────────────────────────────────────────────────
-    addCabecalho();
-
-    // Resumo geral
-    doc.setFillColor(219,238,255);
-    doc.roundedRect(14, y, W-28, 36, 4, 4, 'F');
-    doc.setTextColor(13,71,161);
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(10);
-    doc.text('RESUMO GERAL', 22, y+8);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(9);
-    doc.setTextColor(21,101,192);
-
-    const cols = [
-      ['Total de Alunos', total],
-      ['Turmas', grupos.length],
-      ['Masculino', masc],
-      ['Feminino', fem],
-      ['Com NEE', nee],
-      ['Mat. Inicial', matriculasFiltradas.filter(m=>m.tipoMatricula==='Inicial').length],
-      ['Rematrícula', matriculasFiltradas.filter(m=>m.tipoMatricula==='Rematricula').length],
-    ];
-
-    const cw = (W-28) / 4;
-    cols.forEach((c,i) => {
-      const col = i % 4;
-      const row = Math.floor(i / 4);
-      const cx = 22 + col * cw;
-      const cy = y + 16 + row * 14;
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(14);
-      doc.setTextColor(21,101,192);
-      doc.text(String(c[1]), cx, cy);
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(7.5);
-      doc.setTextColor(90,104,128);
-      doc.text(c[0], cx, cy+5);
+    const renderCanvas = async (el) => window.html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false
     });
 
-    y += 44;
+    const blocks = [];
+    const header = clone.querySelector('#doc-header');
+    const footer = clone.querySelector('#doc-footer');
+    const body = clone.querySelector('#doc-body');
+    if (header) blocks.push(header);
+    if (body) {
+      Array.from(body.children).forEach(ch => blocks.push(ch));
+    }
+    if (footer) blocks.push(footer);
+    if (!blocks.length) blocks.push(clone);
 
-    // Tabela resumo por turma
-    const resumoRows = grupos.map(g => [
-      g.etapa,
-      g.turno,
-      g.turma,
-      g.alunos.length,
-      g.alunos.filter(a=>getSexo(a)==='M').length,
-      g.alunos.filter(a=>getSexo(a)==='F').length,
-      g.alunos.filter(a=>getNEE(a)==='Sim').length,
-    ]);
+    let y = margin;
+    for (const b of blocks) {
+      const canvas = await renderCanvas(b);
+      const imgW = usableW;
+      const imgH = (canvas.height * imgW) / canvas.width;
 
-    doc.autoTable({
-      startY: y,
-      head: [['Etapa','Turno','Turma','Total','Masc.','Fem.','NEE']],
-      body: resumoRows,
-      foot: [['TOTAL','','', total, masc, fem, nee]],
-      theme: 'grid',
-      headStyles: { fillColor:[21,101,192], textColor:255, fontStyle:'bold', fontSize:8 },
-      footStyles: { fillColor:[219,238,255], textColor:[13,71,161], fontStyle:'bold', fontSize:8 },
-      bodyStyles: { fontSize:8, textColor:[15,25,35] },
-      alternateRowStyles: { fillColor:[247,250,255] },
-      columnStyles:{
-        0:{cellWidth:50}, 1:{cellWidth:28}, 2:{cellWidth:20},
-        3:{halign:'center'}, 4:{halign:'center'}, 5:{halign:'center'}, 6:{halign:'center'}
-      },
-      margin:{left:14, right:14},
-      didDrawPage: addRodape
-    });
-
-    // ── PÁGINAS POR TURMA ────────────────────────────────────────────────
-    grupos.forEach(g => {
-      doc.addPage();
-      addCabecalho();
-
-      // Cabeçalho da turma
-      doc.setFillColor(21,101,192);
-      doc.roundedRect(14, y, W-28, 14, 3, 3, 'F');
-      doc.setTextColor(255,255,255);
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(10);
-      doc.text(`${g.etapa} — Turma ${g.turma} · ${g.turno}`, W/2, y+9, {align:'center'});
-      y += 20;
-
-      const linhas = g.alunos.map((a,i) => [
-        a.nChamada || String(i+1).padStart(2,'0'),
-        getNome(a) || '—',
-        getNascimento(a) || '—',
-        getSexo(a) === 'M' ? 'Masc.' : getSexo(a) === 'F' ? 'Fem.' : '—',
-        a.tipoMatricula === 'Inicial' ? 'Inicial' : a.tipoMatricula === 'Rematricula' ? 'Rematríc.' : '—',
-        getNEE(a) === 'Sim' ? 'Sim' : '—',
-        a.responsavel || '—',
-        a.telResponsavel || '—',
-      ]);
-
-      const masc = g.alunos.filter(a=>getSexo(a)==='M').length;
-      const fem  = g.alunos.filter(a=>getSexo(a)==='F').length;
-      const neeT = g.alunos.filter(a=>getNEE(a)==='Sim').length;
-      const ini  = g.alunos.filter(a=>a.tipoMatricula==='Inicial').length;
-      const rema = g.alunos.filter(a=>a.tipoMatricula==='Rematricula').length;
-
-      doc.autoTable({
-        startY: y,
-        head: [['Nº','Nome do Aluno','Nascimento','Sexo','Tipo','NEE','Responsável','Telefone']],
-        body: linhas,
-        foot: [[
-          '','TOTAL: '+g.alunos.length+' alunos','',
-          masc+'M / '+fem+'F',
-          ini+' ini · '+rema+' rema',
-          neeT > 0 ? neeT+' NEE' : '—','',''
-        ]],
-        theme: 'striped',
-        headStyles: { fillColor:[21,101,192], textColor:255, fontStyle:'bold', fontSize:7.5 },
-        footStyles: { fillColor:[219,238,255], textColor:[13,71,161], fontStyle:'bold', fontSize:7.5 },
-        bodyStyles: { fontSize:8, textColor:[15,25,35] },
-        columnStyles:{
-          0:{cellWidth:10, halign:'center'},
-          1:{cellWidth:46},
-          2:{cellWidth:22},
-          3:{cellWidth:14, halign:'center'},
-          4:{cellWidth:20, halign:'center'},
-          5:{cellWidth:10, halign:'center'},
-          6:{cellWidth:38},
-          7:{cellWidth:24},
-        },
-        margin:{left:14, right:14},
-        didDrawPage: addRodape
-      });
-
-      y = doc.lastAutoTable.finalY + 8;
-    });
-
-    // Adiciona rodapé em todas as páginas
-    const totalPgs = doc.internal.getNumberOfPages();
-    for(let i=1; i<=totalPgs; i++){
-      doc.setPage(i);
-      addRodape();
+      if (imgH <= usableH) {
+        if (y + imgH > pageH - margin) {
+          pdf.addPage();
+          y = margin;
+        }
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin, y, imgW, imgH);
+        y += imgH + 2;
+      } else {
+        // bloco grande: pagina em fatias para evitar página em branco
+        let srcY = 0;
+        const pageSlicePx = Math.floor((usableH * canvas.width) / usableW);
+        while (srcY < canvas.height) {
+          const sliceH = Math.min(pageSlicePx, canvas.height - srcY);
+          const slice = document.createElement('canvas');
+          slice.width = canvas.width;
+          slice.height = sliceH;
+          slice.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+          if (y !== margin) { pdf.addPage(); y = margin; }
+          const outH = (sliceH * usableW) / canvas.width;
+          pdf.addImage(slice.toDataURL('image/png'), 'PNG', margin, y, usableW, outH);
+          srcY += sliceH;
+          if (srcY < canvas.height) pdf.addPage();
+          y = margin;
+        }
+      }
     }
 
-    const nomeArq = `matriculas_${new Date().toISOString().slice(0,10)}.pdf`;
-    doc.save(nomeArq);
+    clone.remove();
+    pdf.save(`matriculas_${new Date().toISOString().slice(0,10)}.pdf`);
 
   } catch(e){
     console.error('PDF erro:', e);
     alert('Erro ao gerar PDF: ' + e.message);
+  } finally {
+    if(btn){ btn.disabled = !dadosCarregados; btn.textContent = oldTxt; }
   }
-
-  btn.disabled = false;
-  btn.textContent = '⬇ Baixar PDF';
 }
 </script>
 </body>
