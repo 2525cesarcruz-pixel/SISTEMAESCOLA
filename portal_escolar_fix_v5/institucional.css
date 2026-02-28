@@ -235,36 +235,33 @@
     display: none !important;
   }
 
-  /* Quando body tem .print-doc-only: esconder toda a UI e mostrar apenas #doc */
-  body.print-doc-only .page-header,
-  body.print-doc-only header:not(.doc-header),
-  body.print-doc-only .nav-docs,
-  body.print-doc-only .card,
-  body.print-doc-only .filtros-bar,
-  body.print-doc-only .doc-actions-bar,
-  body.print-doc-only #msg,
-  body.print-doc-only #form-area,
-  body.print-doc-only #area-relatorio,
-  body.print-doc-only #area-totais,
-  body.print-doc-only #totais-grid,
-  body.print-doc-only #loading,
-  body.print-doc-only .container,
-  body.print-doc-only .kpis,
-  /* .conteudo só quando NÃO contém #doc (relatórios: #doc é irmão) */
-  body.print-doc-only .conteudo:not(:has(#doc)) {
-    display: none !important;
+  /* Contrato explícito de impressão: classes no body/html, sem :has() */
+  html.print-doc-only,
+  body.print-doc-only {
+    background: #fff !important;
   }
-  /* Em páginas onde #doc está dentro de .conteudo, esconder o resto */
-  body.print-doc-only .conteudo:has(#doc) .filtros,
-  body.print-doc-only .conteudo:has(#doc) #lista-area,
-  body.print-doc-only .conteudo:has(#doc) #lista-docs {
-    display: none !important;
+
+  body.print-doc-only * {
+    visibility: hidden;
+  }
+
+  body.print-doc-only #doc,
+  body.print-doc-only #doc *,
+  body.print-doc-only .doc,
+  body.print-doc-only .doc *,
+  body.print-doc-only #preview-area,
+  body.print-doc-only #preview-area * {
+    visibility: visible;
   }
 
   body.print-doc-only #doc,
   body.print-doc-only .doc {
     display: flex !important;
-    margin: 0 auto !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0 !important;
     box-shadow: none !important;
     border: none !important;
   }

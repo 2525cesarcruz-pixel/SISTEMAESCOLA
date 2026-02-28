@@ -138,8 +138,13 @@
    */
   function preparePrint() {
     document.body.classList.add('print-doc-only');
-    window.print();
-    document.body.classList.remove('print-doc-only');
+    document.documentElement.classList.add('print-doc-only');
+    try {
+      window.print();
+    } finally {
+      document.body.classList.remove('print-doc-only');
+      document.documentElement.classList.remove('print-doc-only');
+    }
   }
 
   window.InstitucionalLayout = {
