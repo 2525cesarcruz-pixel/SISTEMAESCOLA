@@ -1,0 +1,11 @@
+{
+  "build_output_dir": "portal_escolar_fix_v5",
+  "deployment_configs": {
+    "preview": {
+      "build_output_dir": "portal_escolar_fix_v5"
+    },
+    "production": {
+      "build_output_dir": "portal_escolar_fix_v5"
+    }
+  }
+}
