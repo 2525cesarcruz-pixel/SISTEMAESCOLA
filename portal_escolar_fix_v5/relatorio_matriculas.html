@@ -4,30 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relatório de Matrículas — E. M. Getúlio Vargas</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="institucional.css">
 <style>
 :root{
-  --azul:#1565C0; --azul2:#0D47A1; --azul3:#1976D2; --azul4:#DBEEFF;
-  --verde:#1B5E20; --verde2:#2E7D32; --verde4:#E8F5E9;
-  --ouro:#F57F17; --ouro2:#FFF8E1;
-  --roxo:#6A1B9A; --roxo2:#EDE7F6;
-  --sub:#5A6880; --borda:#DDE3EC; --cinza:#F0F4F9; --texto:#0F1923;
-  --sombra:0 4px 24px rgba(21,101,192,.10);
+  --primario:#2F2F2F; --primario2:#1E1E1E; --primario3:#50555A; --primario4:#ECEDEF;
+  --verde:#27482D; --verde2:#2E7D32; --verde4:#E8F5E9;
+  --ouro:#8A6A23; --ouro2:#FFF8E1;
+  --roxo:#4B4B4B; --roxo2:#EDE7F6;
+  --sub:#4B5563; --borda:#C8CDD5; --cinza:#F3F3F3; --texto:#0F1923;
+  --sombra:0 4px 18px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:var(--texto);min-height:100vh}
+body{font-family:'Times New Roman',Times,serif;background:var(--cinza);color:var(--texto);min-height:100vh}
 
 /* HEADER */
-.page-header{background:linear-gradient(135deg,var(--azul),var(--azul2));padding:20px 28px;
+.page-header{background:linear-gradient(135deg,var(--primario),var(--primario2));padding:20px 28px;
   display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .page-header h1{color:#fff;font-size:1.1rem;font-weight:800}
 .page-header p{color:rgba(255,255,255,.75);font-size:.78rem;margin-top:2px}
 .header-btns{display:flex;gap:10px;flex-wrap:wrap}
 .btn{border:none;border-radius:10px;padding:10px 20px;font-size:.82rem;font-weight:700;
-  cursor:pointer;transition:.2s;font-family:'Plus Jakarta Sans',sans-serif}
-.btn-branco{background:#fff;color:var(--azul)}
-.btn-branco:hover{background:#e8f0fe}
+  cursor:pointer;transition:.2s;font-family:'Times New Roman',Times,serif}
+.btn-branco{background:#fff;color:var(--primario2)}
+.btn-branco:hover{background:#ececec}
 .btn-verde{background:var(--verde2);color:#fff}
 .btn-verde:hover{background:var(--verde)}
 .btn-sec{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
@@ -40,7 +38,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:va
 .filtros-bar label{font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}
 .filtros-bar select,.filtros-bar input{border:1.5px solid var(--borda);border-radius:8px;
   padding:8px 12px;font-size:.85rem;font-family:inherit;background:#fff;color:var(--texto)}
-.filtros-bar select:focus,.filtros-bar input:focus{outline:none;border-color:var(--azul3)}
+.filtros-bar select:focus,.filtros-bar input:focus{outline:none;border-color:var(--primario3)}
 .filtros-bar .sep{width:1px;height:28px;background:var(--borda);flex-shrink:0}
 
 /* CONTEÚDO */
@@ -49,11 +47,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:va
 /* CARDS DE TOTAIS */
 .totais-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px}
 .total-card{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:var(--sombra);
-  border-top:4px solid var(--azul);text-align:center}
+  border-top:4px solid var(--primario3);text-align:center}
 .total-card.verde{border-top-color:var(--verde2)}
 .total-card.ouro{border-top-color:var(--ouro)}
 .total-card.roxo{border-top-color:var(--roxo)}
-.total-card .num{font-size:2rem;font-weight:800;color:var(--azul);line-height:1}
+.total-card .num{font-size:2rem;font-weight:800;color:var(--primario2);line-height:1}
 .total-card.verde .num{color:var(--verde2)}
 .total-card.ouro .num{color:var(--ouro)}
 .total-card.roxo .num{color:var(--roxo)}
@@ -62,33 +60,33 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:va
 
 /* SEÇÃO DE TURMA */
 .turma-sec{background:#fff;border-radius:16px;box-shadow:var(--sombra);margin-bottom:20px;overflow:hidden}
-.turma-header{background:linear-gradient(135deg,var(--azul),var(--azul3));padding:14px 20px;
+.turma-header{background:linear-gradient(135deg,var(--primario),var(--primario3));padding:14px 20px;
   display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .turma-header h3{color:#fff;font-size:.95rem;font-weight:800}
 .turma-badges{display:flex;gap:8px;flex-wrap:wrap}
 .tbadge{background:rgba(255,255,255,.2);color:#fff;border-radius:99px;
   padding:3px 12px;font-size:.72rem;font-weight:700}
 table{width:100%;border-collapse:collapse}
-thead tr{background:var(--azul4)}
-thead th{padding:10px 14px;font-size:.72rem;font-weight:700;color:var(--azul2);
+thead tr{background:var(--primario4)}
+thead th{padding:10px 14px;font-size:.72rem;font-weight:700;color:var(--primario2);
   text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:2px solid var(--borda)}
 tbody tr{border-bottom:1px solid var(--borda);transition:.15s}
-tbody tr:hover{background:#f7faff}
+tbody tr:hover{background:#f6f6f6}
 tbody tr:last-child{border-bottom:none}
 td{padding:10px 14px;font-size:.83rem}
-td.nchamada{font-weight:800;color:var(--azul);text-align:center;width:48px}
+td.nchamada{font-weight:800;color:var(--primario2);text-align:center;width:48px}
 td.nome{font-weight:600}
 td.sub{color:var(--sub)}
 .badge{display:inline-block;border-radius:99px;padding:2px 9px;font-size:.68rem;font-weight:700}
-.badge-mat{background:var(--azul4);color:var(--azul2)}
+.badge-mat{background:var(--primario4);color:var(--primario2)}
 .badge-rema{background:var(--verde4);color:var(--verde2)}
 .badge-m{background:#FEE2E2;color:#991B1B}
 .badge-f{background:#FCE7F3;color:#9D174D}
 .badge-nee{background:#FEF3C7;color:#92400E}
 
 /* SUBTOTAIS */
-.subtotal-row{background:var(--azul4)!important}
-.subtotal-row td{font-weight:700;font-size:.8rem;color:var(--azul2);padding:8px 14px}
+.subtotal-row{background:var(--primario4)!important}
+.subtotal-row td{font-weight:700;font-size:.8rem;color:var(--primario2);padding:8px 14px}
 
 /* RODAPÉ DE TURMA */
 .turma-footer{padding:10px 20px;background:var(--cinza);display:flex;gap:16px;flex-wrap:wrap}
@@ -97,7 +95,7 @@ td.sub{color:var(--sub)}
 
 /* LOADING */
 #loading{text-align:center;padding:60px 20px}
-.spinner{width:44px;height:44px;border:4px solid var(--borda);border-top-color:var(--azul);
+.spinner{width:44px;height:44px;border:4px solid var(--borda);border-top-color:var(--primario2);
   border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -119,6 +117,7 @@ td.sub{color:var(--sub)}
   td.sub,td:nth-child(5),td:nth-child(6){display:none}
 }
 </style>
+<link rel="stylesheet" href="institucional_documentos.css" data-inst="override">
 </head>
 <body>
 
@@ -137,7 +136,7 @@ td.sub{color:var(--sub)}
 </script>
 
 <!-- HEADER -->
-<div class="page-header">
+<div class="page-header no-print">
   <div>
     <h1>📊 Relatório de Matrículas por Turma</h1>
     <p>E. M. Getúlio Vargas — Nova Ubiratã/MT · <span id="data-geracao"></span></p>
@@ -150,7 +149,7 @@ td.sub{color:var(--sub)}
 </div>
 
 <!-- FILTROS -->
-<div class="filtros-bar">
+<div class="filtros-bar no-print">
   <label>Ano Letivo</label>
   <select id="fil-ano" onchange="aplicarFiltros()">
     <option value="">Todos</option>
@@ -245,7 +244,7 @@ td.sub{color:var(--sub)}
 </div>
 
 <!-- Container para impressão (padrão municipal): apenas #doc é impresso -->
-<div id="doc" class="doc doc--landscape" style="display:none"></div>
+<div id="doc" class="doc doc-a4 doc--landscape" style="display:none"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -331,7 +330,7 @@ document.getElementById('data-geracao').textContent =
     const span = document.createElement('span'); span.style.fontSize = '2.5rem'; span.textContent = '⚠️'; load.appendChild(span);
     const p1 = document.createElement('p'); p1.style.cssText = 'color:#C62828;font-weight:700;margin-top:8px'; p1.textContent = 'Erro ao carregar dados'; load.appendChild(p1);
     const p2 = document.createElement('p'); p2.style.cssText = 'color:var(--sub);font-size:.8rem;margin-top:4px'; p2.textContent = (e && e.message) || String(e); load.appendChild(p2);
-    const btn = document.createElement('button'); btn.className = 'btn btn-branco'; btn.style.cssText = 'margin-top:16px;background:var(--azul);color:#fff'; btn.textContent = '🔄 Tentar Novamente'; btn.onclick = () => location.reload(); load.appendChild(btn);
+    const btn = document.createElement('button'); btn.className = 'btn btn-branco'; btn.style.cssText = 'margin-top:16px;background:var(--primario2);color:#fff'; btn.textContent = '🔄 Tentar Novamente'; btn.onclick = () => location.reload(); load.appendChild(btn);
   }
 })();
 
@@ -416,31 +415,36 @@ function renderTotais(){
   const etapas   = new Set(matriculasFiltradas.map(m => m.etapa).filter(Boolean)).size;
 
   const grid = document.getElementById('totais-grid');
-  grid.textContent = '';
-  const cards = [
-    [total, 'Total de Alunos', ''],
-    [turmas, 'Turmas', 'verde'],
-    [etapas, 'Etapas', 'ouro'],
-    [masc, 'Masculino', ''],
-    [fem, 'Feminino', 'roxo'],
-    [nee, 'Com NEE', 'verde'],
-    [restric, 'Restrição alimentar', 'ouro'],
-    [inicial, 'Matr. Inicial', 'ouro'],
-    [rematric, 'Rematrícula', '']
-  ];
-  cards.forEach(([num, lbl, cls]) => {
-    const card = document.createElement('div');
-    card.className = 'total-card' + (cls ? ' ' + cls : '');
-    const n = document.createElement('div');
-    n.className = 'num';
-    n.textContent = num;
-    const l = document.createElement('div');
-    l.className = 'label';
-    l.textContent = lbl;
-    card.appendChild(n);
-    card.appendChild(l);
-    grid.appendChild(card);
-  });
+  grid.innerHTML = `
+    <table class="tbl-institucional">
+      <thead>
+        <tr>
+          <th>Total de Alunos</th>
+          <th>Turmas</th>
+          <th>Etapas</th>
+          <th>Masculino</th>
+          <th>Feminino</th>
+          <th>Com NEE</th>
+          <th>Restrição alimentar</th>
+          <th>Matrícula Inicial</th>
+          <th>Rematrícula</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>${total}</strong></td>
+          <td><strong>${turmas}</strong></td>
+          <td><strong>${etapas}</strong></td>
+          <td><strong>${masc}</strong></td>
+          <td><strong>${fem}</strong></td>
+          <td><strong>${nee}</strong></td>
+          <td><strong>${restric}</strong></td>
+          <td><strong>${inicial}</strong></td>
+          <td><strong>${rematric}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  `;
 }
 
 // ── RELATÓRIO POR TURMA ───────────────────────────────────────────────────
@@ -606,6 +610,11 @@ function imprimirRelatorioMatriculas() {
     body.textContent = '';
     if (areaTotais) body.appendChild(areaTotais.cloneNode(true));
     if (areaRelatorio) body.appendChild(areaRelatorio.cloneNode(true));
+  
+    const ass = document.createElement('div');
+    ass.className = 'doc-assinaturas';
+    ass.innerHTML = '<div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Direção Escolar</div></div><div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Secretaria Escolar</div></div>';
+    body.appendChild(ass);
   }
   window.InstitucionalLayout.preparePrint();
 }
@@ -630,7 +639,7 @@ async function gerarPDF(){
     const nee      = matriculasFiltradas.filter(m => getNEE(m)==='Sim').length;
 
     function addCabecalho(){
-      // Fundo azul
+      // Fundo institucional
       doc.setFillColor(21,101,192);
       doc.rect(0,0,W,32,'F');
       // Título

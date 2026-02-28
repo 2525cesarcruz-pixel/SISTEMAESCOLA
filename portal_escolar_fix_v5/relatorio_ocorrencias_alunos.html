@@ -4,31 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relatório de Ocorrências — Alunos</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="institucional.css">
 <style>
 :root{
-  --azul:#1565C0; --azul2:#1976D2; --azul3:#42A5F5;
-  --verde:#2E7D32; --lar:#E65100; --cinza-bg:#F5F7FA; --borda:#E0E4EC;
+  --primario:#2F2F2F; --primario2:#1E1E1E;
+  --verde:#2E7D32; --lar:#6B4F1D; --cinza-bg:#F3F3F3; --borda:#C8CDD5;
   --texto:#1A1A2E; --sub:#64748B; --sombra:0 2px 16px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza-bg);color:var(--texto)}
-header{background:linear-gradient(135deg,var(--azul),var(--azul2));color:#fff;padding:18px 20px}
+body{margin:0;font-family:'Times New Roman',Times,serif;background:var(--cinza-bg);color:var(--texto)}
+header{background:linear-gradient(135deg,var(--primario),var(--primario2));color:#fff;padding:18px 20px}
 header h1{margin:0;font-size:1.05rem;font-weight:900}
-header p{margin:4px 0 0;color:#BBDEFB;font-size:.8rem}
+header p{margin:4px 0 0;color:#E5E7EB;font-size:.8rem}
 .container{max-width:1100px;margin:0 auto;padding:18px 16px 50px}
 .card{background:#fff;border:1px solid var(--borda);border-radius:14px;box-shadow:var(--sombra);padding:14px 16px;margin-bottom:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .btn{border:none;border-radius:10px;padding:10px 16px;font-size:.82rem;font-weight:800;cursor:pointer}
-.btn-azul{background:var(--azul);color:#fff}
+.btn-azul{background:var(--primario2);color:#fff}
 .btn-sec{background:#fff;border:2px solid var(--borda);color:var(--sub)}
 input{border:2px solid var(--borda);border-radius:10px;padding:10px 12px;font-size:.85rem}
 table{width:100%;border-collapse:collapse}
 th,td{padding:10px 10px;border-bottom:1px solid var(--borda);text-align:left;font-size:.82rem;vertical-align:top}
 th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06em}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.7rem;font-weight:900}
-.b-at{background:#E3F2FD;color:#0D47A1}
+.b-at{background:#ECEDEF;color:#1F2937}
 .b-tr{background:#FFF3E0;color:#E65100}
 .b-fj{background:#FEF2F2;color:#991B1B}
 .small{font-size:.74rem;color:var(--sub)}
@@ -37,6 +35,7 @@ th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06
 .kpi .n{font-size:1.4rem;font-weight:900}
 .kpi .l{font-size:.72rem;color:var(--sub);font-weight:800}
 </style>
+<link rel="stylesheet" href="institucional_documentos.css" data-inst="override">
 </head>
 <body>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -51,14 +50,14 @@ th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06
     }
   })();
 </script>
-<header>
+<header class="no-print">
   <h1>📋 Relatório de Ocorrências — Alunos</h1>
   <p id="subtitulo">Carregando...</p>
 </header>
 
 <div class="container">
 
-  <div class="card">
+  <div class="card no-print">
     <div class="row">
       <label class="small"><b>Início</b></label>
       <input type="date" id="ini">
@@ -97,7 +96,7 @@ th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06
 </div>
 
 <!-- Container para impressão (padrão municipal): apenas #doc é impresso -->
-<div id="doc" class="doc doc--portrait" style="display:none"></div>
+<div id="doc" class="doc doc-a4 doc--portrait" style="display:none"></div>
 
 <script src="institucional.js"></script>
 <script>
@@ -159,11 +158,12 @@ async function carregar(){
   const alertas = Object.entries(faltasPorAlunoMes).filter(([k,v])=>v>=5).length;
 
   document.getElementById('kpis').innerHTML = `
-    <div class="kpi"><div class="n">${tot}</div><div class="l">Total de ocorrências</div></div>
-    <div class="kpi"><div class="n">${nAt}</div><div class="l">Atestados/Afastamentos</div></div>
-    <div class="kpi"><div class="n">${nTr}</div><div class="l">Transporte não rodou</div></div>
-    <div class="kpi"><div class="n">${nFj}</div><div class="l">Faltas não justificadas</div></div>
-    <div class="kpi"><div class="n">${alertas}</div><div class="l">Alertas (≥5 faltas/mês)</div></div>
+    <div class="card" style="padding:0;overflow:auto;flex:1 1 100%">
+      <table class="tbl-institucional">
+        <thead><tr><th>Total de ocorrências</th><th>Atestados/Afastamentos</th><th>Transporte não rodou</th><th>Faltas não justificadas</th><th>Alertas (≥5 faltas/mês)</th></tr></thead>
+        <tbody><tr><td><strong>${tot}</strong></td><td><strong>${nAt}</strong></td><td><strong>${nTr}</strong></td><td><strong>${nFj}</strong></td><td><strong>${alertas}</strong></td></tr></tbody>
+      </table>
+    </div>
   `;
 
   // tabela
@@ -180,10 +180,10 @@ async function carregar(){
     const det = esc(JSON.stringify(o.detalhes||{}));
     return `<tr>
       <td><b>${dt}</b></td>
-      <td>${aluno}</td>
-      <td class="small">${turma}</td>
+      <td><strong>${aluno}</strong></td>
+      <td class="small"><strong>${turma}</strong></td>
       <td>${badgeTipo(o.tipo)}</td>
-      <td class="small"><code>${det}</code></td>
+      <td class="small"><strong><code>${det}</code></strong></td>
     </tr>`;
   }).join('');
 }
@@ -205,6 +205,11 @@ function imprimirRelatorioOcorrenciasAlunos() {
     body.textContent = '';
     if (kpis) body.appendChild(kpis.cloneNode(true));
     if (cardLista) body.appendChild(cardLista.cloneNode(true));
+  
+    const ass = document.createElement('div');
+    ass.className = 'doc-assinaturas';
+    ass.innerHTML = '<div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Direção Escolar</div></div><div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Secretaria Escolar</div></div>';
+    body.appendChild(ass);
   }
   window.InstitucionalLayout.preparePrint();
 }
