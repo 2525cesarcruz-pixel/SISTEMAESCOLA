@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário de Matrícula 2026 — E. M. Getúlio Vargas</title>
+<style>
+  :root {
+    --azul:#1565C0; --azul2:#1976D2; --verde:#276749; --cinza:#F0F4F8;
+    --borda:#CBD5E0; --texto:#1A202C; --sub:#4A5568; --branco:#fff;
+    --laranja:#C05621; --roxo:#6B46C1; --teal:#2C7A7B;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:var(--cinza); color:var(--texto); }
+
+  /* HEADER */
+  header { background:linear-gradient(135deg,#0D47A1,#1565C0); color:#fff; padding:14px 24px; box-shadow:0 2px 12px #0003; display:flex; align-items:center; gap:16px; }
+  header img.logo-header { width:62px; height:62px; object-fit:contain; border-radius:50%; background:#fff; padding:3px; flex-shrink:0; box-shadow:0 2px 8px #0004; }
+  header .header-texto h1 { font-size:1.15rem; font-weight:700; line-height:1.2; }
+  header .header-texto p  { font-size:.82rem; color:#90CAF9; margin-top:3px; }
+  header { justify-content: space-between; }
+  .btn-home { background:rgba(255,255,255,.15); border:1.5px solid rgba(255,255,255,.35);
+    color:#fff; border-radius:10px; padding:8px 16px; font-size:.82rem; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; gap:6px; transition:.2s;
+    text-decoration:none; white-space:nowrap; flex-shrink:0; }
+  .btn-home:hover { background:rgba(255,255,255,.28); border-color:rgba(255,255,255,.6); }
+
+  /* STEPPER */
+  .stepper { display:flex; align-items:center; justify-content:center; padding:20px 16px 12px; gap:0; flex-wrap:wrap; }
+  .step { display:flex; flex-direction:column; align-items:center; cursor:pointer; min-width:80px; }
+  .step-circle { width:40px; height:40px; border-radius:50%; border:2px solid var(--borda);
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+    background:#fff; transition:.2s; }
+  .step.ativo   .step-circle { border-color:var(--azul); background:#E3F2FD; box-shadow:0 0 0 4px #BBDEFB; }
+  .step.feito   .step-circle { border-color:var(--verde); background:#C6F6D5; color:var(--verde); }
+  .step-label { font-size:.68rem; font-weight:600; color:var(--sub); margin-top:4px; text-align:center; }
+  .step.ativo .step-label { color:var(--azul); }
+  .sep { width:32px; height:2px; background:var(--borda); margin-top:-12px; flex-shrink:0; }
+  .sep.feita { background:var(--verde); }
+
+  /* CARD */
+  .card { max-width:760px; margin:0 auto 24px; background:#fff; border-radius:14px;
+    box-shadow:0 2px 16px #0001; overflow:hidden; }
+  .card-header { padding:16px 24px; background:linear-gradient(90deg,var(--azul),var(--azul2)); color:#fff; }
+  .card-header h2 { font-size:1rem; font-weight:700; }
+  .card-header p  { font-size:.78rem; color:#90CAF9; margin-top:2px; }
+  .card-body { padding:24px; }
+
+  /* SEÇÃO */
+  .sec { background:#F7FAFC; border:1px solid var(--borda); border-radius:10px; padding:16px; margin-bottom:16px; }
+  .btn-atalho { background:#EBF8FF; border:1.5px solid #90CDF4; color:#1A5276; border-radius:8px; padding:7px 14px; font-size:.78rem; font-weight:700; cursor:pointer; transition:.2s; }
+  .btn-atalho:hover { background:#BEE3F8; border-color:#3182CE; }
+  .btn-atalho-limpar { background:#FFF5F5; border-color:#FEB2B2; color:#C53030; }
+  .btn-atalho-limpar:hover { background:#FED7D7; }
+  .sec h3 { font-size:.85rem; font-weight:700; color:var(--azul); margin-bottom:12px; text-transform:uppercase; letter-spacing:.05em; }
+  .sec.verde   { background:#F0FFF4; border-color:#9AE6B4; }
+  .sec.verde h3{ color:var(--verde); }
+  .sec.laranja { background:#FFFAF0; border-color:#FBD38D; }
+  .sec.laranja h3{ color:var(--laranja); }
+  .sec.roxo    { background:#FAF5FF; border-color:#D6BCFA; }
+  .sec.roxo h3 { color:var(--roxo); }
+
+  /* GRID */
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  .g4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:14px; }
+  @media(max-width:600px){ .g2,.g3,.g4 { grid-template-columns:1fr; } }
+
+  /* CAMPO */
+  .campo { display:flex; flex-direction:column; gap:4px; }
+  .campo label { font-size:.75rem; font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.05em; }
+  .campo label span.req { color:#E53E3E; margin-left:3px; }
+  .campo input, .campo select, .campo textarea {
+    border:none; border-bottom:2px solid var(--borda);
+    background:transparent; padding:6px 2px; font-size:.92rem; color:var(--texto);
+    outline:none; transition:.2s; width:100%; font-family:inherit;
+  }
+  .campo input:focus, .campo select:focus { border-bottom-color:var(--azul); }
+  .campo textarea { resize:vertical; min-height:60px; border:1px solid var(--borda); border-radius:6px; padding:8px; }
+
+  /* RADIO PILLS */
+  .pills { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill { padding:6px 16px; border-radius:99px; border:2px solid var(--borda);
+    font-size:.82rem; font-weight:700; cursor:pointer; transition:.2s; color:var(--sub); }
+  .pill:hover { border-color:var(--azul2); }
+  .pill.sel-azul   { border-color:var(--azul); background:#EBF8FF; color:var(--azul); }
+  .pill.sel-verde  { border-color:var(--verde); background:#F0FFF4; color:var(--verde); }
+  .pill.sel-roxo   { border-color:var(--roxo); background:#FAF5FF; color:var(--roxo); }
+  .pill.sel-laranja{ border-color:var(--laranja); background:#FFFAF0; color:var(--laranja); }
+
+  /* CHECKBOX */
+  .chk { display:flex; align-items:center; gap:8px; cursor:pointer; margin:4px 0; }
+  .chk input[type=checkbox] { width:18px; height:18px; accent-color:var(--azul); cursor:pointer; }
+  .chk span { font-size:.88rem; color:var(--texto); }
+
+  /* FOTO */
+  .foto-box { width:90px; height:120px; border:2px dashed var(--borda); border-radius:8px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    cursor:pointer; overflow:hidden; background:#F7FAFC; flex-shrink:0; transition:.2s; }
+  .foto-box:hover { border-color:var(--azul); background:#EBF8FF; }
+  .foto-box img { width:100%; height:100%; object-fit:cover; }
+  .foto-box .icon { font-size:2rem; }
+  .foto-box p { font-size:.65rem; color:var(--sub); margin-top:4px; }
+
+  /* BARRA PROGRESSO */
+  .prog-bar { height:4px; background:#E2E8F0; border-radius:99px; overflow:hidden; margin:0 24px 16px; }
+  .prog-bar div { height:100%; background:linear-gradient(90deg,var(--azul),#42A5F5); border-radius:99px; transition:.4s; }
+
+  /* BOTÕES */
+  .btns { display:flex; justify-content:space-between; align-items:center; padding:16px 24px;
+    border-top:1px solid #E2E8F0; background:#F7FAFC; }
+  .btn { padding:10px 22px; border-radius:8px; font-size:.88rem; font-weight:700;
+    border:none; cursor:pointer; transition:.2s; }
+  .btn-sec  { background:#E2E8F0; color:var(--sub); }
+  .btn-sec:hover  { background:#CBD5E0; }
+  .btn-prim { background:var(--azul); color:#fff; }
+  .btn-prim:hover { background:#0D47A1; }
+  .btn-verde{ background:var(--verde); color:#fff; }
+  .btn-verde:hover{ background:#22543D; }
+  .btn-print{ background:#B7791F; color:#fff; }
+  .btn-print:hover{ background:#975A16; }
+
+  /* DEFICIÊNCIAS GRID */
+  .def-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  @media(max-width:500px){ .def-grid { grid-template-columns:1fr; } }
+
+  /* ===================== FORMULÁRIO OFICIAL ===================== */
+  #impressao { display:none; }
+  .autorizacao { font-family: Arial, sans-serif; font-size:11pt; color:#000; width:180mm; margin:20mm auto 0; padding:0; page-break-before:always; }
+  .autorizacao .auto-title { font-size:13pt; font-weight:bold; text-align:center; text-transform:uppercase; margin-bottom:18pt; letter-spacing:.03em; }
+  .autorizacao .auto-header { text-align:center; font-weight:bold; font-size:10pt; margin-bottom:14pt; line-height:1.6; }
+  .autorizacao p { text-align:justify; margin-bottom:10pt; line-height:1.7; }
+  .autorizacao p.lista { text-align:left; margin-bottom:6pt; }
+  .autorizacao .assinatura { text-align:center; margin-top:32pt; font-weight:bold; }
+  .autorizacao .data { text-align:justify; margin-top:20pt; }
+  .autorizacao .separador { border:none; border-top:2px dashed #999; margin:10mm 0; }
+  @media print {
+    body > *:not(#impressao) { display:none !important; }
+    #impressao { display:block !important; }
+  }
+  .ficha { font-family:Arial,sans-serif; font-size:7.5pt; color:#000;
+    width:195mm; margin:0 auto; padding:5mm; }
+  .ficha table { width:100%; border-collapse:collapse; margin-bottom:1.2mm; }
+  .ficha td, .ficha th { border:1px solid #000; padding:1mm 2mm; vertical-align:top; }
+  .ficha .th { background:#D9D9D9; font-weight:bold; text-align:center; }
+  .ficha .th-blue { background:#1F3864; color:#fff; font-weight:bold; text-align:center; font-size:9pt; }
+  .ficha b { font-weight:bold; }
+
+  /* VISUALIZAÇÃO prévia */
+  #preview-area { max-width:760px; margin:0 auto 32px; background:#fff;
+    border-radius:14px; box-shadow:0 2px 24px #0002; overflow:hidden; }
+  #preview-area .pv-header { padding:16px 24px; background:var(--azul); color:#fff;
+    display:flex; align-items:center; justify-content:space-between; }
+  #preview-area .pv-header h2 { font-size:1rem; font-weight:700; }
+  #preview-inner { padding:20px; }
+
+  .hidden { display:none !important; }
+  .mt8 { margin-top:8px; }
+  .mt16 { margin-top:16px; }
+  .ficha .val { color:#000; font-weight:700; }
+
+  /* ── PAINEL ADMIN ── */
+  #admin-btn-flutuante { position:fixed; bottom:22px; right:22px; z-index:999;
+    background:var(--azul); color:#fff; border:none; border-radius:50px;
+    padding:12px 20px; font-size:.82rem; font-weight:700; cursor:pointer;
+    box-shadow:0 4px 16px #0004; transition:.2s; }
+  #admin-btn-flutuante:hover { background:#0D47A1; transform:translateY(-2px); }
+
+  #admin-overlay { position:fixed; inset:0; background:#0008; z-index:1000;
+    display:flex; align-items:center; justify-content:center; }
+  #admin-overlay.hidden { display:none; }
+
+  #admin-login-box, #admin-painel { background:#fff; border-radius:16px;
+    box-shadow:0 8px 40px #0004; max-width:96vw; }
+  #admin-login-box { padding:32px; width:320px; text-align:center; }
+  #admin-login-box h2 { font-size:1.1rem; margin-bottom:8px; color:var(--azul); }
+  #admin-login-box p  { font-size:.8rem; color:var(--sub); margin-bottom:20px; }
+  #admin-login-box input { width:100%; border:2px solid var(--borda); border-radius:8px;
+    padding:10px 14px; font-size:.95rem; margin-bottom:12px; box-sizing:border-box; }
+  #admin-login-box input:focus { outline:none; border-color:var(--azul); }
+  #admin-login-erro { color:#E53E3E; font-size:.78rem; margin-bottom:8px; display:none; }
+
+  #admin-painel { width:92vw; max-width:1100px; max-height:90vh;
+    display:flex; flex-direction:column; }
+  #admin-painel-header { background:var(--azul); color:#fff; padding:16px 24px;
+    border-radius:16px 16px 0 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  #admin-painel-header h2 { font-size:1rem; font-weight:700; }
+  #admin-painel-body { padding:20px 24px; overflow-y:auto; flex:1; }
+
+  .admin-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+    gap:12px; margin-bottom:20px; }
+  .stat-card { background:#EBF8FF; border:1.5px solid #90CDF4; border-radius:10px;
+    padding:12px 16px; text-align:center; }
+  .stat-card .stat-n { font-size:1.8rem; font-weight:800; color:var(--azul); }
+  .stat-card .stat-l { font-size:.72rem; color:var(--sub); margin-top:2px; }
+
+  .admin-toolbar { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+  .admin-toolbar input, .admin-toolbar select {
+    border:1.5px solid var(--borda); border-radius:8px; padding:7px 12px;
+    font-size:.82rem; }
+  .admin-toolbar input { flex:1; min-width:160px; }
+
+  .tbl-matriculas { width:100%; border-collapse:collapse; font-size:.78rem; }
+  .tbl-matriculas th { background:#EBF8FF; color:#1A5276; font-weight:700;
+    padding:8px 10px; border-bottom:2px solid #90CDF4; text-align:left; white-space:nowrap; }
+  .tbl-matriculas td { padding:7px 10px; border-bottom:1px solid #EDF2F7; vertical-align:middle; }
+  .tbl-matriculas tr:hover td { background:#F7FAFC; }
+  .tbl-matriculas .acoes { display:flex; gap:6px; }
+
+  .badge { display:inline-block; padding:2px 9px; border-radius:20px;
+    font-size:.68rem; font-weight:700; }
+  .badge-mat { background:#C6F6D5; color:#22543D; }
+  .badge-turno { background:#BEE3F8; color:#1A5276; }
+
+  .btn-sm { border:none; border-radius:6px; padding:4px 10px; font-size:.73rem;
+    font-weight:700; cursor:pointer; transition:.15s; }
+  .btn-sm:hover { opacity:.85; }
+  .btn-sm-ver  { background:#BEE3F8; color:#1A5276; }
+  .btn-sm-edit { background:#FEFCBF; color:#744210; }
+  .btn-sm-del  { background:#FED7D7; color:#C53030; }
+  .btn-sm-csv  { background:#C6F6D5; color:#22543D; }
+
+  .empty-state { text-align:center; padding:40px; color:var(--sub); font-size:.9rem; }
+  .empty-state .ei { font-size:2.5rem; display:block; margin-bottom:8px; }
+
+  /* Modal ficha */
+  #modal-ficha { position:fixed; inset:0; background:#0009; z-index:2000;
+    display:flex; align-items:flex-start; justify-content:center; padding:20px; overflow-y:auto; }
+  #modal-ficha.hidden { display:none; }
+  #modal-ficha-inner { background:#fff; border-radius:14px; width:100%;
+    max-width:820px; box-shadow:0 8px 40px #0005; }
+  #modal-ficha-header { background:var(--azul); color:#fff; padding:14px 20px;
+    border-radius:14px 14px 0 0; display:flex; align-items:center; justify-content:space-between; }
+  #modal-ficha-body { padding:20px; overflow-y:auto; max-height:75vh; }
+  .btn-fechar { background:rgba(255,255,255,.2); border:none; color:#fff;
+    border-radius:8px; padding:6px 14px; font-size:.82rem; cursor:pointer; font-weight:700; }
+  .btn-fechar:hover { background:rgba(255,255,255,.35); }
+
+
+  /* ── TABS PERFIL LOGIN ── */
+  .tab-perfil { flex:1; padding:9px; border:2px solid var(--borda); border-radius:8px;
+    background:#fff; font-size:.82rem; font-weight:700; cursor:pointer;
+    color:var(--sub); transition:.15s; }
+  .tab-perfil.tab-ativo { background:var(--azul); color:#fff; border-color:var(--azul); }
+  .tab-perfil:hover:not(.tab-ativo) { border-color:var(--azul); color:var(--azul); }
+
+  /* ── BADGE PERFIL ── */
+  .badge-secretaria { background:#1F3864; color:#fff; }
+  .badge-professor  { background:#276749; color:#fff; }
+
+  /* ── TABELA PROFESSORES ── */
+  .tbl-prof { width:100%; border-collapse:collapse; font-size:.8rem; }
+  .tbl-prof th { background:#F7FAFC; padding:7px 10px; border-bottom:2px solid var(--borda);
+    text-align:left; color:var(--sub); font-weight:700; }
+  .tbl-prof td { padding:7px 10px; border-bottom:1px solid #EDF2F7; }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-init.js"></script>
+<script src="supabase-auth.js"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js"></script>
+</head>
+<body>
+
+<header>
+  <img class="logo-header" src="assets/img_extracted_1.png" alt="Logo E. M. Getúlio Vargas">
+  <div class="header-texto">
+    <h1>E. M. Getúlio Vargas — Nova Ubiratã/MT</h1>
+    <p>Sistema de Matrícula Online 2026</p>
+  </div>
+  <button class="btn-home" onclick="confirmarVoltarInicio()" title="Voltar ao Portal">🏠 Início</button>
+</header>
+
+<!-- STEPPER -->
+<div class="stepper" id="stepper"></div>
+
+<!-- BARRA DE PROGRESSO -->
+<div class="prog-bar"><div id="barra" style="width:16.6%"></div></div>
+
+<!-- ETAPAS -->
+<div id="form-area">
+
+<!-- E1: DADOS DO ALUNO -->
+<div class="card" id="etapa-1">
+  <div class="card-header">
+    <h2>👤 Etapa 1 — Dados do Aluno</h2>
+    <p>Informações pessoais do estudante</p>
+  </div>
+  <div class="card-body">
+    <!-- Foto + Nome -->
+    <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div class="foto-box" onclick="document.getElementById('inp-foto').click()" id="foto-box">
+          <span class="icon">📷</span><p>3×4</p>
+        </div>
+        <input type="file" id="inp-foto" accept="image/*" style="display:none" onchange="carregarFoto(this)">
+        <p style="font-size:.68rem;color:var(--sub);margin-top:4px;text-align:center">Clique p/ foto</p>
+      </div>
+      <div style="flex:1">
+        <div class="campo"><label>Nome Completo<span class="req">*</span></label><input id="nome" placeholder="Nome completo do aluno"></div>
+        <div class="g2 mt8">
+          <div class="campo"><label>Data de Nascimento</label><input id="dataNasc" placeholder="DD/MM/AAAA" oninput="maskData(this)"></div>
+          <div class="campo"><label>Data da Matrícula</label><input id="dataMatricula" placeholder="DD/MM/AAAA" oninput="maskData(this)"></div>
+        </div>
+        <div class="mt8">
+          <label style="font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;">Tipo de Matrícula</label>
+          <div class="pills mt8" id="pills-tipoMatricula">
+            <div class="pill" onclick="selPill('pills-tipoMatricula','Inicial',this)">Matrícula Inicial</div>
+            <div class="pill" onclick="selPill('pills-tipoMatricula','Rematricula',this)">Rematrícula</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g3">
+      <div class="campo"><label>INEP</label><input id="inep" placeholder="Cód. INEP"></div>
+      <div class="campo"><label>PIS/NIS</label><input id="pisNis" placeholder="PIS/NIS"></div>
+      <div class="campo"><label>CNS (SUS)</label><input id="cns" placeholder="Cartão SUS"></div>
+    </div>
+
+    <div class="g2 mt16">
+      <div class="campo">
+        <label>Naturalidade — Estado</label>
+        <select id="natEstado" onchange="carregarCidadesNat()">
+          <option value="">Selecione o estado...</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Naturalidade — Cidade</label>
+        <select id="natCidade">
+          <option value="">Selecione a cidade...</option>
+        </select>
+      </div>
+      <div class="campo"><label>Nacionalidade</label><input id="nacionalidade" value="Brasileira"></div>
+    </div>
+
+    <div class="mt16">
+      <label style="font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;">Sexo</label>
+      <div class="pills mt8" id="pills-sexo">
+        <div class="pill" onclick="selPill('pills-sexo','M',this)">Masculino</div>
+        <div class="pill" onclick="selPill('pills-sexo','F',this)">Feminino</div>
+      </div>
+    </div>
+
+    <div class="mt16">
+      <label style="font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;">Raça/Cor</label>
+      <div class="pills mt8" id="pills-raca">
+        <div class="pill" onclick="selPill('pills-raca','Branco',this)">Branco</div>
+        <div class="pill" onclick="selPill('pills-raca','Preto',this)">Preto</div>
+        <div class="pill" onclick="selPill('pills-raca','Pardo',this)">Pardo</div>
+        <div class="pill" onclick="selPill('pills-raca','Amarelo',this)">Amarelo</div>
+        <div class="pill" onclick="selPill('pills-raca','Indígena',this)">Indígena</div>
+        <div class="pill" onclick="selPill('pills-raca','Não Declarado',this)">Não Declarado</div>
+      </div>
+    </div>
+
+    <div class="mt16">
+      <label style="font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;">Situação de Moradia</label>
+      <div class="pills mt8" id="pills-moradia">
+        <div class="pill" onclick="selPill('pills-moradia','Maior Responsável',this)">Maior Responsável</div>
+        <div class="pill" onclick="selPill('pills-moradia','Mora com os Pais',this)">Mora com os Pais</div>
+        <div class="pill" onclick="selPill('pills-moradia','Mora com Parentes',this)">Mora com Parentes</div>
+      </div>
+    </div>
+
+    <div class="mt16">
+      <label style="font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;">Transferência Eletrônica</label>
+      <div class="pills mt8" id="pills-transf-eletr">
+        <div class="pill" onclick="selPill('pills-transf-eletr','Sim',this)">Sim</div>
+        <div class="pill" onclick="selPill('pills-transf-eletr','Não',this)">Não</div>
+      </div>
+    </div>
+  </div>
+  <div class="btns"><div></div><button class="btn btn-prim" onclick="ir(2)">Próximo →</button></div>
+</div>
+
+<!-- E2: REGISTRO CIVIL -->
+<div class="card hidden" id="etapa-2">
+  <div class="card-header" style="background:linear-gradient(90deg,#2E7D32,#388E3C)">
+    <h2>📄 Etapa 2 — Registro Civil</h2>
+    <p>Documentos e certidões</p>
+  </div>
+  <div class="card-body">
+    <div class="campo"><label>Certidão de Nascimento — Matrícula</label><input id="certidaoMatricula" placeholder="Número da matrícula na certidão"></div>
+    <div class="g2 mt16">
+      <div class="campo"><label>Data da Emissão</label><input id="dataEmissao" placeholder="DD/MM/AAAA" oninput="maskData(this)"></div>
+      <div class="campo">
+        <label>Local de Emissão — Estado</label>
+        <select id="emissaoEstado" onchange="carregarCidadesEmissao()">
+          <option value="">Selecione o estado...</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Local de Emissão — Cidade</label>
+        <select id="emissaoCidade">
+          <option value="">Selecione a cidade...</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2 mt16">
+      <div class="campo"><label>RG</label><input id="rg" placeholder="Número do RG" oninput="maskRG(this)"></div>
+      <div class="campo"><label>Órgão Expedidor</label><input id="orgaoExpedidor" placeholder="Ex: SSP-MT"></div>
+    </div>
+    <div class="g3 mt16">
+      <div class="campo"><label>Data de Expedição</label><input id="dataExpedicao" placeholder="DD/MM/AAAA" oninput="maskData(this)"></div>
+      <div class="campo"><label>CPF</label><input id="cpf" placeholder="000.000.000-00" oninput="maskCPF(this)"></div>
+      <div class="campo"><label>Título Eleitor</label><input id="tituloEleitor" placeholder="Número do título"></div>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-sec" onclick="ir(1)">← Anterior</button>
+    <button class="btn btn-prim" onclick="ir(3)">Próximo →</button>
+  </div>
+</div>
+
+<!-- E3: NECESSIDADES ESPECIAIS -->
+<div class="card hidden" id="etapa-3">
+  <div class="card-header" style="background:linear-gradient(90deg,#C05621,#DD6B20)">
+    <h2>♿ Etapa 3 — Necessidades Educacionais Especiais</h2>
+    <p>Informe eventuais necessidades do aluno</p>
+  </div>
+  <div class="card-body">
+    <div class="sec laranja">
+      <h3>Restrição Alimentar</h3>
+      <div class="pills" id="pills-restricao">
+        <div class="pill" onclick="selPill('pills-restricao','Sim',this);toggleRestricao(true)">Sim</div>
+        <div class="pill" onclick="selPill('pills-restricao','Não',this);toggleRestricao(false)">Não</div>
+      </div>
+      <div id="div-restricao" class="hidden mt8">
+        <div class="campo"><label>Qual restrição?</label><input id="detalheRestricao" placeholder="Ex: Alergia a amendoim, intolerância à lactose"></div>
+      </div>
+    </div>
+
+    <div class="sec mt16">
+      <h3>Necessidade Educacional Especial (NEE)</h3>
+      <div class="pills" id="pills-nee">
+        <div class="pill" onclick="selPill('pills-nee','Não',this);toggleNEE(false)">Não possui</div>
+        <div class="pill" onclick="selPill('pills-nee','Sim',this);toggleNEE(true)">Sim, possui</div>
+      </div>
+      <div id="div-nee" class="hidden mt16">
+        <p style="font-size:.82rem;font-weight:600;color:var(--sub);margin-bottom:10px">Selecione as deficiências:</p>
+        <div class="def-grid" id="def-grid"></div>
+      </div>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-sec" onclick="ir(2)">← Anterior</button>
+    <button class="btn btn-prim" onclick="ir(4)">Próximo →</button>
+  </div>
+</div>
+
+<!-- E4: SITUAÇÃO ANTERIOR -->
+<div class="card hidden" id="etapa-4">
+  <div class="card-header" style="background:linear-gradient(90deg,#6B46C1,#805AD5)">
+    <h2>📚 Etapa 4 — Situação Aluno Ano Anterior</h2>
+    <p>Histórico do aluno no ano letivo anterior</p>
+  </div>
+  <div class="card-body">
+    <div class="sec roxo">
+      <div class="g2">
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;">Já estudou nesta escola?</label>
+          <div class="pills mt8" id="pills-estudou">
+            <div class="pill" onclick="selPill('pills-estudou','Sim',this)">Sim</div>
+            <div class="pill" onclick="selPill('pills-estudou','Não',this)">Não</div>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;">Transferência?</label>
+          <div class="pills mt8" id="pills-transf">
+            <div class="pill" onclick="selPill('pills-transf','Sim',this)">Sim</div>
+            <div class="pill" onclick="selPill('pills-transf','Não',this)">Não</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sec mt16">
+      <h3>Resultado</h3>
+      <div class="pills" id="pills-resultado">
+        <div class="pill" onclick="selPill('pills-resultado','Aprovado',this)">Aprovado</div>
+        <div class="pill" onclick="selPill('pills-resultado','Reprovado',this)">Reprovado</div>
+        <div class="pill" onclick="selPill('pills-resultado','Retido',this)">Retido</div>
+      </div>
+    </div>
+    <div class="sec mt16">
+      <h3>Outras Situações</h3>
+      <div class="pills" id="pills-outras">
+        <div class="pill" onclick="selPill('pills-outras','Desistente',this)">Desistente</div>
+        <div class="pill" onclick="selPill('pills-outras','Não Frequentou',this)">Não Frequentou</div>
+        <div class="pill" onclick="selPill('pills-outras','Dependência',this)">Dependência</div>
+      </div>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-sec" onclick="ir(3)">← Anterior</button>
+    <button class="btn btn-prim" onclick="ir(5)">Próximo →</button>
+  </div>
+</div>
+
+<!-- E5: MATRÍCULA + TRANSPORTE -->
+<div class="card hidden" id="etapa-5">
+  <div class="card-header" style="background:linear-gradient(90deg,#2C7A7B,#319795)">
+    <h2>🏫 Etapa 5 — Dados da Matrícula e Transporte</h2>
+    <p>Informações de matrícula e transporte escolar</p>
+  </div>
+  <div class="card-body">
+    <div class="sec">
+      <h3>Dados da Matrícula</h3>
+      <div class="g4">
+        <div class="campo"><label>Ano Letivo</label><input id="anoLetivo" value="2026" maxlength="4"></div>
+        <div class="campo"><label>Etapa / Série</label>
+          <select id="etapa">
+            <option value="">Selecione...</option>
+            <option>Pré I</option><option>Pré II</option>
+            <option>1º Ano</option><option>2º Ano</option><option>3º Ano</option>
+            <option>4º Ano</option><option>5º Ano</option><option>6º Ano</option>
+            <option>7º Ano</option><option>8º Ano</option><option>9º Ano</option>
+          </select>
+        </div>
+        <div class="campo"><label>Turno</label>
+          <select id="turno">
+            <option value="Matutino">Matutino</option>
+            <option value="Vespertino">Vespertino</option>
+            <option value="Noturno">Noturno</option>
+          </select>
+        </div>
+        <div class="campo"><label>Turma</label>
+          <select id="turma">
+            <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2 mt16">
+        <div class="campo"><label>Nº da Chamada</label><input id="nChamada" placeholder="Número"></div>
+        <div class="campo"><label>Bolsa Família?</label>
+          <select id="bolsaFamilia"><option value="">Selecione...</option><option>Sim</option><option>Não</option></select>
+        </div>
+      </div>
+      <div class="mt16">
+        <label class="chk"><input type="checkbox" id="ensinoReligioso"><span>Optante pela Disciplina de Ensino Religioso</span></label>
+        <label class="chk mt8"><input type="checkbox" id="autorizaImagem"><span>Autoriza uso de Imagem</span></label>
+      </div>
+    </div>
+
+    <div class="sec verde mt16">
+      <h3>🚌 Transporte Escolar</h3>
+      <div>
+        <label style="font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;">Utiliza Transporte Escolar?</label>
+        <div class="pills mt8" id="pills-transporte">
+          <div class="pill" onclick="selPill('pills-transporte','Sim',this);toggleTransporte(true)">Sim</div>
+          <div class="pill" onclick="selPill('pills-transporte','Não',this);toggleTransporte(false)">Não</div>
+        </div>
+      </div>
+      <div id="div-transporte" class="hidden mt16">
+        <div class="g3">
+          <div class="campo"><label>Linha</label><input id="linhaTransporte" placeholder="Ex: Linha 3"></div>
+          <div class="campo"><label>Fazenda</label><input id="fazenda" placeholder="Nome da fazenda"></div>
+          <div class="campo"><label>Unidade Consumidora (Energia)</label><input id="unidadeConsumidora" placeholder="Nº UC"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-sec" onclick="ir(4)">← Anterior</button>
+    <button class="btn btn-prim" onclick="ir(6)">Próximo →</button>
+  </div>
+</div>
+
+<!-- E6: DADOS FAMILIARES -->
+<div class="card hidden" id="etapa-6">
+  <div class="card-header" style="background:linear-gradient(90deg,#276749,#2F855A)">
+    <h2>👨‍👩‍👧 Etapa 6 — Dados Familiares e Responsável</h2>
+    <p>Filiação, responsável legal e endereço</p>
+  </div>
+  <div class="card-body">
+    <div class="sec">
+      <h3>Filiação 1</h3>
+      <div class="g2">
+        <div class="campo"><label>Nome</label><input id="filiacao1" placeholder="Nome completo"></div>
+        <div class="campo"><label>CPF</label><input id="cpfRg1" placeholder="000.000.000-00" oninput="maskCPF(this)"></div>
+      </div>
+      <div class="g2 mt8">
+        <div class="campo"><label>Profissão</label><input id="profissao1" placeholder="Profissão"></div>
+        <div class="campo"><label>Local de Trabalho</label><input id="localTrabalho1" placeholder="Local"></div>
+      </div>
+      <div class="campo mt8"><label>Telefone</label><input id="telefone1" placeholder="(00) 00000-0000" oninput="maskTel(this)"></div>
+    </div>
+
+    <div class="sec roxo mt16">
+      <h3>Filiação 2</h3>
+      <div class="g2">
+        <div class="campo"><label>Nome</label><input id="filiacao2" placeholder="Nome completo"></div>
+        <div class="campo"><label>CPF</label><input id="cpfRg2" placeholder="000.000.000-00" oninput="maskCPF(this)"></div>
+      </div>
+      <div class="g2 mt8">
+        <div class="campo"><label>Profissão</label><input id="profissao2" placeholder="Profissão"></div>
+        <div class="campo"><label>Local de Trabalho</label><input id="localTrabalho2" placeholder="Local"></div>
+      </div>
+      <div class="campo mt8"><label>Telefone</label><input id="telefone2" placeholder="(00) 00000-0000" oninput="maskTel(this)"></div>
+    </div>
+
+    <div class="sec verde mt16">
+      <h3>Responsável Legal</h3>
+
+      <!-- Botões de atalho -->
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <button type="button" class="btn-atalho" onclick="usarFiliacao(1)">
+          ↩ Usar dados da Filiação 1
+        </button>
+        <button type="button" class="btn-atalho" onclick="usarFiliacao(2)">
+          ↩ Usar dados da Filiação 2
+        </button>
+        <button type="button" class="btn-atalho btn-atalho-limpar" onclick="limparResponsavel()">
+          ✕ Limpar
+        </button>
+      </div>
+
+      <div class="g2">
+        <div class="campo"><label>Nome do Responsável<span class="req">*</span></label><input id="responsavel" placeholder="Nome completo"></div>
+        <div class="campo"><label>Grau de Parentesco</label><input id="grauParentesco" placeholder="Ex: Mãe, Pai, Avó"></div>
+      </div>
+      <div class="g3 mt8">
+        <div class="campo"><label>Nacionalidade</label><input id="nacionalidadeResp" value="Brasileira" placeholder="Ex: Brasileira"></div>
+        <div class="campo"><label>Estado Civil</label>
+          <select id="estadoCivilResp">
+            <option value="">Selecione...</option>
+            <option>Solteiro(a)</option>
+            <option>Casado(a)</option>
+            <option>Divorciado(a)</option>
+            <option>Separado(a)</option>
+            <option>Viúvo(a)</option>
+            <option>União Estável</option>
+          </select>
+        </div>
+        <div class="campo"><label>Telefone</label><input id="telResponsavel" placeholder="(00) 00000-0000" oninput="maskTel(this)"></div>
+      </div>
+      <div class="g3 mt8">
+        <div class="campo"><label>CPF</label><input id="cpfResponsavel" placeholder="000.000.000-00" oninput="maskCPF(this)"></div>
+        <div class="campo"><label>RG</label><input id="rgResponsavel" placeholder="RG" oninput="maskRG(this)"></div>
+      </div>
+      <div class="g3 mt8">
+        <div class="campo" style="grid-column:span 2"><label>Endereço</label><input id="enderecoResp" placeholder="Rua, Av..."></div>
+        <div class="campo"><label>Número</label><input id="numeroResp" placeholder="Nº"></div>
+      </div>
+      <div class="g2 mt8">
+        <div class="campo"><label>Bairro/Complemento</label><input id="bairroResp" value="Dist. de Novo Mato Grosso"></div>
+        <div class="campo"><label>Cidade</label><input id="cidadeResp" placeholder="Nova Ubiratã"></div>
+      </div>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-sec" onclick="ir(5)">← Anterior</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+      <button class="btn btn-sec" onclick="visualizar()">👁 Ver Prévia</button>
+      <button class="btn btn-verde" style="background:#1B5E20;font-size:.95rem;padding:12px 28px" onclick="finalizarMatricula()">✅ Finalizar Matrícula</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /form-area -->
+
+<!-- PREVIEW -->
+<div id="preview-area" class="hidden">
+  <div class="pv-header">
+    <h2>📋 Ficha de Matrícula — Prévia</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-print" onclick="window.print()">🖨 Imprimir Tudo</button>
+      <button class="btn" style="background:#1B5E20;color:#fff;font-weight:700;border:none" onclick="gerarPDFMatricula()">⬇ Baixar PDF</button>
+      <button class="btn btn-sec" onclick="voltarForm()">← Editar</button>
+      <button class="btn btn-sec" style="background:#276749;color:#fff;border-color:#276749"
+        onclick="abrirAdmin()">🗄️ Ver Matrículas</button>
+      <button class="btn btn-verde" style="background:#1B5E20;font-size:.92rem;padding:10px 22px;border:none"
+        onclick="finalizarMatricula()">✅ Finalizar Matrícula</button>
+    </div>
+  </div>
+  <div id="preview-inner"></div>
+</div>
+
+<!-- FINALIZAÇÃO COM PASTA DIGITAL -->
+<div id="area-finalizacao" class="hidden">
+  <div style="max-width:760px;margin:0 auto 24px">
+
+    <!-- Banner de sucesso -->
+    <div style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;border-radius:14px;padding:28px 28px 24px;margin-bottom:20px;text-align:center;box-shadow:0 4px 24px rgba(27,94,32,.25)">
+      <div style="font-size:3rem;margin-bottom:8px">🎉</div>
+      <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:6px">Matrícula Concluída!</h2>
+      <p style="font-size:.88rem;opacity:.9;line-height:1.5">Os dados do aluno foram registrados com sucesso. Agora faça o upload dos documentos para criar a Pasta Digital do Aluno.</p>
+      <div id="nome-aluno-finalizado" style="margin-top:12px;background:rgba(255,255,255,.15);border-radius:8px;padding:8px 16px;display:inline-block;font-weight:700;font-size:1rem"></div>
+    </div>
+
+    <!-- Card upload documentos -->
+    <div class="card">
+      <div class="card-header" style="background:linear-gradient(90deg,#1565C0,#1976D2)">
+        <h2>📁 Pasta Digital do Aluno — Upload de Documentos</h2>
+        <p>Envie os documentos necessários para completar o cadastro</p>
+      </div>
+      <div class="card-body">
+
+        <!-- Grid de documentos -->
+        <div id="docs-upload-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px">
+          <!-- gerado por JS -->
+        </div>
+
+        <!-- Barra de progresso dos docs -->
+        <div style="background:#F0F4F8;border-radius:10px;padding:16px;margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:.82rem;font-weight:700;color:var(--sub)">Documentos enviados</span>
+            <span id="docs-contador" style="font-size:.82rem;font-weight:800;color:var(--azul)">0 / 8</span>
+          </div>
+          <div style="height:8px;background:#DDE3EC;border-radius:99px;overflow:hidden">
+            <div id="docs-barra" style="height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5);border-radius:99px;width:0%;transition:.4s"></div>
+          </div>
+        </div>
+
+        <!-- Botões de ação -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-sec" onclick="voltarParaForm()">← Editar Matrícula</button>
+            <button class="btn btn-print" onclick="window.print()">🖨 Imprimir Ficha</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" style="background:#E3F2FD;color:var(--azul);font-weight:700" onclick="pularUpload()">Fazer upload depois →</button>
+            <button class="btn btn-prim" id="btn-salvar-pasta" onclick="salvarPastaDigital()">💾 Salvar Pasta Digital</button>
+          </div>
+        </div>
+
+        <!-- Aviso -->
+        <div style="margin-top:14px;padding:10px 14px;background:#FFF8E1;border-left:3px solid #FFB300;border-radius:0 8px 8px 0;font-size:.78rem;color:#5D4037">
+          ⚠️ Documentos não enviados agora podem ser adicionados posteriormente na seção <strong>Pasta Digital do Aluno</strong> do portal.
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast confirmação -->
+    <div id="toast-pasta" class="hidden" style="background:#1B5E20;color:#fff;border-radius:12px;padding:16px 20px;text-align:center;font-weight:700;font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.2)">
+      ✅ Pasta Digital salva com sucesso! Redirecionando...
+    </div>
+
+  </div>
+</div>
+
+<!-- IMPRESSÃO -->
+<div id="impressao"></div>
+
+<script>
+// ─── ESTADO ───────────────────────────────────────────
+const D = {
+  // E1
+  nome:'', dataNasc:'', dataMatricula:'', tipoMatricula:'', inep:'', pisNis:'', cns:'',
+  naturalidade:'', nacionalidade:'Brasileira', sexo:'', racaCor:'',
+  moradia:'', transferEletr:'', fotoBase64:'',
+  // E2
+  certidaoMatricula:'', dataEmissao:'', localEmissao:'',
+  rg:'', orgaoExpedidor:'', dataExpedicao:'', cpf:'', tituloEleitor:'',
+  // E3
+  restricaoAlimentar:'', detalheRestricao:'', temNEE:'',
+  deficiencias:[],
+  // E4
+  jaEstudou:'', transferencia:'', resultado:'', outrasSituacao:'',
+  // E5
+  anoLetivo:'2026', etapa:'', turno:'Matutino', turma:'A', nChamada:'',
+  bolsaFamilia:'', ensinoReligioso:false, autorizaImagem:false,
+  utilizaTransporte:'', linhaTransporte:'', fazenda:'', unidadeConsumidora:'',
+  // E6
+  filiacao1:'', cpfRg1:'', profissao1:'', localTrabalho1:'', telefone1:'',
+  filiacao2:'', cpfRg2:'', profissao2:'', localTrabalho2:'', telefone2:'',
+  responsavel:'', grauParentesco:'', nacionalidadeResp:'Brasileira', estadoCivilResp:'',
+  cpfResponsavel:'', rgResponsavel:'',
+  telResponsavel:'', enderecoResp:'', numeroResp:'', bairroResp:'', cidadeResp:''
+};
+
+const PILLS_VALS = {};
+let etapaAtual = 1;
+
+// ─── STEPPER ──────────────────────────────────────────
+const ETAPAS_INFO = [
+  {n:1,icon:'👤',label:'Dados do Aluno'},
+  {n:2,icon:'📄',label:'Reg. Civil'},
+  {n:3,icon:'♿',label:'Nec. Especiais'},
+  {n:4,icon:'📚',label:'Sit. Anterior'},
+  {n:5,icon:'🏫',label:'Matrícula'},
+  {n:6,icon:'👨‍👩‍👧',label:'Familiares'},
+];
+function buildStepper(){
+  const el = document.getElementById('stepper');
+  el.innerHTML = '';
+  ETAPAS_INFO.forEach((e,i) => {
+    const div = document.createElement('div');
+    div.className = 'step' + (e.n===etapaAtual?' ativo':e.n<etapaAtual?' feito':'');
+    div.onclick = () => { if(e.n<=etapaAtual) ir(e.n); };
+    div.innerHTML = `<div class="step-circle">${e.n<etapaAtual?'✓':e.icon}</div><div class="step-label">${e.label}</div>`;
+    el.appendChild(div);
+    if(i<ETAPAS_INFO.length-1){
+      const sep = document.createElement('div');
+      sep.className = 'sep'+(e.n<etapaAtual?' feita':'');
+      el.appendChild(sep);
+    }
+  });
+}
+
+// ─── NAVEGAÇÃO ────────────────────────────────────────
+function ir(n){
+  salvarEtapaAtual();
+  document.getElementById('etapa-'+etapaAtual).classList.add('hidden');
+  etapaAtual = n;
+  document.getElementById('etapa-'+n).classList.remove('hidden');
+  document.getElementById('barra').style.width = (n/6*100)+'%';
+  buildStepper();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function salvarEtapaAtual(){
+  const g = id => (document.getElementById(id)||{value:''}).value;
+  const gc = id => (document.getElementById(id)||{checked:false}).checked;
+  if(etapaAtual===1){
+    D.nome=g('nome'); D.dataNasc=g('dataNasc'); D.dataMatricula=g('dataMatricula');
+    D.inep=g('inep'); D.pisNis=g('pisNis'); D.cns=g('cns');
+    const natEst=g('natEstado'), natCid=g('natCidade');
+    D.naturalidade=(natCid&&natEst)?natCid+'/'+natEst:(natCid||natEst||'');
+    D.nacionalidade=g('nacionalidade');
+    D.tipoMatricula=PILLS_VALS['pills-tipoMatricula']||'';
+    D.sexo=PILLS_VALS['pills-sexo']||'';
+    D.racaCor=PILLS_VALS['pills-raca']||'';
+    D.moradia=PILLS_VALS['pills-moradia']||'';
+    D.transferEletr=PILLS_VALS['pills-transf-eletr']||'';
+  } else if(etapaAtual===2){
+    D.certidaoMatricula=g('certidaoMatricula'); D.dataEmissao=g('dataEmissao');
+    const emEst=g('emissaoEstado'), emCid=g('emissaoCidade');
+    D.localEmissao=(emCid&&emEst)?emCid+'/'+emEst:(emCid||emEst||'');
+    D.rg=g('rg'); D.orgaoExpedidor=g('orgaoExpedidor');
+    D.dataExpedicao=g('dataExpedicao'); D.cpf=g('cpf'); D.tituloEleitor=g('tituloEleitor');
+  } else if(etapaAtual===3){
+    D.restricaoAlimentar=PILLS_VALS['pills-restricao']||'';
+    D.detalheRestricao=g('detalheRestricao');
+    D.temNEE=PILLS_VALS['pills-nee']||'';
+    D.deficiencias=[];
+    document.querySelectorAll('#def-grid input[type=checkbox]:checked').forEach(c => D.deficiencias.push(c.dataset.val));
+  } else if(etapaAtual===4){
+    D.jaEstudou=PILLS_VALS['pills-estudou']||'';
+    D.transferencia=PILLS_VALS['pills-transf']||'';
+    D.resultado=PILLS_VALS['pills-resultado']||'';
+    D.outrasSituacao=PILLS_VALS['pills-outras']||'';
+  } else if(etapaAtual===5){
+    D.anoLetivo=g('anoLetivo'); D.etapa=g('etapa'); D.turno=g('turno');
+    D.turma=g('turma'); D.nChamada=g('nChamada'); D.bolsaFamilia=g('bolsaFamilia');
+    D.ensinoReligioso=gc('ensinoReligioso'); D.autorizaImagem=gc('autorizaImagem');
+    D.utilizaTransporte=PILLS_VALS['pills-transporte']||'';
+    D.linhaTransporte=g('linhaTransporte'); D.fazenda=g('fazenda');
+    D.unidadeConsumidora=g('unidadeConsumidora');
+  } else if(etapaAtual===6){
+    D.filiacao1=g('filiacao1'); D.cpfRg1=g('cpfRg1'); D.profissao1=g('profissao1');
+    D.localTrabalho1=g('localTrabalho1'); D.telefone1=g('telefone1');
+    D.filiacao2=g('filiacao2'); D.cpfRg2=g('cpfRg2'); D.profissao2=g('profissao2');
+    D.localTrabalho2=g('localTrabalho2'); D.telefone2=g('telefone2');
+    D.responsavel=g('responsavel'); D.grauParentesco=g('grauParentesco');
+    D.nacionalidadeResp=g('nacionalidadeResp')||'Brasileira';
+    D.estadoCivilResp=g('estadoCivilResp');
+    D.cpfResponsavel=g('cpfResponsavel'); D.rgResponsavel=g('rgResponsavel');
+    D.telResponsavel=g('telResponsavel'); D.enderecoResp=g('enderecoResp');
+    D.numeroResp=g('numeroResp'); D.bairroResp=g('bairroResp'); D.cidadeResp=g('cidadeResp');
+  }
+}
+
+// ─── PILLS ────────────────────────────────────────────
+function selPill(grupoId, valor, el){
+  document.querySelectorAll('#'+grupoId+' .pill').forEach(p => {
+    p.classList.remove('sel-azul','sel-verde','sel-roxo','sel-laranja');
+  });
+  el.classList.add('sel-azul');
+  PILLS_VALS[grupoId] = valor;
+}
+
+// ─── MASKS ────────────────────────────────────────────
+function maskData(el){ el.value = el.value.replace(/\D/g,'').replace(/(\d{2})(\d)/,'$1/$2').replace(/(\d{2})(\d)/,'$1/$2').slice(0,10); }
+function maskCPF(el){ el.value = el.value.replace(/\D/g,'').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2').slice(0,14); }
+function maskTel(el){ el.value = el.value.replace(/\D/g,'').replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2').slice(0,15); }
+function maskRG(el){ el.value = el.value.replace(/[^0-9A-Za-z\-\.]/g,''); }
+
+// ─── FOTO ─────────────────────────────────────────────
+function carregarFoto(inp){
+  const f = inp.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    D.fotoBase64 = e.target.result;
+    const box = document.getElementById('foto-box');
+    box.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+  };
+  r.readAsDataURL(f);
+}
+
+// ─── DEFICIÊNCIAS ────────────────────────────────────
+const DEFS = ['Cegueira','Baixa Visão','Surdez','Def. Auditiva','Física',
+  'Sínd. Asperger','Sínd. Helder','Def. Intelectual','Múltipla',
+  'Altas Habilidades','Surdo-cegueira','Autista','Sínd. Rett'];
+
+function buildDefs(){
+  const g = document.getElementById('def-grid');
+  g.innerHTML = '';
+  DEFS.forEach(d => {
+    const lbl = document.createElement('label');
+    lbl.className = 'chk';
+    lbl.innerHTML = `<input type="checkbox" data-val="${d}"><span>${d}</span>`;
+    g.appendChild(lbl);
+  });
+}
+buildDefs();
+
+function toggleNEE(v){ document.getElementById('div-nee').classList.toggle('hidden',!v); }
+function toggleRestricao(v){ document.getElementById('div-restricao').classList.toggle('hidden',!v); }
+function toggleTransporte(v){ document.getElementById('div-transporte').classList.toggle('hidden',!v); }
+
+// ─── VISUALIZAR ───────────────────────────────────────
+function salvarTodasEtapas(){
+  const etapaOrig = etapaAtual;
+  for(let e=1; e<=6; e++){
+    etapaAtual = e;
+    salvarEtapaAtual();
+  }
+  etapaAtual = etapaOrig;
+}
+
+async function visualizar(){
+  salvarTodasEtapas();
+  const fichaHtml = gerarFichaHTML();
+  const autoHtml  = gerarAutorizacaoHTML();
+  const separator = '<hr class="separador">';
+  const tudo      = fichaHtml + separator + autoHtml;
+
+  document.getElementById('preview-inner').innerHTML = tudo;
+  document.getElementById('impressao').innerHTML     = tudo;
+  document.getElementById('form-area').classList.add('hidden');
+  document.getElementById('preview-area').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  // ── Salvar automaticamente no banco ──────────────────────────
+  if(D.nome && D.nome.trim()){
+    try {
+      const res = await salvarMatriculaAtual();
+      if(res.ok){
+        salvarEExibir(D.nome, res.atualizado);
+      }
+    } catch(e){ console.warn('Storage indisponível:', e); }
+  }
+}
+
+function voltarForm(){
+  document.getElementById('preview-area').classList.add('hidden');
+  document.getElementById('area-finalizacao').classList.add('hidden');
+  document.getElementById('form-area').classList.remove('hidden');
+}
+
+// ─── GERAR PDF DA FICHA DE MATRÍCULA ─────────────────
+// ─── GERAR PDF DA FICHA DE MATRÍCULA (IGUAL À PRÉVIA) ─────────────────
+async function gerarPDFMatricula(){
+  const btn = document.querySelector('.pv-header .btn[onclick="gerarPDFMatricula()"]') ||
+              document.querySelector('button[onclick="gerarPDFMatricula()"]');
+  if(btn){ btn.textContent='⏳ Gerando PDF...'; btn.disabled=true; }
+
+  // Carrega jsPDF se necessário
+  if(!window.jspdf){
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Carrega html2canvas se necessário (para capturar a mesma prévia)
+  if(!window.html2canvas){
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Captura SOMENTE a ficha (sem os botões da header)
+  const fichaEl = document.querySelector('#preview-area .ficha') || document.getElementById('preview-area');
+  if(!fichaEl){
+    alert('Não encontrei a pré-visualização da ficha para gerar o PDF.');
+    if(btn){ btn.textContent='⬇ Baixar PDF'; btn.disabled=false; }
+    return;
+  }
+
+  // Aguarda imagens (logos/foto) carregarem
+  const imgs = Array.from(fichaEl.querySelectorAll('img'));
+  await Promise.all(imgs.map(img => {
+    if(img.complete) return Promise.resolve();
+    return new Promise(res => { img.onload = img.onerror = res; });
+  }));
+
+  // Sanitização do nome do arquivo
+  const limpar = (s) => (s || '')
+    .toString()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')   // remove acentos
+    .replace(/[^\w\s-]/g,'')                           // remove símbolos
+    .trim()
+    .replace(/\s+/g,'_')
+    .replace(/_+/g,'_')
+    .toUpperCase();
+
+  // Nome do aluno + turma (pedido: NOME_DO_ALUNO_TURMA.pdf)
+  const nomeAluno = (window.D && (D.nome || D.nomeAluno)) || document.getElementById('nome')?.value || 'ALUNO';
+  const turma = (window.D && D.turma) || document.getElementById('turma')?.value || 'TURMA';
+  const fileName = `${limpar(nomeAluno)}_${limpar(turma)}.pdf`;
+
+  // Renderiza a ficha exatamente como está na prévia
+  const canvas = await window.html2canvas(fichaEl, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    scrollY: -window.scrollY
+  });
+
+  const imgData = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+
+  const imgW = pageW;
+  const imgH = (canvas.height * imgW) / canvas.width;
+
+  let y = 0;
+  let remaining = imgH;
+
+  while(remaining > 0){
+    pdf.addImage(imgData, 'PNG', 0, y, imgW, imgH);
+    remaining -= pageH;
+    if(remaining > 0){
+      pdf.addPage();
+      y -= pageH;
+    }
+  }
+
+  pdf.save(fileName);
+
+  if(btn){ btn.textContent='⬇ Baixar PDF'; btn.disabled=false; }
+}
+
+// Gera PDFs iniciais (ficha + termo), envia ao Storage e vincula na pasta digital/documentos_aluno
+async function gerarEAnexarDocumentosIniciaisNaPastaDigital(matriculaId){
+  if(!matriculaId) return;
+
+  const limpar = (s) => (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_').replace(/_+/g,'_').toUpperCase();
+  const slug = (s) => limpar(s).toLowerCase();
+  const nomeAluno = (D && (D.nome || D.nomeAluno)) || 'ALUNO';
+  const turma = (D && D.turma) || 'TURMA';
+  const alunoPasta = slug(nomeAluno) || String(matriculaId);
+
+  if(!window.jspdf){ await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+  if(!window.html2canvas){ await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+
+  async function gerarPdfEmBlob(html){
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;background:#fff';
+    wrap.innerHTML = html;
+    document.body.appendChild(wrap);
+    try{
+      const el = wrap.querySelector('.ficha, .autorizacao') || wrap.firstElementChild;
+      if(!el) return null;
+      const imgs = Array.from(el.querySelectorAll('img'));
+      await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = r; })));
+
+      const canvas = await window.html2canvas(el, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' });
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgW = pageW;
+      const imgH = (canvas.height * imgW) / canvas.width;
+      let y = 0, remaining = imgH;
+      while(remaining > 0){
+        pdf.addImage(imgData, 'PNG', 0, y, imgW, imgH);
+        remaining -= pageH;
+        if(remaining > 0){ pdf.addPage(); y -= pageH; }
+      }
+      return pdf.output('blob');
+    } finally {
+      wrap.remove();
+    }
+  }
+
+  async function uploadParaStorage(path, blob){
+    try{
+      const up = await supaFetch('/storage/v1/object/pastas_digitais/' + encodeURIComponent(path), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/pdf',
+          'x-upsert': 'true'
+        },
+        body: blob
+      });
+      return (up && (up.Key || up.path)) ? '/storage/v1/object/public/pastas_digitais/' + (up.Key || up.path) : '/storage/v1/object/public/pastas_digitais/' + path;
+    } catch(e){
+      console.warn('Falha ao enviar para Storage:', e.message || e);
+      return null;
+    }
+  }
+
+  async function vincularDocumentoAluno(doc){
+    const payload = {
+      aluno_id: matriculaId,
+      tipo: doc.tipo,
+      nome_arquivo: doc.nome,
+      caminho_storage: doc.caminho,
+      url_publica: doc.url,
+      status: 'disponivel',
+      criado_em: new Date().toISOString()
+    };
+    try{
+      await supaFetch('/rest/v1/documentos_aluno', {
+        method: 'POST',
+        prefer: 'return=minimal',
+        body: JSON.stringify(payload)
+      });
+    } catch(e1){
+      try{
+        await supaFetch('/rest/v1/documentos_aluno?on_conflict=aluno_id,tipo', {
+          method: 'POST',
+          prefer: 'resolution=merge-duplicates,return=minimal',
+          body: JSON.stringify(payload)
+        });
+      } catch(e2){
+        console.warn('Não foi possível vincular em documentos_aluno:', e2.message || e2);
+      }
+    }
+  }
+
+  const documentos = [
+    { id: 'ficha_matricula', tipo: 'ficha_matricula', nome: `${limpar(nomeAluno)}_${limpar(turma)}_FICHA.pdf`, html: gerarFichaHTML() },
+    { id: 'termo_uso_imagem', tipo: 'termo_uso_imagem', nome: `${limpar(nomeAluno)}_${limpar(turma)}_TERMO_USO_IMAGEM.pdf`, html: gerarAutorizacaoHTML() }
+  ];
+
+  let docsAtuais = {};
+  try{
+    const existente = await supaFetch('/rest/v1/pastas_digitais?aluno_id=eq.' + matriculaId + '&select=docs');
+    if(Array.isArray(existente) && existente[0] && existente[0].docs && typeof existente[0].docs === 'object') docsAtuais = existente[0].docs;
+  } catch(e){}
+
+  const agoraISO = new Date().toISOString();
+  const agoraBR = new Date().toLocaleString('pt-BR');
+  for(const doc of documentos){
+    const blob = await gerarPdfEmBlob(doc.html);
+    if(!blob) continue;
+    const caminho = `${alunoPasta}/${doc.nome}`;
+    const urlPublica = await uploadParaStorage(caminho, blob);
+    const base64Doc = await new Promise((resolve) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result || null);
+      fr.onerror = () => resolve(null);
+      fr.readAsDataURL(blob);
+    });
+    docsAtuais[doc.id] = {
+      nome: doc.nome,
+      caminho_storage: caminho,
+      link: urlPublica,
+      base64: base64Doc,
+      isPDF: true,
+      salvoEm: agoraBR,
+      tamanho: Math.round(blob.size / 1024) + 'KB',
+      origem: 'gerado_automaticamente'
+    };
+    await vincularDocumentoAluno({ ...doc, caminho, url: urlPublica });
+  }
+
+  ['rg_aluno', 'hist_escolar', 'cpf_aluno'].forEach((id) => {
+    if(!docsAtuais[id]){
+      docsAtuais[id] = {
+        pendente: true,
+        obrigatorio: true,
+        status: 'aguardando_upload_secretaria',
+        descricao: 'Documento pendente de digitalização pela secretaria',
+        atualizado_em: agoraISO
+      };
+    }
+  });
+
+  // Compatibilidade com chaves antigas usadas em alguns fluxos
+  if(docsAtuais.rg && !docsAtuais.rg_aluno) docsAtuais.rg_aluno = docsAtuais.rg;
+  if(docsAtuais.cpf && !docsAtuais.cpf_aluno) docsAtuais.cpf_aluno = docsAtuais.cpf;
+
+  try{
+    await supaFetch('/rest/v1/pastas_digitais?on_conflict=aluno_id', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates,return=minimal',
+      body: JSON.stringify({
+        aluno_id: matriculaId,
+        docs: docsAtuais,
+        atualizado_em: agoraISO
+      })
+    });
+  } catch(e){
+    console.warn('Anexar documentos iniciais na pasta digital:', e.message || e);
+  }
+}
+
+function voltarParaForm(){
+  document.getElementById('area-finalizacao').classList.add('hidden');
+  document.getElementById('form-area').classList.remove('hidden');
+}
+
+// ─── CONFIRMAR VOLTAR AO INÍCIO ──────────────────────
+function confirmarVoltarInicio(){
+  if(confirm('Deseja cancelar e voltar ao Início?\n\nOs dados preenchidos NÃO serão salvos.')){
+    window.location.href = 'index.html';
+  }
+}
+
+// ─── FINALIZAR MATRÍCULA ─────────────────────────────
+async function finalizarMatricula(){
+  salvarTodasEtapas();
+  // Gerar ficha para impressão
+  const fichaHtml = gerarFichaHTML();
+  const autoHtml  = gerarAutorizacaoHTML();
+  document.getElementById('impressao').innerHTML = fichaHtml + '<hr class="separador">' + autoHtml;
+
+  let matriculaId = D.id;
+  if(D.nome && D.nome.trim()){
+    try {
+      const res = await salvarMatriculaAtual();
+      if(res.ok){
+        matriculaId = res.id || D.id;
+        salvarEExibir(D.nome, res.atualizado);
+      }
+      if(matriculaId){
+        await gerarEAnexarDocumentosIniciaisNaPastaDigital(matriculaId);
+      }
+    } catch(e){ console.warn('Erro ao salvar/anexar:', e); }
+  }
+
+  // Mostrar área de finalização
+  document.getElementById('form-area').classList.add('hidden');
+  document.getElementById('preview-area').classList.add('hidden');
+  document.getElementById('area-finalizacao').classList.remove('hidden');
+  document.getElementById('nome-aluno-finalizado').textContent = D.nome ? '👤 ' + D.nome : '';
+  buildDocsUpload();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── PASTA DIGITAL UPLOAD ────────────────────────────
+const DOCS_NECESSARIOS = [
+  {id:'certidao',  icon:'📜', nome:'Certidão de Nascimento', obrig:false},
+  {id:'rg',        icon:'🪪', nome:'RG / Identidade',         obrig:false},
+  {id:'cpf',       icon:'📋', nome:'CPF',                      obrig:false},
+  {id:'compresid', icon:'🏠', nome:'Comprovante de Residência', obrig:false},
+  {id:'foto3x4',   icon:'📷', nome:'Foto 3x4',                 obrig:false},
+  {id:'cartvacinacao', icon:'💉', nome:'Cartão de Vacinação',  obrig:false},
+  {id:'hist_escolar',  icon:'📚', nome:'Histórico Escolar',   obrig:false},
+  {id:'laudo_med', icon:'🩺', nome:'Laudo Médico (NEE)',       obrig:false},
+];
+const DOCS_ARQUIVOS = {};
+
+function buildDocsUpload(){
+  const grid = document.getElementById('docs-upload-grid');
+  grid.innerHTML = '';
+  DOCS_NECESSARIOS.forEach(doc => {
+    const div = document.createElement('div');
+    div.id = 'slot-'+doc.id;
+    div.style.cssText = 'border:2px dashed #CBD5E0;border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:.3s;background:#FAFBFF;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative';
+    div.innerHTML = `
+      <div style="font-size:2rem">${doc.icon}</div>
+      <div style="font-size:.78rem;font-weight:700;color:#1A202C">${doc.nome}</div>
+      <div style="font-size:.67rem;color:#4A5568">Opcional</div>
+      <div style="font-size:.7rem;color:#3182CE;margin-top:4px">Clique para enviar</div>
+      <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" id="inp-${doc.id}" onchange="docSelecionado('${doc.id}', this)">
+    `;
+    div.onclick = (e) => { if(!e.target.matches('button')) document.getElementById('inp-'+doc.id).click(); };
+    div.onmouseover = () => { if(!DOCS_ARQUIVOS[doc.id]) div.style.borderColor='#3182CE'; };
+    div.onmouseout  = () => { if(!DOCS_ARQUIVOS[doc.id]) div.style.borderColor='#CBD5E0'; };
+    grid.appendChild(div);
+  });
+  atualizarContadorDocs();
+}
+
+function docSelecionado(id, inp){
+  const file = inp.files[0]; if(!file) return;
+  DOCS_ARQUIVOS[id] = file;
+  const slot = document.getElementById('slot-'+id);
+  const doc = DOCS_NECESSARIOS.find(d=>d.id===id);
+  slot.style.cssText = 'border:2px solid #A5D6A7;border-radius:14px;padding:16px;text-align:center;transition:.3s;background:#F0FFF4;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative';
+  slot.innerHTML = `
+    <div style="font-size:2rem">${doc.icon}</div>
+    <div style="font-size:.78rem;font-weight:700;color:#276749">${doc.nome}</div>
+    <div style="font-size:.7rem;color:#276749;font-weight:700">✅ ${file.name.length>22?file.name.slice(0,19)+'...':file.name}</div>
+    <button onclick="removerDoc('${id}')" style="margin-top:4px;background:#FFF5F5;border:1px solid #FEB2B2;color:#C53030;border-radius:6px;padding:3px 10px;font-size:.68rem;font-weight:700;cursor:pointer">✕ Remover</button>
+    <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" id="inp-${id}" onchange="docSelecionado('${id}', this)">
+  `;
+  atualizarContadorDocs();
+}
+
+function removerDoc(id){
+  delete DOCS_ARQUIVOS[id];
+  buildDocsUpload();
+}
+
+function atualizarContadorDocs(){
+  const total = DOCS_NECESSARIOS.length;
+  const enviados = Object.keys(DOCS_ARQUIVOS).length;
+  document.getElementById('docs-contador').textContent = enviados + ' / ' + total;
+  document.getElementById('docs-barra').style.width = (enviados/total*100)+'%';
+}
+
+async function salvarPastaDigital(){
+  const btn = document.getElementById('btn-salvar-pasta');
+  const toast = document.getElementById('toast-pasta');
+  if(btn) { btn.disabled = true; btn.textContent = '⏳ Salvando...'; }
+
+  try {
+    // Garantir que a matrícula já foi salva e tem ID
+    if(!D.id) {
+      const res = await salvarMatriculaAtual();
+      if(!res.ok) throw new Error('Falha ao salvar matrícula');
+    }
+
+    // Converter arquivos selecionados para base64
+    const docsParaSalvar = {};
+    const toBase64 = (file) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+      reader.readAsDataURL(file);
+    });
+
+    for(const doc of DOCS_NECESSARIOS){
+      const arq = DOCS_ARQUIVOS[doc.id];
+      if(arq){
+        const base64 = await toBase64(arq);
+        docsParaSalvar[doc.id] = {
+          base64:   base64,
+          isPDF:    arq.type === 'application/pdf',
+          nome:     arq.name,
+          tamanho:  Math.round(arq.size/1024) + 'KB',
+          salvoEm:  new Date().toLocaleString('pt-BR')
+        };
+      }
+    }
+
+    // Salvar via upsert por aluno_id (evita erro 409 quando a pasta já existe)
+    await supaFetch('/rest/v1/pastas_digitais?on_conflict=aluno_id', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates,return=minimal',
+      body: JSON.stringify({
+        aluno_id:      D.id,
+        nome_aluno:    D.nome      || '',
+        etapa:         D.etapa     || '',
+        turma:         D.turma     || '',
+        turno:         D.turno     || '',
+        ano_letivo:    D.anoLetivo || '2026',
+        docs:          docsParaSalvar,
+        atualizado_em: new Date().toISOString()
+      })
+    });
+
+    toast.classList.remove('hidden');
+    setTimeout(()=>{
+      window.location.href='pasta_digital_aluno.html?aluno=' + encodeURIComponent(D.id);
+    }, 2200);
+  } catch(e) {
+    console.error('salvarPastaDigital:', e);
+    if(btn) { btn.disabled = false; btn.textContent = '💾 Salvar Pasta Digital'; }
+    alert('Erro ao salvar documentos: ' + (e.message || e) + '\nTente novamente.');
+  }
+}
+
+function pularUpload(){
+  if(confirm('Deseja pular o upload de documentos agora?\n\nVocê poderá fazer o upload depois na Pasta Digital do Aluno.')){
+    window.location.href='index.html';
+  }
+}
+
+
+
+// ─── GERAR FICHA HTML ─────────────────────────────────
+function gerarFichaHTML(){
+  const chk = (v,label) => v ? `<b>[X] ${label}</b>` : `[ ] ${label}`;
+  const v = k => D[k] || '';
+  const bold = (txt) => txt ? `<b>${txt}</b>` : '—';
+  const foto = D.fotoBase64
+    ? `<img src="${D.fotoBase64}" style="width:24mm;height:32mm;object-fit:cover;border:1px solid #ccc">`
+    : `<div style="width:24mm;height:32mm;border:1px dashed #aaa;display:flex;align-items:center;justify-content:center;font-size:6pt;color:#999;margin:auto">FOTO<br>3X4</div>`;
+
+  const defs = D.deficiencias.length ? D.deficiencias.join(' | ')
+    : '( )Cegueira ( )Baixa Visão ( )Surdez ( )Def.Auditiva ( )Física ( )Asperger ( )Helder ( )Intelectual ( )Múltipla ( )Altas Hab. ( )Surdo-cegueira ( )Autista ( )Rett';
+  
+  // Alterar título dinamicamente
+  const tituloFicha = (D.tipoMatricula === 'Rematricula') ? 'FICHA DE REMATRÍCULA' : 'FICHA DE MATRÍCULA';
+
+  return `
+<div class="ficha">
+  <!-- CABEÇALHO -->
+  <table><tr>
+    <td style="width:22mm;text-align:center;vertical-align:middle;border-right:1px solid #000;padding:1mm">
+      <img src="assets/img_extracted_2.jpeg" style="width:20mm;height:auto;display:block;margin:auto">
+    </td>
+    <td style="text-align:center;vertical-align:middle;border-right:1px solid #000">
+      <b style="font-size:10pt">ESTADO DE MATO GROSSO</b><br>
+      <b>SECRETARIA MUNICIPAL DE EDUCAÇÃO</b><br>
+      <b style="font-size:9pt">E. M GETÚLIO VARGAS</b><br>
+      <span style="font-size:7pt"><b>CEP: 78.888-000 NOVA UBIRATÃ - MT</b></span><br>
+      <span style="font-size:6.5pt;color:#1565C0">SEMEC.HISTORICO@OUTLOOK.COM</span>
+    </td>
+    <td style="width:22mm;text-align:center;vertical-align:middle;border-right:1px solid #000;padding:1mm">
+      <img src="assets/img_extracted_3.png" style="width:20mm;height:auto;display:block;margin:auto;max-height:20mm;object-fit:contain">
+    </td>
+  </tr>
+  
+</table>
+
+  <!-- TÍTULO -->
+  <table><tr><td class="th-blue">${tituloFicha}</td></tr></table>
+
+  <!-- DADOS DO ALUNO -->
+  <table>
+    <tr><td class="th" colspan="3">DADOS DO ALUNO (A)</td>
+        <td rowspan="6" style="width:26mm;text-align:center;vertical-align:middle">${foto}</td>
+    </tr>
+    <tr>
+      <td colspan="3"><b>NOME:</b> <span class="val"><b>${D.nome}</b></span></td>
+    </tr>
+    <tr>
+      <td><b>SEXO:</b> ${D.sexo==='M'?'<b>[X]</b> M &nbsp;[ ] F':D.sexo==='F'?'[ ] M &nbsp;<b>[X]</b> F':'[ ] M &nbsp;[ ] F'}</td>
+      <td><b>NATURALIDADE:</b> <span class="val"><b>${D.naturalidade}</b></span></td>
+      <td><b>NASCIMENTO:</b> <span class="val"><b>${D.dataNasc}</b></span></td>
+    </tr>
+    <tr>
+      <td><b>INEP:</b> <span class="val"><b>${D.inep}</b></span></td>
+      <td><b>PIS/NIS:</b> <span class="val"><b>${D.pisNis}</b></span></td>
+      <td><b>CNS (SUS):</b> <span class="val"><b>${D.cns}</b></span></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>NACIONALIDADE:</b> <span class="val"><b>${D.nacionalidade}</b></span></td>
+      <td><b>DATA MATRÍCULA:</b> <span class="val"><b>${D.dataMatricula}</b></span> &nbsp; <b>TIPO:</b> <span class="val"><b>${D.tipoMatricula==="Inicial"?"(X) INICIAL &nbsp;&nbsp;( ) REMATRÍCULA":D.tipoMatricula==="Rematricula"?"( ) INICIAL &nbsp;&nbsp;(X) REMATRÍCULA":"( ) INICIAL &nbsp;&nbsp;( ) REMATRÍCULA"}</b></span></td>
+    </tr>
+    <tr>
+      <td colspan="3"><b>RAÇA/COR:</b> <span class="val">${chk(D.racaCor==='Branco','BRANCO')}</span> &nbsp;<span class="val">${chk(D.racaCor==='Preto','PRETO')}</span> &nbsp;<span class="val">${chk(D.racaCor==='Pardo','PARDO')}</span> &nbsp;<span class="val">${chk(D.racaCor==='Amarelo','AMARELO')}</span> &nbsp;<span class="val">${chk(D.racaCor==='Indígena','INDÍGENA')}</span> &nbsp;<span class="val">${chk(D.racaCor==='Não Declarado','NÃO DECLARADO')}</span></td>
+    </tr>
+    <tr>
+      <td colspan="3"><b>SITUAÇÃO DE MORADIA:</b> <span class="val">${chk(D.moradia==='Maior Responsável','MAIOR RESPONSÁVEL')}</span> &nbsp;<span class="val">${chk(D.moradia==='Mora com os Pais','MORA COM OS PAIS')}</span> &nbsp;<span class="val">${chk(D.moradia==='Mora com Parentes','MORA COM PARENTES')}</span> &nbsp;&nbsp;&nbsp; <b>TRANSFERÊNCIA ELETR.:</b> <span class="val">${chk(D.transferEletr==='Sim','SIM')}</span> &nbsp;<span class="val">${chk(D.transferEletr==='Não','NÃO')}</span></td>
+    </tr>
+  </table>
+
+  <!-- REGISTRO CIVIL -->
+  <table>
+    <tr><td class="th" colspan="4">REGISTRO CIVIL</td></tr>
+    <tr><td colspan="4"><b>CERTIDÃO DE NASCIMENTO MATRÍCULA:</b> <span class="val">${D.certidaoMatricula}</span></td></tr>
+    <tr>
+      <td colspan="2"><b>DATA DA EMISSÃO:</b> <span class="val">${D.dataEmissao}</span></td>
+      <td colspan="2"><b>LOCAL DE EMISSÃO:</b> <span class="val">${D.localEmissao}</span></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>CARTEIRA DE IDENTIDADE (RG):</b> <span class="val">${D.rg}</span></td>
+      <td colspan="2"><b>ÓRGÃO EXPEDIDOR:</b> <span class="val">${D.orgaoExpedidor}</span></td>
+    </tr>
+    <tr>
+      <td><b>DATA DE EXPEDIÇÃO:</b> ${D.dataExpedicao||'__/__/______'}</td>
+      <td><b>CPF:</b> <span class="val">${D.cpf}</span></td>
+      <td colspan="2"><b>TÍTULO ELEITOR:</b> <span class="val">${D.tituloEleitor}</span></td>
+    </tr>
+  </table>
+
+  <!-- NEE -->
+  <table>
+    <tr><td class="th" colspan="2">NECESSIDADES EDUCACIONAIS ESPECIAIS</td></tr>
+    <tr>
+      <td colspan="2"><b>POSSUI?</b> <span class="val">${chk(D.temNEE==='Sim','SIM')}</span> &nbsp;<span class="val">${chk(D.temNEE==='Não','NÃO')}</span> &nbsp;&nbsp;
+        <b>TIPO:</b> ${defs}
+      </td>
+    </tr>
+    <tr>
+      <td><b>RESTRIÇÃO ALIMENTAR?</b> <span class="val">${chk(D.restricaoAlimentar==='Sim','SIM')}</span> &nbsp;<span class="val">${chk(D.restricaoAlimentar==='Não','NÃO')}</span></td>
+      <td><b>QUAL?</b> <span class="val">${D.detalheRestricao}</span></td>
+    </tr>
+  </table>
+
+  <!-- SITUAÇÃO ANTERIOR -->
+  <table>
+    <tr><td class="th" colspan="2">SITUAÇÃO ALUNO ANO ANTERIOR</td></tr>
+    <tr>
+      <td colspan="2">
+        <b>JÁ ESTUDOU NESTA ESCOLA?:</b> <span class="val">${chk(D.jaEstudou==='Sim','SIM')}</span> &nbsp;<span class="val">${chk(D.jaEstudou==='Não','NÃO')}</span> &nbsp;&nbsp;
+        <b>TRANSFERÊNCIA:</b> <span class="val">${chk(D.transferencia==='Sim','SIM')}</span> &nbsp;<span class="val">${chk(D.transferencia==='Não','NÃO')}</span> &nbsp;&nbsp;
+        <b>RESULTADO:</b> <span class="val">${chk(D.resultado==='Aprovado','Aprovado')}</span> &nbsp;<span class="val">${chk(D.resultado==='Reprovado','Reprovado')}</span> &nbsp;<span class="val">${chk(D.resultado==='Retido','Retido')}</span>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>OUTRAS SITUAÇÕES:</b> <span class="val">${chk(D.outrasSituacao==='Desistente','Desistente')}</span> &nbsp;<span class="val">${chk(D.outrasSituacao==='Não Frequentou','Não Frequentou')}</span> &nbsp;<span class="val">${chk(D.outrasSituacao==='Dependência','Dependência')}</span></td>
+    </tr>
+  </table>
+
+  <!-- DADOS DA MATRÍCULA -->
+  <table>
+    <tr><td class="th" colspan="6">DADOS DA MATRÍCULA</td></tr>
+    <tr>
+      <td colspan="2"><b>ESCOLA:</b> GETÚLIO VARGAS</td>
+      <td colspan="2"><b>MUNICÍPIO:</b> NOVA UBIRATÃ/MT</td>
+      <td colspan="2"><b>ANO LETIVO:</b> <span class="val">${D.anoLetivo}</span></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>ETAPA:</b> <span class="val">${D.etapa}</span></td>
+      <td><b>TURNO:</b> <span class="val">${D.turno}</span></td>
+      <td><b>TURMA:</b> <span class="val">${D.turma}</span></td>
+      <td colspan="2"><b>Nº DA CHAMADA:</b> <span class="val">${D.nChamada}</span></td>
+    </tr>
+    <tr>
+      <td colspan="3"><b>OPTANTE ENSINO RELIGIOSO?</b> <span class="val">${chk(D.ensinoReligioso,'SIM')}</span> &nbsp;<span class="val">${chk(!D.ensinoReligioso,'NÃO')}</span></td>
+      <td colspan="3"><b>AUTORIZA IMAGEM?</b> <span class="val">${chk(D.autorizaImagem,'SIM')}</span> &nbsp;<span class="val">${chk(!D.autorizaImagem,'NÃO')}</span></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>BOLSA FAMÍLIA?</b> <span class="val">${chk(D.bolsaFamilia==='Sim','SIM')}</span> &nbsp;<span class="val">${chk(D.bolsaFamilia==='Não','NÃO')}</span></td>
+      <td colspan="2"><b>UTILIZA TRANSPORTE?</b> <span class="val">${chk(D.utilizaTransporte==='Sim','SIM')}</span> &nbsp;<span class="val">${chk(D.utilizaTransporte==='Não','NÃO')}</span></td>
+      <td colspan="2"><b>LINHA:</b> <span class="val">${D.linhaTransporte}</span> &nbsp;<b>FAZENDA:</b> <span class="val">${D.fazenda}</span></td>
+    </tr>
+    <tr><td colspan="6"><b>UNIDADE CONSUMIDORA (Energia):</b> <span class="val">${D.unidadeConsumidora}</span></td></tr>
+  </table>
+
+  <!-- DADOS FAMILIARES -->
+  <table>
+    <tr><td class="th" colspan="4">DADOS FAMILIARES</td></tr>
+    <tr>
+      <td colspan="2"><b>FILIAÇÃO 1:</b> <b>${D.filiacao1}</b></td>
+      <td colspan="2"><b>CPF:</b> <b>${D.cpfRg1}</b></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>PROFISSÃO:</b> <b>${D.profissao1}</b></td>
+      <td colspan="2"><b>LOCAL DE TRABALHO:</b> <b>${D.localTrabalho1}</b></td>
+    </tr>
+    <tr><td colspan="4"><b>FONE:</b> <b>${D.telefone1}</b></td></tr>
+    <tr>
+      <td colspan="2"><b>FILIAÇÃO 2:</b> <b>${D.filiacao2}</b></td>
+      <td colspan="2"><b>CPF:</b> <b>${D.cpfRg2}</b></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>PROFISSÃO:</b> <b>${D.profissao2}</b></td>
+      <td colspan="2"><b>LOCAL DE TRABALHO:</b> <b>${D.localTrabalho2}</b></td>
+    </tr>
+    <tr><td colspan="4"><b>FONE:</b> <b>${D.telefone2}</b></td></tr>
+  </table>
+
+  <!-- RESPONSÁVEL LEGAL -->
+  <table>
+    <tr><td class="th" colspan="4">RESPONSAVEL LEGAL</td></tr>
+    <tr>
+      <td colspan="2"><b>RESPONSÁVEL:</b> <span class="val"><b>${D.responsavel}</b></span></td>
+      <td colspan="2"><b>CPF DO RESPONSÁVEL:</b> <span class="val"><b>${D.cpfResponsavel}</b></span></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>RG DO RESPONSÁVEL:</b> <span class="val"><b>${D.rgResponsavel}</b></span></td>
+      <td colspan="2"><b>GRAU DE PARENTESCO:</b> <span class="val"><b>${D.grauParentesco}</b></span></td>
+    </tr>
+    <tr><td colspan="4"><b>FONE DO RESPONSÁVEL:</b> <span class="val"><b>${D.telResponsavel}</b></span></td></tr>
+    <tr>
+      <td colspan="2"><b>ENDEREÇO/Nº:</b> <span class="val"><b>${D.enderecoResp}</b></span>, <span class="val"><b>${D.numeroResp}</b></span></td>
+      <td><b>BAIRRO/COMPLEMENTO:</b> <span class="val"><b>${D.bairroResp}</b></span></td>
+      <td><b>CIDADE:</b> <span class="val"><b>${D.cidadeResp}</b></span></td>
+    </tr>
+  </table>
+
+  <!-- ASSINATURA -->
+  <div style="text-align:center;margin:3mm 0 2mm;font-size:7pt">
+    <div style="display:inline-block;border-top:1px solid #000;padding-top:1mm;width:70mm">ASSINATURA RESPONSÁVEL</div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <table>
+    <tr>
+      <td class="th">ANO LETIVO</td><td class="th">ETAPA</td><td class="th">TURNO</td>
+      <td class="th">TURMA</td><td class="th">DATA</td><td class="th">ASSINATURA DO RESPONSÁVEL</td>
+    </tr>
+    <tr style="height:8mm"><td><span class="val">${D.anoLetivo}</span></td><td><span class="val">${D.etapa}</span></td><td><span class="val">${D.turno}</span></td><td><span class="val">${D.turma}</span></td><td><span class="val">${D.dataMatricula}</span></td><td></td></tr>
+    <tr style="height:8mm"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr style="height:8mm"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+</div>`;
+}
+
+
+// ─── ESTADOS E CIDADES (IBGE) ─────────────────────────────────────────────
+const ESTADOS_BR = [
+  {sigla:'AC',nome:'Acre'},{sigla:'AL',nome:'Alagoas'},{sigla:'AP',nome:'Amapá'},
+  {sigla:'AM',nome:'Amazonas'},{sigla:'BA',nome:'Bahia'},{sigla:'CE',nome:'Ceará'},
+  {sigla:'DF',nome:'Distrito Federal'},{sigla:'ES',nome:'Espírito Santo'},
+  {sigla:'GO',nome:'Goiás'},{sigla:'MA',nome:'Maranhão'},{sigla:'MT',nome:'Mato Grosso'},
+  {sigla:'MS',nome:'Mato Grosso do Sul'},{sigla:'MG',nome:'Minas Gerais'},
+  {sigla:'PA',nome:'Pará'},{sigla:'PB',nome:'Paraíba'},{sigla:'PR',nome:'Paraná'},
+  {sigla:'PE',nome:'Pernambuco'},{sigla:'PI',nome:'Piauí'},{sigla:'RJ',nome:'Rio de Janeiro'},
+  {sigla:'RN',nome:'Rio Grande do Norte'},{sigla:'RS',nome:'Rio Grande do Sul'},
+  {sigla:'RO',nome:'Rondônia'},{sigla:'RR',nome:'Roraima'},{sigla:'SC',nome:'Santa Catarina'},
+  {sigla:'SP',nome:'São Paulo'},{sigla:'SE',nome:'Sergipe'},{sigla:'TO',nome:'Tocantins'}
+];
+
+const cidadesCache = {};
+
+function populaSelectEstados(selectId){
+  const sel = document.getElementById(selectId);
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Selecione o estado...</option>';
+  ESTADOS_BR.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.sigla;
+    opt.textContent = e.sigla + ' — ' + e.nome;
+    sel.appendChild(opt);
+  });
+}
+
+async function carregarCidades(sigla, cidadeSelectId, loadingMsg){
+  const sel = document.getElementById(cidadeSelectId);
+  if(!sel || !sigla) return;
+  sel.innerHTML = '<option>Carregando...</option>';
+  if(cidadesCache[sigla]){
+    preencheCidades(sel, cidadesCache[sigla]);
+    return;
+  }
+  try {
+    const r = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${sigla}/municipios?orderBy=nome`);
+    const data = await r.json();
+    cidadesCache[sigla] = data.map(c => c.nome);
+    preencheCidades(sel, cidadesCache[sigla]);
+  } catch(e){
+    sel.innerHTML = '<option value="">Digite a cidade manualmente</option>';
+    sel.disabled = false;
+    // fallback: converter em input
+    const inp = document.createElement('input');
+    inp.id = cidadeSelectId;
+    inp.placeholder = 'Nome da cidade';
+    inp.style.cssText = sel.style.cssText;
+    inp.className = sel.className;
+    sel.parentNode.replaceChild(inp, sel);
+  }
+}
+
+function preencheCidades(sel, cidades){
+  sel.innerHTML = '<option value="">Selecione a cidade...</option>';
+  cidades.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function carregarCidadesNat(){
+  const sigla = document.getElementById('natEstado').value;
+  carregarCidades(sigla, 'natCidade');
+}
+
+function carregarCidadesEmissao(){
+  const sigla = document.getElementById('emissaoEstado').value;
+  carregarCidades(sigla, 'emissaoCidade');
+}
+
+function initEstados(){
+  populaSelectEstados('natEstado');
+  populaSelectEstados('emissaoEstado');
+}
+initEstados();
+
+// ─── RESPONSÁVEL LEGAL: ATALHOS ───────────────────────
+function usarFiliacao(n){
+  const g = id => (document.getElementById(id)||{value:''}).value;
+  const nome   = g('filiacao'+n);
+  const cpfrg  = g('cpfRg'+n);
+  const tel    = g('telefone'+n);
+
+  const set = (id,val) => { const el=document.getElementById(id); if(el) el.value=val; };
+
+  set('responsavel', nome);
+  set('telResponsavel', tel);
+
+  // CPF ou RG: se tiver ponto e traço = CPF, senão = RG
+  if(cpfrg.includes('.')){
+    set('cpfResponsavel', cpfrg);
+    set('rgResponsavel', '');
+  } else {
+    set('rgResponsavel', cpfrg);
+    set('cpfResponsavel', '');
+  }
+
+  // Copiar nacionalidade do aluno como padrão para o responsável
+  const nacRespEl = document.getElementById('nacionalidadeResp');
+  if(nacRespEl && !nacRespEl.value) nacRespEl.value = 'Brasileira';
+
+  // Grau de parentesco padrão por filiação
+  const grauMap = {1:'Mãe', 2:'Pai'};
+  const grauEl = document.getElementById('grauParentesco');
+  if(grauEl && !grauEl.value) grauEl.value = grauMap[n]||'';
+
+  // Flash visual para feedback
+  const sec = document.querySelector('#etapa-6 .sec.verde');
+  if(sec){ sec.style.boxShadow='0 0 0 3px #68D391'; setTimeout(()=>sec.style.boxShadow='',700); }
+}
+
+function limparResponsavel(){
+  ['responsavel','grauParentesco','cpfResponsavel','rgResponsavel',
+   'telResponsavel','enderecoResp','numeroResp','cidadeResp'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const b=document.getElementById('bairroResp');
+  if(b) b.value='Dist. de Novo Mato Grosso';
+}
+
+
+// ─── AUTORIZAÇÃO DE USO DE IMAGEM ────────────────────────────────────────────
+const ETAPAS_PRE_3 = ['Pré I','Pré II','1º Ano','2º Ano','3º Ano',
+                       'Pre I','Pre II','1 Ano','2 Ano','3 Ano',
+                       '1°','2°','3°','Pré-I','Pré-II'];
+
+function ehEtapasPre3(etapa){
+  if(!etapa) return true;
+  const e = etapa.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return ETAPAS_PRE_3.some(x => e.includes(x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')));
+}
+
+function getMesExtenso(n){
+  return ['janeiro','fevereiro','março','abril','maio','junho',
+          'julho','agosto','setembro','outubro','novembro','dezembro'][n]||'';
+}
+
+function gerarAutorizacaoHTML(){
+  const hoje = new Date();
+  const dia  = String(hoje.getDate()).padStart(2,'0');
+  const mes  = getMesExtenso(hoje.getMonth());
+  const ano  = hoje.getFullYear();
+
+  const nome       = D.nome || '___________________________';
+  const resp       = D.responsavel || '___________________________';
+  const nac        = D.nacionalidadeResp || 'Brasileira';
+  const estCivil   = D.estadoCivilResp || '_______________';
+  const rg         = D.rgResponsavel || '______________';
+  const cpf        = D.cpfResponsavel || '___.___.___-__';
+  const etapa      = D.etapa || '';
+  const endereco   = [D.enderecoResp, D.numeroResp, D.bairroResp, D.cidadeResp].filter(Boolean).join(', ') || '___________________________';
+
+  const isPreAo3   = ehEtapasPre3(etapa);
+
+  const LOGO_LEEI_SRC = 'assets/img_extracted_4.jpeg';
+
+  const HEADER_LEEI = `
+  <div style="text-align:center;margin-bottom:14pt">
+    <img src="${LOGO_LEEI_SRC}" style="max-width:160mm;height:auto;display:block;margin:0 auto 10pt">
+  </div>
+  <div class="auto-header">
+    PREFEITURA MUNICIPAL DE NOVA UBIRATÃ<br>
+    SECRETARIA MUNICIPAL DE EDUCAÇÃO E CULTURA<br>
+    ESCOLA MUNICIPAL GETÚLIO VARGAS
+  </div>`;
+
+  const LOGO_ESCOLA_SRC = 'assets/img_extracted_5.png';
+
+  const HEADER_PADRAO = `
+  <div style="display:flex;align-items:center;gap:14pt;margin-bottom:14pt;border-bottom:2px solid #000;padding-bottom:10pt">
+    <img src="${LOGO_ESCOLA_SRC}" style="width:22mm;height:22mm;object-fit:contain;flex-shrink:0">
+    <div style="text-align:center;flex:1;font-weight:bold;line-height:1.7">
+      PREFEITURA MUNICIPAL DE NOVA UBIRATÃ<br>
+      SECRETARIA MUNICIPAL DE EDUCAÇÃO E CULTURA<br>
+      ESCOLA MUNICIPAL GETÚLIO VARGAS
+    </div>
+  </div>`;
+
+  const HEADER = isPreAo3 ? HEADER_LEEI : HEADER_PADRAO;
+
+  const TITULO = `<div class="auto-title">TERMO DE AUTORIZAÇÃO DE USO DE IMAGEM DE MENOR</div>`;
+
+  const INTRO = `<p><b>Eu, ${resp}</b>, nacionalidade <b>${nac}</b>, estado civil <b>${estCivil}</b>, portador(a) da cédula de identidade RG nº <b>${rg}</b>, inscrito(a) no CPF sob nº <b>${cpf}</b>, residente à <b>${endereco}</b>, tendo como base a Lei nº 14.133/2021 e a Lei nº 9.610/1998</p>`;
+
+  let CORPO = '';
+  if(isPreAo3){
+    CORPO = `
+    <p><b>Autorizo</b>, por tempo indeterminado, o uso da imagem do menor <b>${nome}</b>, em qualquer material de comunicação da Secretaria de Educação (SEMED), referente aos registros necessários para acompanhamento das atividades do Programa Leitura e Escrita na Educação Infantil (LEEI) que faz parte do Compromisso Nacional Criança Alfabetizada. O material poderá ser divulgado em qualquer dos seus meios, incluindo as redes sociais (youtube, facebook, instagram, twitter, entre outros), em todo território nacional.</p>`;
+  } else {
+    CORPO = `
+    <p><b>Responsável pelo menor ${nome}</b>, estudante da <b>${etapa}</b>.</p>
+    <p><b>Autorizo</b> que fotos e filmagens que incluam o aluno(a) sejam feitas e utilizadas:</p>
+    <p class="lista"><b>A)</b> Pela equipe da escola para fins pedagógicos;</p>
+    <p class="lista"><b>B)</b> Para fins de divulgação do trabalho da escola (informativos, encartes, folders, jornais, internos e/ou semelhantes);</p>
+    <p class="lista"><b>C)</b> Para fins de publicação site/blog institucional.</p>
+    <p>Estou ciente de que as imagens serão usadas apenas para fins pedagógicos e não comerciais, resguardadas as limitações legais e jurídicas.</p>`;
+  }
+
+  const RODAPE = `
+    <p>Todas as informações, baseadas no uso ou tratamento de dados, seguirão a Lei n° 13.709/2018, Lei Geral de Proteção de Dados Pessoais - LGPD.</p>
+    <p>A autorização é concedida a título de gratuidade. Por esta ser a expressão da minha vontade, declaro que autorizo o uso acima descrito, sem que nada haja a ser reclamado como direitos conexos à minha imagem ou qualquer outro, e assino a presente autorização.</p>
+    <p class="data">Nova Ubiratã, ${dia} de ${mes} de ${ano}.</p>
+    <div class="assinatura">
+      _________________________________<br>
+      ${resp}<br>
+      <span style="font-weight:normal;font-size:9pt">Assinatura do Responsável Legal</span>
+    </div>`;
+
+  return `<div class="autorizacao">${HEADER}${TITULO}${INTRO}${CORPO}${RODAPE}</div>`;
+}
+
+
+
+// ══════════════════════════════════════════════════════════════════
+// ─── GERAR ID ÚNICO ──────────────────────────────────────────────
+function gerarId(){
+  return 'mat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+}
+
+// SUPABASE — Camada de banco de dados (supaFetch centralizado em supabase-config.js)
+// ══════════════════════════════════════════════════════════════════
+// ─── MATRÍCULAS ──────────────────────────────────────────────────
+async function lerMatriculas(){
+  try{
+    const rows = await supaFetch('/rest/v1/matriculas?select=dados&order=criado_em.asc');
+    if(!Array.isArray(rows)) return [];
+    return rows.filter(r => r && r.dados).map(r => r.dados);
+  } catch(e){ console.error('Erro ao carregar matrículas:', e); return []; }
+}
+async function salvarMatriculas(lista){
+  // Apaga tudo e reinserere (compatível com modelo original de lista única)
+  // Usamos upsert por id individual via salvarMatriculaAtual
+  return true;
+}
+async function salvarMatriculaAtual(){
+  try{
+    const agora = new Date();
+
+    // Verifica duplicata por nome+dataNasc APENAS para registros sem ID ainda
+    let existe = null;
+    if(!D.id){
+      const todas = await lerMatriculas();
+      existe = todas.find(m =>
+        m.nome && m.nome === D.nome &&
+        m.dataNasc === D.dataNasc
+      );
+      if(existe) { D.id = existe.id; }
+    }
+
+    const id = D.id || gerarId();
+    D.id = id;
+    const registro = {
+      ...D,
+      id,
+      _salvoEm: agora.toLocaleString('pt-BR'),
+      _atualizadoEm: agora.toLocaleString('pt-BR'),
+    };
+
+    const saved = await supaFetch('/rest/v1/matriculas?on_conflict=id', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates,return=representation',
+      body: JSON.stringify({
+        id: registro.id,
+        dados: registro,
+        atualizado_em: agora.toISOString()
+      })
+    });
+    const idRetorno = (Array.isArray(saved) && saved[0] && saved[0].id) ? saved[0].id : registro.id;
+    registro.id = idRetorno;
+    D.id = idRetorno;
+
+    // Criar pasta digital automaticamente
+    await criarPastaDigital(idRetorno, registro);
+
+    return { ok: true, atualizado: !!existe, id: idRetorno };
+  } catch(e){
+    console.error('salvarMatriculaAtual:', e.message || e);
+    return { ok: false, erro: e.message };
+  }
+}
+
+// ─── CRIAR / ATUALIZAR PASTA DIGITAL ────────────────────────────
+async function criarPastaDigital(matriculaId, dados){
+  try{
+    if(!matriculaId) return;
+    
+    // 1. Busca docs já existentes para preservar (nunca apaga documentos enviados)
+    let docsAtuais = {};
+    try{
+      const existente = await supaFetch('/rest/v1/pastas_digitais?aluno_id=eq.' + matriculaId + '&select=docs');
+      if(Array.isArray(existente) && existente.length && existente[0] && existente[0].docs && Object.keys(existente[0].docs).length > 0){
+        docsAtuais = existente[0].docs;
+      }
+    } catch(eBusca){
+      console.warn('Aviso: nao foi possivel buscar docs existentes:', eBusca.message);
+    }
+
+    ['rg_aluno', 'hist_escolar', 'cpf_aluno'].forEach((id) => {
+      if(!docsAtuais[id]){
+        docsAtuais[id] = {
+          pendente: true,
+          obrigatorio: true,
+          status: 'aguardando_upload_secretaria',
+          descricao: 'Documento pendente de digitalização pela secretaria',
+          atualizado_em: new Date().toISOString()
+        };
+      }
+    });
+
+    // 2. Upsert (tolerante a diferenças de schema) — preserva docs existentes
+try{
+  // Tentativa completa (caso sua tabela tenha colunas denormalizadas)
+  await supaFetch('/rest/v1/pastas_digitais?on_conflict=aluno_id', {
+    method: 'POST',
+    prefer: 'resolution=merge-duplicates,return=minimal',
+    body: JSON.stringify({
+      aluno_id:      matriculaId,
+      nome_aluno:    dados.nome      || '',
+      etapa:         dados.etapa     || '',
+      turma:         dados.turma     || '',
+      turno:         dados.turno     || '',
+      ano_letivo:    dados.anoLetivo || '2026',
+      docs:          docsAtuais,
+      atualizado_em: new Date().toISOString()
+    })
+  });
+} catch(eFull){
+  // Fallback: schema mínimo (aluno_id, docs, atualizado_em)
+  await supaFetch('/rest/v1/pastas_digitais?on_conflict=aluno_id', {
+    method: 'POST',
+    prefer: 'resolution=merge-duplicates,return=minimal',
+    body: JSON.stringify({
+      aluno_id:      matriculaId,
+      docs:          docsAtuais,
+      atualizado_em: new Date().toISOString()
+    })
+  });
+}
+console.log('✅ Pasta digital criada/atualizada para:', dados.nome);
+  } catch(e){
+    console.warn('⚠️ Pasta digital não criada/atualizada:', e.message || e);
+  }
+}
+async function excluirMatricula(id){
+  try{
+    await supaFetch('/rest/v1/matriculas?id=eq.' + id, { method: 'DELETE' });
+    return true;
+  } catch(e){ console.error('excluirMatricula:', e); return false; }
+}
+
+// ─── PROFESSORES ─────────────────────────────────────────────────
+async function lerProfessores(){
+  try{
+    const rows = await supaFetch('/rest/v1/professores?select=dados&order=criado_em.asc');
+    return rows.map(r => r.dados);
+  } catch(e){ return []; }
+}
+async function salvarProfessores(lista){
+  try{
+    // Estratégia: apaga todos e reinserere
+    await supaFetch('/rest/v1/professores?id=neq.VOID', { method: 'DELETE' });
+    if(lista.length){
+      await supaFetch('/rest/v1/professores', {
+        method: 'POST',
+        body: JSON.stringify(lista.map(p => ({ id: p.id, dados: p })))
+      });
+    }
+    return true;
+  } catch(e){ console.error('salvarProfessores:', e); return false; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// PAINEL ADMIN
+// ══════════════════════════════════════════════════════════════════
+let matriculaEmVisualizacao = null;
+
+// ── Tela de login: troca entre abas Secretaria / Professor ────────────────────
+function selecionarPerfil(tipo){
+  perfilSelecionado = tipo;
+  document.getElementById('tab-secretaria').classList.toggle('tab-ativo', tipo==='secretaria');
+  document.getElementById('tab-professor').classList.toggle('tab-ativo',  tipo==='professor');
+  // Campo usuário aparece para todos os perfis
+  document.getElementById('campo-usuario').classList.remove('hidden');
+  var inp = document.getElementById('admin-usuario-input');
+  inp.placeholder = tipo === 'secretaria' ? 'Seu usuário (ex: diretor)' : 'Seu nome de usuário';
+  document.getElementById('admin-login-erro').style.display = 'none';
+  inp.value = '';
+  document.getElementById('admin-senha-input').value = '';
+}
+
+async function abrirAdmin(){
+  document.getElementById('admin-overlay').classList.remove('hidden');
+  if(perfilLogado){
+    mostrarPainel();
+    return;
+  }
+  const u = await window.PortalAuth.getSessaoPortalAsync();
+  if(!u){
+    document.getElementById('admin-login-box').classList.remove('hidden');
+    document.getElementById('admin-painel').classList.add('hidden');
+    document.getElementById('admin-login-erro').style.display = 'block';
+    document.getElementById('admin-login-erro').textContent = 'Faça login no portal (página inicial) primeiro.';
+    return;
+  }
+  confirmarLogin();
+}
+
+function fecharAdmin(){
+  document.getElementById('admin-overlay').classList.add('hidden');
+}
+
+function fazerLogout(){
+  perfilLogado = null;
+  document.getElementById('admin-painel').classList.add('hidden');
+  document.getElementById('admin-login-box').classList.remove('hidden');
+  document.getElementById('admin-senha-input').value = '';
+}
+
+async function confirmarLogin(){
+  // Autenticação apenas via Supabase Auth (index). Sem SELECT de senha.
+  var u = null;
+  if(window.PortalAuth && typeof window.PortalAuth.getSessaoPortalAsync === 'function')
+    u = await window.PortalAuth.getSessaoPortalAsync();
+  if(!u){
+    document.getElementById('admin-login-erro').textContent = 'Faça login no portal (página inicial) primeiro.';
+    document.getElementById('admin-login-erro').style.display = 'block';
+    return;
+  }
+  perfilLogado = (u.perfil === 'professor')
+    ? { tipo: 'professor', nome: u.nome || u.usuario, turma: u.turma || '' }
+    : { tipo: 'secretaria', nome: u.nome || u.usuario };
+  document.getElementById('admin-login-erro').style.display = 'none';
+  document.getElementById('admin-login-box').classList.add('hidden');
+  document.getElementById('admin-painel').classList.remove('hidden');
+  mostrarPainel();
+}
+
+async function mostrarPainel(){
+  document.getElementById('admin-login-box').classList.add('hidden');
+  document.getElementById('admin-painel').classList.remove('hidden');
+
+  const isSecretaria = perfilLogado && perfilLogado.tipo === 'secretaria';
+
+  // Titulo e subtítulo
+  document.getElementById('painel-titulo').textContent =
+    isSecretaria ? '🗄️ Secretaria — Matrículas 2026'
+                 : '👩‍🏫 Painel do Professor — ' + perfilLogado.nome;
+  document.getElementById('painel-subtitulo').textContent =
+    isSecretaria ? 'Acesso completo a todas as matrículas'
+                 : 'Turma: ' + perfilLogado.turma + ' — Somente visualização';
+
+  // Mostrar/ocultar botões exclusivos da secretaria
+  document.getElementById('btn-exportar-wrap').style.display        = isSecretaria ? '' : 'none';
+  document.getElementById('btn-gerenciar-professores-wrap').style.display = isSecretaria ? '' : 'none';
+  document.getElementById('gerenciar-prof-painel').classList.add('hidden');
+
+  await renderStats();
+  await renderTabela();
+  await popularFiltroEtapas();
+}
+
+// ── Professores: ler/salvar ── (ver bloco Supabase acima)
+
+// ── Gerenciar professores (secretaria) ───────────────────────────────────────
+function abrirGerenciarProfessores(){
+  const el = document.getElementById('gerenciar-prof-painel');
+  el.classList.toggle('hidden');
+  if(!el.classList.contains('hidden')) renderListaProfessores();
+}
+function mostrarFormProf(){
+  document.getElementById('form-add-prof').classList.toggle('hidden');
+}
+async function salvarProfessor(){
+  const nome  = (document.getElementById('prof-nome').value||'').trim();
+  const turma = document.getElementById('prof-turma').value;
+  const senha = (document.getElementById('prof-senha').value||'').trim();
+  const erro  = document.getElementById('prof-erro');
+
+  if(!nome||!turma||!senha){
+    erro.textContent='Preencha nome, turma e senha.'; erro.style.display='block'; return;
+  }
+  const lista = await lerProfessores();
+  if(lista.find(p=>p.nome.toLowerCase()===nome.toLowerCase())){
+    erro.textContent='Já existe um professor com esse nome.'; erro.style.display='block'; return;
+  }
+  lista.push({ id:'prof_'+Date.now(), nome, turma, senha, criadoEm:new Date().toLocaleString('pt-BR') });
+  await salvarProfessores(lista);
+  erro.style.display='none';
+  document.getElementById('prof-nome').value='';
+  document.getElementById('prof-turma').value='';
+  document.getElementById('prof-senha').value='';
+  document.getElementById('form-add-prof').classList.add('hidden');
+  renderListaProfessores();
+}
+async function excluirProfessor(id){
+  if(!confirm('Excluir este professor?')) return;
+  const lista = (await lerProfessores()).filter(p=>p.id!==id);
+  await salvarProfessores(lista);
+  renderListaProfessores();
+}
+async function renderListaProfessores(){
+  const lista = await lerProfessores();
+  const el = document.getElementById('lista-professores');
+  if(!lista.length){
+    el.innerHTML='<p style="font-size:.8rem;color:var(--sub);padding:8px">Nenhum professor cadastrado.</p>';
+    return;
+  }
+  el.innerHTML = `<table class="tbl-prof">
+    <thead><tr><th>Nome</th><th>Turma</th><th>Cadastrado em</th><th></th></tr></thead>
+    <tbody>${lista.map(p=>`
+      <tr>
+        <td><b>${p.nome}</b></td>
+        <td><span class="badge badge-mat">${p.turma}</span></td>
+        <td style="font-size:.72rem;color:var(--sub)">${p.criadoEm||'—'}</td>
+        <td><button class="btn-sm btn-sm-del" onclick="excluirProfessor('${p.id}')">🗑 Remover</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+// ── Stats ──────────────────────────────────────────────────────────
+async function renderStats(){
+  let lista = await lerMatriculas();
+  // Professor vê só sua turma
+  if(perfilLogado && perfilLogado.tipo === 'professor'){
+    lista = lista.filter(m => m.etapa === perfilLogado.turma);
+  }
+  const total = lista.length;
+  const turnos = {};
+  const etapas = {};
+  lista.forEach(m => {
+    const t = m.turno || 'N/I';
+    const e = m.etapa || 'N/I';
+    turnos[t] = (turnos[t]||0)+1;
+    etapas[e] = (etapas[e]||0)+1;
+  });
+  const box = document.getElementById('admin-stats');
+  const cards = [
+    {n: total,           l: 'Total de Matrículas', bg:'#EBF8FF', nc:'#1A5276'},
+    {n: turnos['Matutino']||0,   l: 'Matutino',   bg:'#FEFCBF', nc:'#744210'},
+    {n: turnos['Vespertino']||0, l: 'Vespertino',  bg:'#E9D8FD', nc:'#553C9A'},
+    {n: turnos['Noturno']||0,    l: 'Noturno',     bg:'#C6F6D5', nc:'#22543D'},
+  ];
+  box.innerHTML = cards.map(c=>`
+    <div class="stat-card" style="background:${c.bg}">
+      <div class="stat-n" style="color:${c.nc}">${c.n}</div>
+      <div class="stat-l">${c.l}</div>
+    </div>`).join('') +
+    Object.entries(etapas).sort().map(([e,n])=>`
+    <div class="stat-card">
+      <div class="stat-n">${n}</div>
+      <div class="stat-l">${e}</div>
+    </div>`).join('');
+}
+
+// ── Filtro etapas dinâmico ─────────────────────────────────────────
+async function popularFiltroEtapas(){
+  const lista = await lerMatriculas();
+  const etapas = [...new Set(lista.map(m=>m.etapa).filter(Boolean))].sort();
+  const sel = document.getElementById('filtro-etapa');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Todas as etapas</option>' +
+    etapas.map(e=>`<option ${e===cur?'selected':''}>${e}</option>`).join('');
+}
+
+// ── Tabela ─────────────────────────────────────────────────────────
+async function renderTabela(){
+  let lista = await lerMatriculas();
+  // Professor vê APENAS alunos da sua turma
+  if(perfilLogado && perfilLogado.tipo === 'professor'){
+    lista = lista.filter(m => m.etapa === perfilLogado.turma);
+  }
+
+  const busca   = (document.getElementById('busca-nome')||{}).value?.toLowerCase()||'';
+  const fEtapa  = (document.getElementById('filtro-etapa')||{}).value||'';
+  const fTurno  = (document.getElementById('filtro-turno')||{}).value||'';
+  const fTurma  = (document.getElementById('filtro-turma')||{}).value||'';
+
+  const filtrada = lista.filter(m => {
+    if(busca   && !(m.nome||'').toLowerCase().includes(busca)) return false;
+    if(fEtapa  && m.etapa  !== fEtapa)  return false;
+    if(fTurno  && m.turno  !== fTurno)  return false;
+    if(fTurma  && m.turma  !== fTurma)  return false;
+    return true;
+  });
+
+  const wrap = document.getElementById('admin-tabela-wrap');
+  if(!filtrada.length){
+    wrap.innerHTML = `<div class="empty-state">
+      <span class="ei">${lista.length?'🔍':'📭'}</span>
+      ${lista.length ? 'Nenhum aluno encontrado com esses filtros.' : 'Nenhuma matrícula salva ainda.'}
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+  <div style="font-size:.75rem;color:var(--sub);margin-bottom:8px">
+    Exibindo <b>${filtrada.length}</b> de <b>${lista.length}</b> matrículas
+  </div>
+  <div style="overflow-x:auto">
+  <table class="tbl-matriculas">
+    <thead><tr>
+      <th>#</th><th>Aluno(a)</th><th>Nascimento</th>
+      <th>Etapa</th><th>Turno</th><th>Turma</th>
+      <th>Responsável</th><th>Salvo em</th><th>Ações</th>
+    </tr></thead>
+    <tbody>
+      ${filtrada.map((m,i)=>`
+      <tr>
+        <td style="color:var(--sub)">${i+1}</td>
+        <td><b>${m.nome||'—'}</b></td>
+        <td>${m.dataNasc||'—'}</td>
+        <td><span class="badge badge-mat">${m.etapa||'—'}</span></td>
+        <td><span class="badge badge-turno">${m.turno||'—'}</span></td>
+        <td><b>${m.turma||'—'}</b></td>
+        <td>${m.responsavel||'—'}</td>
+        <td style="font-size:.7rem;color:var(--sub)">${m._salvoEm||'—'}</td>
+        <td>
+          <div class="acoes">
+            <button class="btn-sm btn-sm-ver"  onclick="verFicha('${m.id}')">👁 Ver</button>
+            ${perfilLogado&&perfilLogado.tipo==='secretaria'?`
+            <button class="btn-sm btn-sm-edit" onclick="editarMatricula('${m.id}')">✏️ Editar</button>
+            <button class="btn-sm btn-sm-del"  onclick="confirmarExclusao('${m.id}','${(m.nome||'').replace(/'/g,"&apos;")}')">🗑</button>`:''}
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+  </div>`;
+}
+
+// ── Ver ficha ──────────────────────────────────────────────────────
+async function verFicha(id){
+  const lista = await lerMatriculas();
+  const m = lista.find(x=>x.id===id);
+  if(!m) return;
+  matriculaEmVisualizacao = m;
+
+  // Preenche D temporariamente com dados da matrícula
+  const Dtmp = {...D};
+  Object.assign(D, m);
+  const html = gerarFichaHTML() + '<hr class="separador">' + gerarAutorizacaoHTML();
+  Object.assign(D, Dtmp);
+
+  document.getElementById('modal-ficha-titulo').textContent = '📋 ' + (m.nome||'Aluno');
+  document.getElementById('modal-ficha-body').innerHTML = html;
+  document.getElementById('modal-ficha').classList.remove('hidden');
+}
+
+function fecharModal(){
+  document.getElementById('modal-ficha').classList.add('hidden');
+  matriculaEmVisualizacao = null;
+}
+
+function imprimirFichaModal(){
+  if(!matriculaEmVisualizacao) return;
+  const Dtmp = {...D};
+  Object.assign(D, matriculaEmVisualizacao);
+  const html = gerarFichaHTML() + '<hr class="separador">' + gerarAutorizacaoHTML();
+  Object.assign(D, Dtmp);
+  document.getElementById('impressao').innerHTML = html;
+  window.print();
+}
+
+// ── Editar matrícula ───────────────────────────────────────────────
+async function editarMatricula(id){
+  const lista = await lerMatriculas();
+  const m = lista.find(x=>x.id===id);
+  if(!m) return;
+
+  // Carrega dados no formulário
+  Object.assign(D, m);
+  preencherFormularioComD();
+  fecharAdmin();
+  document.getElementById('admin-overlay').classList.add('hidden');
+
+  // Vai para etapa 1
+  ir(1);
+  window.scrollTo({top:0, behavior:'smooth'});
+
+  // Aviso
+  setTimeout(()=>{
+    const av = document.createElement('div');
+    av.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1C4532;color:#fff;padding:12px 24px;border-radius:10px;font-size:.85rem;font-weight:700;z-index:9999;box-shadow:0 4px 16px #0004';
+    av.textContent = '✏️ Editando: ' + (m.nome||'aluno') + ' — Finalize e visualize para salvar.';
+    document.body.appendChild(av);
+    setTimeout(()=>av.remove(), 4000);
+  }, 400);
+}
+
+function preencherFormularioComD(){
+  const set = (id,val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+  const setChk = (id,val) => { const el=document.getElementById(id); if(el) el.checked=!!val; };
+  const setPill = (grupoId, valor) => {
+    if(!valor) return;
+    PILLS_VALS[grupoId] = valor;
+    document.querySelectorAll('#'+grupoId+' .pill').forEach(p=>{
+      p.classList.remove('sel-azul','sel-verde','sel-roxo','sel-laranja');
+      if(p.textContent.trim()===valor || p.getAttribute('onclick')?.includes("'"+valor+"'"))
+        p.classList.add('sel-azul');
+    });
+  };
+  // E1
+  set('nome',D.nome); set('dataNasc',D.dataNasc); set('dataMatricula',D.dataMatricula);
+  set('inep',D.inep); set('pisNis',D.pisNis); set('cns',D.cns);
+  set('nacionalidade',D.nacionalidade);
+  setPill('pills-tipoMatricula', D.tipoMatricula==='Inicial'?'Matrícula Inicial':D.tipoMatricula==='Rematricula'?'Rematrícula':'');
+  setPill('pills-sexo',       D.sexo==='M'?'Masculino':D.sexo==='F'?'Feminino':'');
+  setPill('pills-raca',       D.racaCor);
+  setPill('pills-moradia',    D.moradia);
+  setPill('pills-transf-eletr',D.transferEletr);
+  // E2
+  set('certidaoMatricula',D.certidaoMatricula); set('dataEmissao',D.dataEmissao);
+  set('rg',D.rg); set('orgaoExpedidor',D.orgaoExpedidor);
+  set('dataExpedicao',D.dataExpedicao); set('cpf',D.cpf); set('tituloEleitor',D.tituloEleitor);
+  // E3
+  setPill('pills-restricao',D.restricaoAlimentar); set('detalheRestricao',D.detalheRestricao);
+  setPill('pills-nee',D.temNEE);
+  // E4
+  setPill('pills-estudou',D.jaEstudou); setPill('pills-transf',D.transferencia);
+  setPill('pills-resultado',D.resultado); setPill('pills-outras',D.outrasSituacao);
+  // E5
+  set('anoLetivo',D.anoLetivo); set('etapa',D.etapa); set('turno',D.turno);
+  set('turma',D.turma); set('nChamada',D.nChamada); set('bolsaFamilia',D.bolsaFamilia);
+  setChk('ensinoReligioso',D.ensinoReligioso); setChk('autorizaImagem',D.autorizaImagem);
+  setPill('pills-transporte',D.utilizaTransporte);
+  set('linhaTransporte',D.linhaTransporte); set('fazenda',D.fazenda);
+  set('unidadeConsumidora',D.unidadeConsumidora);
+  // E6
+  set('filiacao1',D.filiacao1); set('cpfRg1',D.cpfRg1); set('profissao1',D.profissao1);
+  set('localTrabalho1',D.localTrabalho1); set('telefone1',D.telefone1);
+  set('filiacao2',D.filiacao2); set('cpfRg2',D.cpfRg2); set('profissao2',D.profissao2);
+  set('localTrabalho2',D.localTrabalho2); set('telefone2',D.telefone2);
+  set('responsavel',D.responsavel); set('grauParentesco',D.grauParentesco);
+  set('nacionalidadeResp',D.nacionalidadeResp); set('estadoCivilResp',D.estadoCivilResp);
+  set('cpfResponsavel',D.cpfResponsavel); set('rgResponsavel',D.rgResponsavel);
+  set('telResponsavel',D.telResponsavel); set('enderecoResp',D.enderecoResp);
+  set('numeroResp',D.numeroResp); set('bairroResp',D.bairroResp); set('cidadeResp',D.cidadeResp);
+}
+
+// ── Confirmar exclusão ─────────────────────────────────────────────
+async function confirmarExclusao(id, nome){
+  if(!confirm(`Excluir matrícula de ${nome}?\n\nEssa ação não pode ser desfeita.`)) return;
+  await excluirMatricula(id);
+  await renderStats();
+  await renderTabela();
+  await popularFiltroEtapas();
+}
+
+// ── Exportar CSV ───────────────────────────────────────────────────
+async function exportarCSV(){
+  const lista = await lerMatriculas();
+  if(!lista.length){ alert('Nenhuma matrícula para exportar.'); return; }
+
+  const cols = ['nome','dataNasc','sexo','etapa','turno','turma','nChamada',
+    'naturalidade','nacionalidade','racaCor','inep','pisNis','cns',
+    'certidaoMatricula','cpf','rg','responsavel','grauParentesco',
+    'cpfResponsavel','rgResponsavel','telResponsavel',
+    'filiacao1','telefone1','filiacao2','telefone2',
+    'enderecoResp','bairroResp','cidadeResp','_salvoEm'];
+
+  const header = cols.join(';');
+  const rows = lista.map(m =>
+    cols.map(c => '"' + String(m[c]||'').replace(/"/g,'""') + '"').join(';')
+  );
+  const csv = '\uFEFF' + [header,...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `matriculas_2026_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.csv`;
+  a.click();
+}
+
+async function exportarListaPorEtapa(){
+  let lista = await lerMatriculas();
+  if(!lista.length){ alert('Nenhuma matrícula para exportar.'); return; }
+
+  // Aplicar filtros ativos
+  const fEtapa = (document.getElementById('filtro-etapa')||{}).value||'';
+  const fTurno = (document.getElementById('filtro-turno')||{}).value||'';
+  const fTurma = (document.getElementById('filtro-turma')||{}).value||'';
+  if(fEtapa) lista = lista.filter(m => m.etapa === fEtapa);
+  if(fTurno) lista = lista.filter(m => m.turno === fTurno);
+  if(fTurma) lista = lista.filter(m => m.turma === fTurma);
+
+  // Agrupar por etapa
+  const grupos = {};
+  lista.forEach(m => {
+    const chave = [(m.etapa||'Sem Etapa'), (m.turno||''), (m.turma||'')].filter(Boolean).join(' — ');
+    if(!grupos[chave]) grupos[chave] = [];
+    grupos[chave].push(m);
+  });
+
+  // Gerar HTML para impressão
+  const dataHoje = new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+  let html = `
+  <html><head><meta charset="UTF-8">
+  <title>Lista de Alunos por Etapa — E. M. Getúlio Vargas</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 11px; margin: 20px; color: #111; }
+    h1 { font-size: 14px; text-align: center; margin-bottom: 2px; }
+    .subtitulo { text-align: center; font-size: 10px; color: #555; margin-bottom: 20px; }
+    .grupo { margin-bottom: 28px; page-break-inside: avoid; }
+    .grupo-titulo { background: #1565C0; color: #fff; padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 4px 4px 0 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #E3F2FD; color: #1A237E; text-align: left; padding: 5px 8px; font-size: 10px; border: 1px solid #ccc; }
+    td { padding: 4px 8px; border: 1px solid #ddd; }
+    tr:nth-child(even) { background: #F5F5F5; }
+    .total { text-align: right; font-size: 10px; font-weight: bold; color: #1565C0; margin: 4px 0 0; }
+    .assinatura { margin-top: 40px; text-align: center; font-size: 10px; }
+    .linha-assin { border-top: 1px solid #333; width: 280px; margin: 0 auto 4px; }
+    @media print { .no-print { display:none; } }
+  </style></head><body>
+  <h1>E. M. Getúlio Vargas — Lista de Alunos Matriculados 2026</h1>
+  <div class="subtitulo">Nova Ubiratã/MT · Gerado em ${dataHoje} · Total: ${lista.length} aluno(s)</div>`;
+
+  Object.entries(grupos).sort().forEach(([grupo, alunos]) => {
+    // Ordenar por nome
+    alunos.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
+    html += `
+    <div class="grupo">
+      <div class="grupo-titulo">📚 ${grupo} — ${alunos.length} aluno(s)</div>
+      <table>
+        <thead><tr>
+          <th style="width:30px">#</th>
+          <th>Nome do Aluno</th>
+          <th style="width:80px">Nascimento</th>
+          <th style="width:60px">Sexo</th>
+          <th>Responsável</th>
+          <th style="width:100px">Telefone</th>
+        </tr></thead>
+        <tbody>
+          ${alunos.map((m,i) => `<tr>
+            <td>${i+1}</td>
+            <td><b>${m.nome||'—'}</b></td>
+            <td>${m.dataNasc||'—'}</td>
+            <td>${m.sexo||'—'}</td>
+            <td>${m.responsavel||'—'}</td>
+            <td>${m.telResponsavel||'—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="total">Total da turma: ${alunos.length} aluno(s)</div>
+    </div>`;
+  });
+
+  html += `
+  <div class="assinatura">
+    <div class="linha-assin"></div>
+    Secretaria — E. M. Getúlio Vargas
+  </div>
+  <script>window.onload=()=>window.print();<\/script>
+  </body></html>`;
+
+  const janela = window.open('', '_blank', 'width=900,height=700');
+  janela.document.write(html);
+  janela.document.close();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INTEGRAÇÃO: salvar ao visualizar ficha
+// ══════════════════════════════════════════════════════════════════
+async function salvarEExibir(msg, atualizado){
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);'
+    + 'background:#1C4532;color:#fff;padding:12px 24px;border-radius:10px;'
+    + 'font-size:.85rem;font-weight:700;z-index:9999;box-shadow:0 4px 16px #0004;'
+    + 'display:flex;align-items:center;gap:10px;';
+  toast.textContent = (atualizado ? '🔄 Matrícula atualizada!' : '✅ Matrícula salva!') + ' — ' + (msg || '');
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(), 3500);
+}
+
+// ─── INIT ─────────────────────────────────────────────
+buildStepper();
+
+// ─── AUTO-CARREGAMENTO DE ALUNO PARA EDIÇÃO ───────────
+// Verifica se foi redirecionado da pasta digital para editar
+(async function verificarEdicao(){
+  const alunoIdParaEditar = sessionStorage.getItem('editar_aluno_id');
+  if(alunoIdParaEditar){
+    sessionStorage.removeItem('editar_aluno_id'); // Limpa para não carregar novamente
+    
+    // Busca o aluno
+    const lista = await lerMatriculas();
+    const aluno = lista.find(a => a.id === alunoIdParaEditar);
+    
+    if(aluno){
+      // Carrega no formulário
+      await editarMatricula(alunoIdParaEditar);
+      
+      // Mostra aviso
+      setTimeout(() => {
+        const av = document.createElement('div');
+        av.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);' +
+          'background:#1565C0;color:#fff;padding:14px 28px;border-radius:12px;' +
+          'font-size:.9rem;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)';
+        av.textContent = '✏️ Editando: ' + (aluno.nome || 'aluno');
+        document.body.appendChild(av);
+        setTimeout(() => av.remove(), 4000);
+      }, 500);
+    }
+  }
+})();
+</script>
+
+<!-- ── BOTÃO FLUTUANTE ─────────────────────────────── -->
+<button id="admin-btn-flutuante" onclick="abrirAdmin()">🗄️ Secretaria</button>
+
+<!-- ── OVERLAY ADMIN ───────────────────────────────── -->
+<div id="admin-overlay" class="hidden">
+
+  <!-- LOGIN -->
+  <div id="admin-login-box" class="hidden">
+    <div style="font-size:2.2rem;margin-bottom:6px">🏫</div>
+    <h2 style="color:var(--azul);font-size:1.1rem;margin-bottom:4px">Sistema de Matrículas</h2>
+    <p style="font-size:.78rem;color:var(--sub);margin-bottom:18px">E. M. Getúlio Vargas — Nova Ubiratã/MT</p>
+
+    <!-- Seletor de perfil -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button id="tab-secretaria" class="tab-perfil tab-ativo" onclick="selecionarPerfil('secretaria')">
+        🔑 Secretaria
+      </button>
+      <button id="tab-professor" class="tab-perfil" onclick="selecionarPerfil('professor')">
+        👩‍🏫 Professor(a)
+      </button>
+    </div>
+
+    <!-- Campo de usuário -->
+    <div id="campo-usuario">
+      <input type="text" id="admin-usuario-input" placeholder="Seu usuário (ex: diretor)"
+        style="width:100%;border:2px solid var(--borda);border-radius:8px;padding:10px 14px;font-size:.9rem;margin-bottom:10px;box-sizing:border-box"
+        onkeydown="if(event.key==='Enter')document.getElementById('admin-senha-input').focus()">
+    </div>
+
+    <div id="admin-login-erro" style="color:#E53E3E;font-size:.78rem;margin-bottom:8px;display:none">
+      Usuário ou senha incorretos.
+    </div>
+    <input type="password" id="admin-senha-input" placeholder="Senha de acesso"
+      style="width:100%;border:2px solid var(--borda);border-radius:8px;padding:10px 14px;font-size:.9rem;margin-bottom:12px;box-sizing:border-box"
+      onkeydown="if(event.key==='Enter')confirmarLogin()">
+
+    <button class="btn btn-azul" style="width:100%" onclick="confirmarLogin()">Entrar</button>
+    <button class="btn btn-sec" style="width:100%;margin-top:8px" onclick="fecharAdmin()">Cancelar</button>
+
+    <div style="font-size:.7rem;color:#CBD5E0;margin-top:14px">
+      Professor? Solicite seu acesso à secretaria.
+    </div>
+  </div>
+
+  <!-- PAINEL -->
+  <div id="admin-painel" class="hidden">
+    <div id="admin-painel-header">
+      <div>
+        <h2 id="painel-titulo">🗄️ Secretaria — Matrículas 2026</h2>
+        <div id="painel-subtitulo" style="font-size:.75rem;color:#90CAF9;margin-top:2px"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <div id="btn-exportar-wrap">
+          <button class="btn-sm btn-sm-csv" onclick="exportarCSV()">⬇ Exportar CSV Completo</button>
+          <button class="btn-sm" style="background:#C6F6D5;color:#22543D;margin-left:6px" onclick="exportarListaPorEtapa()">📋 Lista por Etapa/Série</button>
+        </div>
+        <div id="btn-gerenciar-professores-wrap" style="display:none">
+          <button class="btn-sm" style="background:#E9D8FD;color:#553C9A"
+            onclick="abrirGerenciarProfessores()">👩‍🏫 Gerenciar Professores</button>
+        </div>
+        <button class="btn-sm" style="background:rgba(255,255,255,.2);color:#fff"
+          onclick="fazerLogout()">Sair</button>
+        <button class="btn-fechar" onclick="fecharAdmin()">✕ Fechar</button>
+      </div>
+    </div>
+    <div id="admin-painel-body">
+      <!-- Stats -->
+      <div class="admin-stats" id="admin-stats"></div>
+      <!-- Toolbar busca/filtro -->
+      <div class="admin-toolbar">
+        <input type="text" id="busca-nome" placeholder="🔍 Buscar por nome..." oninput="renderTabela()">
+        <select id="filtro-etapa" onchange="renderTabela()">
+          <option value="">Todas as etapas</option>
+        </select>
+        <select id="filtro-turno" onchange="renderTabela()">
+          <option value="">Todos os turnos</option>
+          <option>Matutino</option><option>Vespertino</option><option>Noturno</option>
+        </select>
+        <select id="filtro-turma" onchange="renderTabela()">
+          <option value="">Todas as turmas</option>
+          <option>A</option><option>B</option><option>C</option><option>D</option>
+        </select>
+      </div>
+      <!-- Tabela -->
+      <div id="admin-tabela-wrap"></div>
+
+      <!-- Gerenciar Professores (secretaria only) -->
+      <div id="gerenciar-prof-painel" class="hidden" style="margin-top:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h3 style="font-size:.9rem;font-weight:700;color:var(--azul)">👩‍🏫 Professores Cadastrados</h3>
+          <button class="btn-sm" style="background:#C6F6D5;color:#22543D"
+            onclick="mostrarFormProf()">+ Adicionar Professor</button>
+        </div>
+        <div id="form-add-prof" class="hidden" style="background:#F7FAFC;border:1.5px solid var(--borda);border-radius:10px;padding:16px;margin-bottom:14px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end">
+            <div class="campo"><label>Nome</label><input id="prof-nome" placeholder="Nome do professor(a)"></div>
+            <div class="campo"><label>Turma</label>
+              <select id="prof-turma">
+                <option value="">Selecione...</option>
+                <option>Pré I</option><option>Pré II</option>
+                <option>1º Ano</option><option>2º Ano</option><option>3º Ano</option>
+                <option>4º Ano</option><option>5º Ano</option><option>6º Ano</option>
+                <option>7º Ano</option><option>8º Ano</option><option>9º Ano</option>
+              </select>
+            </div>
+            <div class="campo"><label>Senha</label><input type="password" id="prof-senha" placeholder="Crie uma senha"></div>
+            <button class="btn-sm" style="background:#276749;color:#fff;padding:10px 16px"
+              onclick="salvarProfessor()">Salvar</button>
+          </div>
+          <div id="prof-erro" style="color:#E53E3E;font-size:.75rem;margin-top:6px;display:none"></div>
+        </div>
+        <div id="lista-professores"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /admin-overlay -->
+
+<script>
+// ── Auto-login via sessão do portal principal ──────────────────────
+(function(){
+  try {
+    const salvo = sessionStorage.getItem('portal_usuario');
+    if(salvo){
+      const u = JSON.parse(salvo);
+      // Perfis com acesso à secretaria no formulário
+      if(u && (u.perfil === 'diretor' || u.perfil === 'secretaria' || u.perfil === 'coordenacao')){
+        perfilLogado = { tipo: 'secretaria', nome: u.nome || u.usuario };
+      } else if(u && u.perfil === 'professor'){
+        perfilLogado = { tipo: 'professor', nome: u.nome || u.usuario, turma: u.turma || '' };
+      }
+    }
+  } catch(e) { console.warn('Não foi possível recuperar sessão:', e); }
+})();
+</script>
+
+<!-- ── MODAL FICHA ──────────────────────────────────── -->
+<div id="modal-ficha" class="hidden">
+  <div id="modal-ficha-inner">
+    <div id="modal-ficha-header">
+      <span id="modal-ficha-titulo" style="font-weight:700">Ficha do Aluno</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn-fechar" onclick="imprimirFichaModal()">🖨 Imprimir</button>
+        <button class="btn-fechar" onclick="fecharModal()">✕ Fechar</button>
+      </div>
+    </div>
+    <div id="modal-ficha-body"></div>
+  </div>
+</div>
+
+</body>
+</html>

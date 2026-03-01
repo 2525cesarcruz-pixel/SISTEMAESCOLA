@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Livro Digital de Documentos — E.M. Getúlio Vargas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="institucional.css">
+  <style>
+    :root { --azul:#1565C0; --azul2:#0D47A1; --borda:#DDE3EC; --cinza:#F0F4F9; --texto:#0F1923; --sub:#5A6880; --erro:#C62828; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--cinza); color: var(--texto); min-height: 100vh; padding-bottom: 40px; }
+    .page-header { background: linear-gradient(135deg, var(--azul), var(--azul2)); color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .page-header h1 { font-size: 1.1rem; font-weight: 800; }
+    .page-header p { font-size: .8rem; opacity: .9; margin-top: 2px; }
+    .btn { border: none; border-radius: 10px; padding: 8px 14px; font-size: .82rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: .2s; }
+    .btn-sec { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.4); }
+    .btn-verde { background: #2E7D32; color: #fff; }
+    .btn-vermelho { background: #C62828; color: #fff; }
+    .conteudo { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+    .filtros { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; background: #fff; padding: 14px; border-radius: 12px; border: 1px solid var(--borda); }
+    .filtros label { font-size: .75rem; font-weight: 700; color: var(--sub); margin-right: 4px; }
+    .filtros select, .filtros input { padding: 8px 10px; border: 1px solid var(--borda); border-radius: 8px; font-size: .85rem; }
+    .filtros input[type=text] { min-width: 160px; }
+    .card { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,.06); border: 1px solid var(--borda); margin-bottom: 16px; padding: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--borda); }
+    th { font-size: .72rem; font-weight: 700; color: var(--sub); text-transform: uppercase; }
+    tr:hover { background: #f8fafc; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .7rem; font-weight: 700; }
+    .badge-ativo { background: #E8F5E9; color: #1B5E20; }
+    .badge-inutilizado { background: #FFEBEE; color: #C62828; }
+    .doc-actions-bar { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    #doc { margin: 24px auto 0; width: 100%; max-width: 210mm; min-width: 280px; background: #fff; box-shadow: 0 2px 20px rgba(0,0,0,.12); border-radius: 4px; overflow: hidden; }
+    .hidden { display: none !important; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-box { background: #fff; border-radius: 14px; padding: 20px; max-width: 440px; width: 100%; }
+    .modal-box h3 { margin-bottom: 12px; font-size: 1rem; }
+    .modal-box textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 14px; font-family: inherit; }
+    .modal-box .btns { display: flex; gap: 10px; justify-content: flex-end; }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase-init.js"></script>
+  <script src="supabase-auth.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="institucional.js"></script>
+  
+  <script>
+    // ══════════════════════════════════════════════════════════════════
+    // PROTEÇÃO DE ACESSO (Hardened)
+    // ══════════════════════════════════════════════════════════════════
+    (async function init() {
+      const u = await window.PortalAuth.requireLogin(['diretor', 'secretaria', 'coordenacao']);
+      if (!u) return;
+      window.usuarioLogado = u;
+      
+      // Inicializa a página após garantir o login
+      if (typeof carregarDados === 'function') await carregarDados();
+      if (typeof renderForm === 'function') renderForm();
+      if (typeof renderLista === 'function') renderLista();
+      if (typeof renderListaEmitidos === 'function') renderListaEmitidos();
+      if (typeof initPage === 'function') await initPage();
+    })();
+  </script>
+<script>
+    (async function(){
+      const u = await (window.PortalAuth && PortalAuth.requireLogin ? PortalAuth.requireLogin(['diretor', 'secretaria', 'coordenacao']) : Promise.resolve(null));
+      if (!u) return;
+      window._livroUsuarioPerfil = u.perfil;
+    })();
+  </script>
+
+  <div class="page-header">
+    <div>
+      <h1>📒 Livro Digital de Documentos</h1>
+      <p>E.M. Getúlio Vargas — Nova Ubiratã/MT · Registro municipal · Visualizar, reimprimir e inutilizar</p>
+    </div>
+    <button class="btn btn-sec" onclick="window.location.href='index.html'">🏠 Voltar ao Portal</button>
+  </div>
+
+  <div class="conteudo">
+    <div class="filtros">
+      <label>Tipo</label>
+      <select id="fil-tipo">
+        <option value="">Todos</option>
+        <option value="atestado_vagas">Atestado de Vagas</option>
+        <option value="atestado_matricula">Atestado de Matrícula</option>
+        <option value="declaracao_matricula">Declaração de Matrícula</option>
+        <option value="declaracao_frequencia">Declaração de Frequência</option>
+        <option value="oficio">Ofício</option>
+        <option value="documento_livre">Documento Livre</option>
+      </select>
+      <label>Ano</label>
+      <select id="fil-ano">
+        <option value="">Todos</option>
+      </select>
+      <label>Status</label>
+      <select id="fil-status">
+        <option value="">Todos</option>
+        <option value="ATIVO" selected>Ativo</option>
+        <option value="INUTILIZADO">Inutilizado</option>
+      </select>
+      <label>Período (desde)</label>
+      <input type="date" id="fil-data-inicio">
+      <label>Até</label>
+      <input type="date" id="fil-data-fim">
+      <label>Busca (número/nome/destinatário)</label>
+      <input type="text" id="fil-busca" placeholder="Buscar...">
+      <button class="btn btn-verde" onclick="aplicarFiltros()">Filtrar</button>
+    </div>
+
+    <div id="lista-area" class="card">
+      <div id="lista-docs"></div>
+    </div>
+
+    <div id="preview-area" class="hidden">
+      <div class="doc-actions-bar no-print">
+        <button class="btn btn-verde" onclick="imprimirReimpressao()">🖨 Imprimir / PDF</button>
+        <button class="btn btn-sec" onclick="fecharPreview()">Fechar</button>
+      </div>
+      <div id="doc"></div>
+    </div>
+  </div>
+
+  <div id="modal-inutilizar" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3>Inutilizar documento</h3>
+      <p style="font-size:.85rem;color:var(--sub);margin-bottom:12px;">Motivo obrigatório (não deletar registro):</p>
+      <textarea id="motivo-inutilizar" placeholder="Digite o motivo da inutilização..."></textarea>
+      <div class="btns">
+        <button class="btn btn-sec" onclick="fecharModalInutilizar()">Cancelar</button>
+        <button class="btn btn-vermelho" onclick="confirmarInutilizar()">Inutilizar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TIPOS_LABEL = {
+      atestado_vagas: 'Atestado de Vagas',
+      atestado_matricula: 'Atestado de Matrícula',
+      declaracao_matricula: 'Declaração de Matrícula',
+      declaracao_frequencia: 'Declaração de Frequência',
+      oficio: 'Ofício',
+      documento_livre: 'Documento Livre'
+    };
+
+    const TEXTOS_FIXOS = {
+      atestado_vagas: 'Atesto, para os devidos fins e efeitos legais, que há vaga nesta Instituição de Ensino para o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, filho(a) de {NOME_PAI} e {NOME_MAE}, a ser matriculado(a) no {ANO_SERIE}, no período {TURNO}, referente ao ano letivo de {ANO_LETIVO}. Sem mais para o momento, firmo o presente atestado. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      atestado_matricula: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, natural de {NATURALIDADE}, filho(a) de {NOME_PAI} e {NOME_MAE}, encontra-se regularmente matriculado(a) nesta unidade educacional desde {DATA_MATRICULA}. Informamos que o(a) referido(a) aluno(a) está cursando {ETAPA_SERIE} da Educação Infantil/Ensino Fundamental, frequentando regularmente as aulas. Por ser verdade, datamos e assinamos o presente documento. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      declaracao_matricula: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME}, nascido(a) em {DATA_NASC}, filho(a) de {NOME_PAI} e {NOME_MAE}, encontra-se regularmente matriculado(a) nesta unidade escolar, cursando {ETAPA_SERIE}, no turno {TURNO}, no ano letivo de {ANO_LETIVO}. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      declaracao_frequencia: 'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) {NOME} esteve presente às aulas no período de {DATA_INICIO} a {DATA_FIM}, cursando {ETAPA_SERIE} nesta unidade escolar. Nova Ubiratã/MT, {DATA_ATUAL}.',
+      oficio: 'OFÍCIO Nº {NUMERO}/{ANO}/EMGV\n\nNova Ubiratã/MT, {DATA_ATUAL}.\n\nAo(À) {DESTINATARIO}\n{CARGO_DESTINATARIO}\n{INSTITUICAO}\n\nAssunto: {ASSUNTO}\n\nSenhor(a),\n\n{CORPO_DO_OFICIO}\n\nSem mais para o momento, renovamos votos de estima e consideração.\n\nAtenciosamente,'
+    };
+
+    let listaDocumentos = [];
+    let docParaInutilizar = null;
+
+    function dataAtualStr() {
+      return new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+
+    function popularAnos() {
+      const sel = document.getElementById('fil-ano');
+      const ano = new Date().getFullYear();
+      for (let y = ano; y >= ano - 5; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        sel.appendChild(opt);
+      }
+    }
+
+    async function carregarLista() {
+      try {
+        const rows = await window.supaFetch('/rest/v1/documentos_emitidos?select=id,tipo,numero,ano,referencia_id,dados,criado_em,status&order=criado_em.desc');
+        listaDocumentos = Array.isArray(rows) ? rows : [];
+        aplicarFiltros();
+      } catch (e) {
+        console.error(e);
+        const area = document.getElementById('lista-docs');
+        area.textContent = '';
+        const p = document.createElement('p');
+        p.style.color = 'var(--erro)';
+        p.textContent = 'Erro ao carregar: ' + (e.message || '');
+        area.appendChild(p);
+      }
+    }
+
+    function aplicarFiltros() {
+      const tipo = document.getElementById('fil-tipo').value;
+      const ano = document.getElementById('fil-ano').value;
+      const status = document.getElementById('fil-status').value;
+      const dataInicio = document.getElementById('fil-data-inicio').value;
+      const dataFim = document.getElementById('fil-data-fim').value;
+      const busca = (document.getElementById('fil-busca').value || '').trim().toLowerCase();
+
+      let filtrados = listaDocumentos.filter(function(d) {
+        if (tipo && d.tipo !== tipo) return false;
+        if (ano && String(d.ano) !== ano) return false;
+        if (status && d.status !== status) return false;
+        const criado = (d.criado_em || '').slice(0, 10);
+        if (dataInicio && criado < dataInicio) return false;
+        if (dataFim && criado > dataFim) return false;
+        if (busca) {
+          const numAno = (d.numero + '/' + d.ano).toLowerCase();
+          const dados = d.dados || {};
+          const nome = (dados.nome || '').toLowerCase();
+          const dest = (dados.destinatario || '').toLowerCase();
+          if (numAno.indexOf(busca) === -1 && nome.indexOf(busca) === -1 && dest.indexOf(busca) === -1) return false;
+        }
+        return true;
+      });
+
+      const area = document.getElementById('lista-docs');
+      area.textContent = '';
+      if (!filtrados.length) {
+        const p = document.createElement('p');
+        p.style.color = 'var(--sub)';
+        p.textContent = 'Nenhum documento encontrado com os filtros.';
+        area.appendChild(p);
+        return;
+      }
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const thr = document.createElement('tr');
+      ['Nº', 'Tipo', 'Ano', 'Data', 'Status', 'Ações'].forEach(function(t) {
+        const th = document.createElement('th');
+        th.textContent = t;
+        thr.appendChild(th);
+      });
+      thead.appendChild(thr);
+      table.appendChild(thead);
+      const tbody = document.createElement('tbody');
+
+      const podeInutilizar = window._livroUsuarioPerfil === 'diretor' || window._livroUsuarioPerfil === 'secretaria';
+
+      filtrados.forEach(function(d) {
+        const tr = document.createElement('tr');
+        const tdNum = document.createElement('td');
+        tdNum.textContent = d.numero + '/' + d.ano;
+        tr.appendChild(tdNum);
+        const tdTipo = document.createElement('td');
+        tdTipo.textContent = TIPOS_LABEL[d.tipo] || d.tipo;
+        tr.appendChild(tdTipo);
+        const tdAno = document.createElement('td');
+        tdAno.textContent = d.ano;
+        tr.appendChild(tdAno);
+        const tdData = document.createElement('td');
+        tdData.textContent = (d.criado_em || '').slice(0, 10);
+        tr.appendChild(tdData);
+        const tdStatus = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = 'badge ' + (d.status === 'ATIVO' ? 'badge-ativo' : 'badge-inutilizado');
+        badge.textContent = d.status || 'ATIVO';
+        tdStatus.appendChild(badge);
+        tr.appendChild(tdStatus);
+        const tdAcoes = document.createElement('td');
+        const btnVer = document.createElement('button');
+        btnVer.className = 'btn btn-sec';
+        btnVer.textContent = 'Ver / Reimprimir';
+        btnVer.onclick = function() { abrirReimpressao(d); };
+        tdAcoes.appendChild(btnVer);
+        if (d.status === 'ATIVO' && podeInutilizar) {
+          const btnInut = document.createElement('button');
+          btnInut.className = 'btn btn-vermelho';
+          btnInut.style.marginLeft = '8px';
+          btnInut.textContent = 'Inutilizar';
+          btnInut.onclick = function() { abrirModalInutilizar(d); };
+          tdAcoes.appendChild(btnInut);
+        }
+        tr.appendChild(tdAcoes);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      area.appendChild(table);
+    }
+
+    function abrirReimpressao(doc) {
+      document.getElementById('lista-area').classList.add('hidden');
+      document.getElementById('preview-area').classList.remove('hidden');
+      renderDocumentoFromDados(doc);
+    }
+
+    function fecharPreview() {
+      document.getElementById('preview-area').classList.add('hidden');
+      document.getElementById('lista-area').classList.remove('hidden');
+    }
+
+    function renderDocumentoFromDados(doc) {
+      const titulo = TIPOS_LABEL[doc.tipo] || 'Documento Oficial';
+      window.InstitucionalLayout.render({ titulo: titulo, orientacao: 'portrait' });
+      const body = document.getElementById('doc-body');
+      body.textContent = '';
+
+      const dados = doc.dados || {};
+      const dataAtual = dataAtualStr();
+
+      let paragrafo = '';
+      if (doc.tipo === 'atestado_vagas') {
+        paragrafo = TEXTOS_FIXOS.atestado_vagas
+          .replace(/\{NOME\}/g, dados.nome || '')
+          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
+          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
+          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
+          .replace(/\{ANO_SERIE\}/g, dados.ano_serie || '')
+          .replace(/\{TURNO\}/g, dados.turno || '')
+          .replace(/\{ANO_LETIVO\}/g, dados.ano_letivo || '')
+          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+      } else if (doc.tipo === 'atestado_matricula') {
+        paragrafo = TEXTOS_FIXOS.atestado_matricula
+          .replace(/\{NOME\}/g, dados.nome || '')
+          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
+          .replace(/\{NATURALIDADE\}/g, dados.naturalidade || '')
+          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
+          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
+          .replace(/\{DATA_MATRICULA\}/g, dados.data_matricula || '')
+          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
+          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+      } else if (doc.tipo === 'declaracao_matricula') {
+        paragrafo = TEXTOS_FIXOS.declaracao_matricula
+          .replace(/\{NOME\}/g, dados.nome || '')
+          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
+          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
+          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
+          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
+          .replace(/\{TURNO\}/g, dados.turno || '')
+          .replace(/\{ANO_LETIVO\}/g, dados.ano_letivo || '')
+          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+      } else if (doc.tipo === 'declaracao_frequencia') {
+        paragrafo = TEXTOS_FIXOS.declaracao_frequencia
+          .replace(/\{NOME\}/g, dados.nome || '')
+          .replace(/\{DATA_INICIO\}/g, dados.data_inicio || '')
+          .replace(/\{DATA_FIM\}/g, dados.data_fim || '')
+          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
+          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+      } else if (doc.tipo === 'oficio') {
+        paragrafo = TEXTOS_FIXOS.oficio
+          .replace(/\{NUMERO\}/g, String(doc.numero))
+          .replace(/\{ANO\}/g, String(doc.ano))
+          .replace(/\{DATA_ATUAL\}/g, dataAtual)
+          .replace(/\{DESTINATARIO\}/g, dados.destinatario || '')
+          .replace(/\{CARGO_DESTINATARIO\}/g, dados.cargo_destinatario || '')
+          .replace(/\{INSTITUICAO\}/g, dados.instituicao || '')
+          .replace(/\{ASSUNTO\}/g, dados.assunto || '')
+          .replace(/\{CORPO_DO_OFICIO\}/g, (dados.corpo_oficio || '').replace(/\n/g, '\n\n'));
+      } else if (doc.tipo === 'documento_livre') {
+        const tit = document.createElement('div');
+        tit.style.cssText = 'font-size:14px;font-weight:700;margin-bottom:12px;';
+        tit.textContent = dados.titulo_doc || 'DOCUMENTO OFICIAL — MODELO LIVRE';
+        body.appendChild(tit);
+        const linhas = (dados.corpo_livre || '').split('\n');
+        linhas.forEach(function(linha) {
+          const p = document.createElement('p');
+          p.style.marginBottom = '8px';
+          p.textContent = linha;
+          body.appendChild(p);
+        });
+      }
+
+      if (paragrafo) {
+        paragrafo.split(/\n\n+/).forEach(function(bloco) {
+          const p = document.createElement('p');
+          p.style.marginBottom = '10px';
+          p.textContent = bloco;
+          body.appendChild(p);
+        });
+      }
+
+      if (dados.observacao) {
+        const obs = document.createElement('p');
+        obs.style.marginTop = '12px'; obs.style.fontSize = '10px'; obs.style.color = '#555';
+        obs.textContent = dados.observacao;
+        body.appendChild(obs);
+      }
+
+      const divAss = document.createElement('div');
+      divAss.className = 'doc-assinaturas';
+      (dados.assinaturas || []).forEach(function(a) {
+        const item = document.createElement('div');
+        item.className = 'doc-assinatura-item';
+        if (a.modo_assinatura === 'DIGITAL' && a.assinatura_png_path) {
+          const img = document.createElement('img');
+          img.className = 'doc-assinatura-img';
+          img.alt = 'Assinatura';
+          getSignedUrlAssinatura(a.assinatura_png_path).then(function(url) { img.src = url; }).catch(function() {});
+          item.appendChild(img);
+        } else {
+          const linha = document.createElement('div');
+          linha.className = 'doc-assinatura-linha';
+          item.appendChild(linha);
+        }
+        const nomeEl = document.createElement('div');
+        nomeEl.className = 'doc-assinatura-nome';
+        nomeEl.textContent = a.nome || '';
+        item.appendChild(nomeEl);
+        const carimbo = [a.carimbo_linha1, a.carimbo_linha2, a.carimbo_linha3].filter(Boolean).join(' — ');
+        const carimboEl = document.createElement('div');
+        carimboEl.className = 'doc-assinatura-carimbo';
+        carimboEl.textContent = carimbo;
+        item.appendChild(carimboEl);
+        divAss.appendChild(item);
+      });
+      body.appendChild(divAss);
+    }
+
+    async function getSignedUrlAssinatura(path) {
+      const client = window.SupabaseAuth && window.SupabaseAuth.getClient ? window.SupabaseAuth.getClient() : null;
+      if (!client || !client.storage) return '';
+      const { data } = await client.storage.from('assinaturas-oficiais').createSignedUrl(path, 3600);
+      return (data && data.signedUrl) ? data.signedUrl : '';
+    }
+
+    function imprimirReimpressao() {
+      if (window.InstitucionalLayout && window.InstitucionalLayout.preparePrint) {
+        window.InstitucionalLayout.preparePrint();
+      } else {
+        window.print();
+      }
+    }
+
+    function abrirModalInutilizar(doc) {
+      docParaInutilizar = doc;
+      document.getElementById('motivo-inutilizar').value = '';
+      document.getElementById('modal-inutilizar').classList.remove('hidden');
+    }
+
+    function fecharModalInutilizar() {
+      docParaInutilizar = null;
+      document.getElementById('modal-inutilizar').classList.add('hidden');
+    }
+
+    async function confirmarInutilizar() {
+      const motivo = (document.getElementById('motivo-inutilizar').value || '').trim();
+      if (!motivo) {
+        alert('Informe o motivo da inutilização.');
+        return;
+      }
+      if (!docParaInutilizar) return;
+      try {
+        const userId = window.usuarioLogado && window.usuarioLogado.userId ? window.usuarioLogado.userId : null;
+        await window.supaFetch('/rest/v1/documentos_emitidos?id=eq.' + docParaInutilizar.id, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            status: 'INUTILIZADO',
+            inutilizado_em: new Date().toISOString(),
+            inutilizado_por: userId,
+            motivo_inutilizacao: motivo.slice(0, 1000)
+          })
+        });
+        fecharModalInutilizar();
+        carregarLista();
+      } catch (e) {
+        alert('Erro ao inutilizar: ' + (e.message || ''));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      popularAnos();
+      carregarLista();
+    });
+  </script>
+</body>
+</html>

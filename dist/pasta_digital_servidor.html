@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pasta Digital do Servidor — E. M. Getúlio Vargas</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --verde:    #1B4332; --verde2: #2D6A4F; --verde3: #40916C; --verde4: #74C69D; --verde5: #D8F3DC;
+  --ouro:     #B7950B; --ouro2: #F4D03F;
+  --verde-bg: #E8F5E9; --cinza-bg: #F5F7FA; --borda: #E0E4EC;
+  --texto:    #1A1A2E; --sub:   #64748B;
+  --branco:   #FFFFFF;
+  --sombra:   0 2px 16px rgba(0,0,0,.08);
+  --erro:     #C0392B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza-bg);color:var(--texto);min-height:100vh}
+
+header{background:var(--verde);color:#fff;padding:0 24px;height:66px;
+  display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,.2);justify-content:space-between}
+header img{width:46px;height:46px;object-fit:contain;border-radius:50%;
+  background:#fff;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-shrink:0}
+.h-left{display:flex;align-items:center;gap:14px}
+.h-txt h1{font-size:.95rem;font-weight:800;line-height:1.2}
+.h-txt p {font-size:.72rem;color:var(--verde4);margin-top:1px}
+.btn-home{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);
+  color:#fff;border-radius:10px;padding:8px 16px;font-size:.82rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s;flex-shrink:0}
+.btn-home:hover{background:rgba(255,255,255,.25)}
+
+.container{max-width:980px;margin:0 auto;padding:28px 16px 60px}
+
+/* BUSCA */
+.busca-wrap{background:#fff;border-radius:16px;box-shadow:var(--sombra);padding:24px;margin-bottom:24px}
+.busca-wrap h2{font-size:1rem;font-weight:800;margin-bottom:16px;color:var(--verde2)}
+.busca-row{display:flex;gap:10px;flex-wrap:wrap}
+.busca-row input{flex:1;min-width:220px;border:2px solid var(--borda);border-radius:10px;
+  padding:10px 16px;font-size:.9rem;font-family:'Plus Jakarta Sans',sans-serif}
+.busca-row input:focus{outline:none;border-color:var(--verde3)}
+.btn{border:none;border-radius:10px;padding:10px 20px;font-size:.85rem;
+  font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:.2s}
+.btn-verde{background:var(--verde);color:#fff}
+.btn-verde:hover{background:var(--verde2)}
+.btn-sec{background:var(--cinza-bg);color:var(--sub);border:2px solid var(--borda)}
+.btn-sec:hover{background:var(--borda)}
+.btn-ouro{background:var(--ouro);color:#fff}
+.btn-sm{border:none;border-radius:7px;padding:4px 10px;font-size:.7rem;
+  font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:.2s}
+.btn-sm-ver{background:var(--verde-bg);color:var(--verde2)}
+.btn-sm-del{background:#FFEBEE;color:#C62828}
+
+/* LISTA SERVIDORES */
+.srv-lista-item{background:#fff;border-radius:12px;box-shadow:var(--sombra);
+  padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  transition:.2s;margin-bottom:10px;border:2px solid transparent}
+.srv-lista-item:hover{border-color:var(--verde4);transform:translateY(-1px)}
+.sli-foto{width:48px;height:60px;border-radius:8px;background:var(--verde5);
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;overflow:hidden}
+.sli-foto img{width:100%;height:100%;object-fit:cover;border-radius:6px}
+.sli-info{flex:1}
+.sli-info h3{font-size:.9rem;font-weight:800;color:var(--texto)}
+.sli-info p{font-size:.72rem;color:var(--sub);margin-top:2px}
+.sli-cargo{background:var(--verde5);color:var(--verde2);font-size:.67rem;font-weight:700;
+  padding:3px 10px;border-radius:99px;display:inline-block;margin-top:4px}
+
+/* CARD SERVIDOR */
+.srv-card{background:#fff;border-radius:16px;box-shadow:var(--sombra);overflow:hidden;margin-bottom:24px}
+.srv-head{background:linear-gradient(135deg,var(--verde),var(--verde2));
+  padding:18px 24px;display:flex;align-items:center;gap:16px}
+.srv-foto{width:64px;height:80px;border-radius:8px;border:3px solid rgba(255,255,255,.4);
+  background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;flex-shrink:0;overflow:hidden}
+.srv-foto img{width:100%;height:100%;object-fit:cover;border-radius:6px}
+.srv-info h2{color:#fff;font-size:1rem;font-weight:800}
+.srv-info p{color:var(--verde4);font-size:.78rem;margin-top:2px}
+.srv-badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);
+  color:#fff;border-radius:99px;padding:3px 12px;font-size:.7rem;font-weight:700;margin-top:6px;display:inline-block}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--borda);padding:0 24px;background:#fff}
+.tab{padding:12px 18px;font-size:.82rem;font-weight:700;cursor:pointer;
+  color:var(--sub);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s}
+.tab:hover{color:var(--verde2)}
+.tab.ativo{color:var(--verde2);border-bottom-color:var(--verde2)}
+
+.pasta-body{padding:20px 24px}
+
+/* DOCS GRID */
+.pasta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:8px}
+.doc-slot{border:2px dashed var(--borda);border-radius:14px;padding:16px;
+  text-align:center;cursor:pointer;transition:.2s;background:#FAFCFA;
+  display:flex;flex-direction:column;align-items:center;gap:6px}
+.doc-slot:hover{border-color:var(--verde3);background:var(--verde5)}
+.doc-slot.tem-doc{border:2px solid #A5D6A7;background:var(--verde-bg);cursor:default}
+.doc-slot.tem-doc:hover{border-color:#66BB6A;background:#C8E6C9}
+.doc-icon{font-size:1.8rem}
+.doc-nome{font-size:.75rem;font-weight:700;color:var(--texto);line-height:1.3}
+.doc-sub{font-size:.68rem;color:var(--sub)}
+.doc-status-ok{font-size:.7rem;font-weight:700;color:var(--verde3);margin-top:4px}
+.doc-status-pend{font-size:.68rem;font-weight:700;color:var(--ouro);margin-top:4px}
+.doc-slot .acoes-doc{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+
+/* STATUS BAR */
+.status-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  background:var(--cinza-bg);border-radius:10px;padding:12px 16px;margin-bottom:16px}
+.status-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--sub);font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot-verde{background:var(--verde3)}.dot-lar{background:#F39C12}.dot-cin{background:var(--borda)}
+
+/* MODAL DOC */
+#modal-doc{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;
+  display:flex;align-items:center;justify-content:center;padding:16px}
+#modal-doc.hidden{display:none}
+#modal-doc-inner{background:#1e1e2e;border-radius:16px;max-width:800px;width:100%;
+  max-height:92vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+#modal-doc-head{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.1)}
+#modal-doc-body{padding:20px;overflow:auto;display:flex;align-items:center;justify-content:center}
+#modal-doc-img{max-width:100%;max-height:70vh;object-fit:contain;border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+
+/* MODAL UPLOAD */
+#upload-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1500;
+  display:flex;align-items:center;justify-content:center;padding:16px}
+#upload-modal.hidden{display:none}
+#upload-box{background:#fff;border-radius:18px;padding:28px;max-width:420px;
+  width:100%;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+#upload-box h3{font-size:1rem;font-weight:800;color:var(--verde2);margin-bottom:6px}
+#upload-box p{font-size:.8rem;color:var(--sub);margin-bottom:20px}
+.camera-btn{width:100%;background:var(--verde5);border:2px solid var(--verde4);color:var(--verde);
+  border-radius:12px;padding:12px;font-size:.85rem;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:10px;transition:.2s}
+.camera-btn:hover{background:var(--verde4);color:#fff}
+
+.scanner-btn{width:100%;background:linear-gradient(135deg,var(--verde),var(--verde2));
+  color:#fff;border:none;border-radius:12px;padding:12px;font-size:.85rem;
+  font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:8px;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:10px;transition:.2s}
+.scanner-btn:disabled{opacity:.45;cursor:not-allowed}
+.scanner-btn:hover:not(:disabled){background:linear-gradient(135deg,var(--verde2),var(--verde3))}
+
+#scanner-status-badge{
+  position:fixed;bottom:24px;right:24px;z-index:800;
+  background:var(--verde2);color:#fff;border-radius:12px;
+  padding:8px 16px;font-size:.75rem;font-weight:700;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 16px rgba(0,0,0,.2);transition:.3s}
+#scanner-status-badge.offline{background:#7F1D1D}
+.scanner-dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;animation:pdot 2s infinite}
+.scanner-dot.off{background:#F87171;animation:none}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+.scan-spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.upload-area{border:2.5px dashed var(--borda);border-radius:14px;padding:28px 20px;
+  text-align:center;cursor:pointer;transition:.3s;margin-bottom:14px}
+.upload-area:hover{border-color:var(--verde3);background:var(--verde5)}
+.upload-area .ua-icon{font-size:2.5rem;margin-bottom:8px}
+.upload-area p{font-size:.82rem;color:var(--sub)}
+.upload-area strong{color:var(--verde2);font-size:.88rem}
+#preview-upload{display:none;margin:12px 0;text-align:center}
+#preview-upload img{max-width:100%;max-height:200px;border-radius:10px;
+  border:2px solid var(--borda)}
+
+/* FICHA RESUMO */
+.ficha-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.82rem}
+.ficha-item{background:var(--cinza-bg);border-radius:8px;padding:10px 14px}
+.ficha-item label{font-size:.65rem;font-weight:700;color:var(--sub);text-transform:uppercase;
+  letter-spacing:.05em;display:block;margin-bottom:2px}
+.ficha-item span{font-weight:700;color:var(--verde2)}
+
+/* PROG MINI */
+.prog-mini{width:80px;height:6px;background:var(--borda);border-radius:99px;overflow:hidden}
+.prog-mini-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--verde4),var(--ouro2))}
+
+.empty{text-align:center;padding:50px 20px;color:var(--sub)}
+.empty span{font-size:3rem;display:block;margin-bottom:12px}
+
+@media(max-width:600px){
+  .pasta-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .ficha-grid{grid-template-columns:1fr}
+}
+
+/* OCORRÊNCIAS */
+.ocor-tipos{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:18px}
+.ocor-tipo-btn{border:2px solid var(--borda);background:#fff;border-radius:12px;padding:14px 8px;text-align:center;cursor:pointer;transition:.2s;font-family:"Plus Jakarta Sans",sans-serif}
+.ocor-tipo-btn:hover{border-color:var(--verde3);background:var(--verde5)}
+.ocor-tipo-btn.sel{border-color:var(--verde);background:var(--verde5)}
+.ocor-tipo-btn .oi{font-size:1.6rem;display:block;margin-bottom:5px}
+.ocor-tipo-btn span{font-size:.72rem;font-weight:700;color:var(--texto);line-height:1.3;display:block}
+.ocor-form{background:var(--cinza-bg);border-radius:12px;padding:18px;border:1.5px solid var(--borda);margin-bottom:18px;display:none}
+.ocor-form.vis{display:block}
+.ocor-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.ocor-campo label{font-size:.7rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px}
+.ocor-campo input,.ocor-campo select,.ocor-campo textarea{width:100%;border:1.5px solid var(--borda);border-radius:8px;padding:8px 12px;font-size:.88rem;font-family:"Plus Jakarta Sans",sans-serif;background:#fff}
+.ocor-campo textarea{resize:vertical;min-height:60px}
+.ocor-card{background:#fff;border:1.5px solid var(--borda);border-radius:12px;padding:14px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start}
+.ocor-card-icon{font-size:1.5rem;flex-shrink:0}
+.ocor-card-body{flex:1}
+.ocor-card-body h5{font-size:.88rem;font-weight:800}
+.ocor-card-body p{font-size:.75rem;color:var(--sub);margin-top:3px}
+.ocor-tag{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:5px}
+.tag-atestado{background:var(--verde5);color:var(--verde2)}
+.tag-saida-part{background:#FFF8E1;color:#B7950B}
+.tag-ajuste{background:#EDE7F6;color:#6A1B9A}
+.tag-saida-serv{background:#E0F2F1;color:#00695C}
+.btn-filtro{border:1.5px solid var(--borda);background:#fff;border-radius:8px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;transition:.2s}
+.btn-filtro.ativo{background:var(--verde);color:#fff;border-color:var(--verde)}
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase-init.js"></script>
+  <script src="supabase-auth.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="h-left">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAA0NJREFUQY3tm09IFFEcwL/ZzqarblqbZRsVpSVBUh0S6lBEh4KO0aEO0aFDEEQQdKhD0KE6dAgioiiii4cQSqSQpEghyEMFWSSlpZbYbtquu+Pb92bfm3nTm5lZf2v7wYOZN/Pe973f/N7MvGGMMSRJoqoqiqJQLpepVCqUy2XK5TKVSoVarUatVqNWq1Gv16nX6zQaDRqNBs1mk2aziWVZ5HI5stksOTKZDJlMhnQ6TSqVIplMkiAek8RxHIfH87DP9tms2bNn9+e5zzvnvHcOgjE2xhjDGBtjjDEzxhhjjDFmjDG21Wq1tm3b3m632+12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbreb3W63295ut7vdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbre73e12u91ut9vtdrvdbne73e12u91ut9vtdrfAAAA" alt="Logo" onerror="this.style.display='none'">
+    <div class="h-txt">
+      <h1>Pasta Digital do Servidor</h1>
+      <p>E. M. Getúlio Vargas — Nova Ubiratã/MT</p>
+    </div>
+  </div>
+  <button class="btn-home" onclick="window.location.href='index.html'">🏠 Portal</button>
+</header>
+
+<div class="container">
+
+<!-- ══ TELA INICIAL ══ -->
+<div id="tela-inicial">
+  <div class="busca-wrap">
+    <h2>🔍 Localizar Servidor</h2>
+    <div class="busca-row">
+      <input id="inp-busca" placeholder="Digite o nome do servidor..." oninput="buscarServidores()">
+      <button class="btn btn-sec" onclick="carregarTodos()">Ver Todos</button>
+    </div>
+  </div>
+  <div id="lista-servidores">
+    <div class="empty"><span>🗂️</span>Digite o nome para buscar um servidor ou clique em "Ver Todos".</div>
+  </div>
+</div>
+
+<!-- ══ TELA PASTA ══ -->
+<div id="tela-pasta" style="display:none">
+
+  <div class="srv-card">
+    <div class="srv-head">
+      <div class="srv-foto" id="pasta-foto">👤</div>
+      <div class="srv-info" style="flex:1">
+        <h2 id="pasta-nome">—</h2>
+        <p id="pasta-info">—</p>
+        <span class="srv-badge" id="pasta-badge">—</span>
+      </div>
+      <button class="btn btn-sec" onclick="voltarInicial()"
+        style="margin-left:auto;align-self:flex-start;font-size:.78rem">← Voltar</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab ativo" onclick="mudarTab('docs',this)">📁 Documentos</div>
+      <div class="tab" onclick="mudarTab('ocorrencias',this)">📋 Ocorrências</div>
+      <div class="tab" onclick="mudarTab('info',this)">👤 Dados do Servidor</div>
+    </div>
+
+    <!-- ABA DOCUMENTOS -->
+    <div id="tab-docs" class="pasta-body">
+      <div class="status-bar" id="status-bar"></div>
+      <div class="pasta-grid" id="docs-grid"></div>
+    </div>
+
+    <!-- ABA OCORRÊNCIAS -->
+    <div id="tab-ocorrencias" class="pasta-body" style="display:none">
+
+      <!-- Seleção do tipo -->
+      <div style="font-size:.8rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Selecione o tipo de registro:</div>
+      <div class="ocor-tipos">
+        <div class="ocor-tipo-btn" onclick="selecionarTipoOcor('atestado',this)">
+          <b class="oi">🩺</b><span>Atestado / Afastamento</span>
+        </div>
+        <div class="ocor-tipo-btn" onclick="selecionarTipoOcor('saida_part',this)">
+          <b class="oi">🚶</b><span>Saída Particular</span>
+        </div>
+        <div class="ocor-tipo-btn" onclick="selecionarTipoOcor('ajuste_ponto',this)">
+          <b class="oi">🕐</b><span>Ajuste de Ponto</span>
+        </div>
+        <div class="ocor-tipo-btn" onclick="selecionarTipoOcor('saida_serv',this)">
+          <b class="oi">🏫</b><span>Saída p/ Serviço</span>
+        </div>
+      </div>
+
+      <!-- FORM: ATESTADO -->
+      <div class="ocor-form" id="form-atestado">
+        <div style="font-size:.88rem;font-weight:800;color:var(--verde2);margin-bottom:14px">🩺 Atestado / Afastamento</div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Data do Atestado *</label><input type="date" id="sat-data"></div>
+          <div class="ocor-campo"><label>Dias de Afastamento *</label><input type="number" id="sat-dias" min="1" placeholder="Ex: 2"></div>
+        </div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Tipo</label>
+            <select id="sat-tipo">
+              <option value="Atestado Médico">Atestado Médico</option>
+              <option value="Declaração Médica">Declaração Médica</option>
+              <option value="Internação">Internação</option>
+              <option value="Licença Saúde">Licença Saúde</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div class="ocor-campo"><label>Médico / CRM / Unidade</label><input type="text" id="sat-medico" placeholder="Dr. Nome / CRM..."></div>
+        </div>
+        <div class="ocor-campo" style="margin-bottom:12px"><label>Observações / CID</label><textarea id="sat-obs"></textarea></div>
+        <div style="border:2px dashed var(--borda);border-radius:10px;padding:14px;text-align:center;cursor:pointer;margin-bottom:12px" id="sat-upload-area" onclick="document.getElementById('sat-inp').click()">
+          📎 <b style="color:var(--verde2)">Anexar PDF / Foto do Atestado</b>
+          <div id="sat-arquivo-nome" style="font-size:.72rem;color:var(--sub);margin-top:3px">Nenhum arquivo</div>
+        </div>
+        <input type="file" id="sat-inp" accept="image/*,.pdf" style="display:none" onchange="ocorPreviewArquivo(this,'sat')">
+        <button class="btn btn-verde" style="width:100%;padding:11px" onclick="salvarOcorrencia('atestado')">✅ Salvar Atestado</button>
+      </div>
+
+      <!-- FORM: SAÍDA PARTICULAR -->
+      <div class="ocor-form" id="form-saida_part">
+        <div style="font-size:.88rem;font-weight:800;color:#B7950B;margin-bottom:14px">🚶 Saída Particular</div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Data da Saída *</label><input type="date" id="sp-data"></div>
+          <div class="ocor-campo"><label>Horário da Saída *</label><input type="time" id="sp-hora"></div>
+        </div>
+        <div class="ocor-campo" style="margin-bottom:12px"><label>Motivo da Saída *</label><textarea id="sp-motivo" placeholder="Descreva o motivo da saída..."></textarea></div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Comunicou Direção/Coord.?</label>
+            <select id="sp-comunicou">
+              <option value="Sim - Direção">Sim — Direção</option>
+              <option value="Sim - Coordenação">Sim — Coordenação</option>
+              <option value="Não comunicou">Não comunicou</option>
+            </select>
+          </div>
+          <div class="ocor-campo"><label>Retornou às</label><input type="time" id="sp-retorno"></div>
+        </div>
+        <button class="btn btn-verde" style="width:100%;padding:11px" onclick="salvarOcorrencia('saida_part')">✅ Salvar Saída Particular</button>
+      </div>
+
+      <!-- FORM: AJUSTE DE PONTO -->
+      <div class="ocor-form" id="form-ajuste_ponto">
+        <div style="font-size:.88rem;font-weight:800;color:#6A1B9A;margin-bottom:14px">🕐 Ajuste de Ponto</div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Data do Fato *</label><input type="date" id="ap-data"></div>
+          <div class="ocor-campo"><label>Horário que deveria ter batido</label><input type="time" id="ap-hora-correta"></div>
+        </div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Horário registrado (errado)</label><input type="time" id="ap-hora-errada"></div>
+          <div class="ocor-campo"><label>Tipo</label>
+            <select id="ap-tipo">
+              <option value="Não bateu o ponto">Não bateu o ponto</option>
+              <option value="Bateu no horário errado">Bateu no horário errado</option>
+              <option value="Esqueceu de bater">Esqueceu de bater</option>
+            </select>
+          </div>
+        </div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Comunicou no dia do fato?</label>
+            <select id="ap-comunicou">
+              <option value="Sim - Direção">Sim — Direção</option>
+              <option value="Sim - Coordenação">Sim — Coordenação</option>
+              <option value="Não comunicou">Não comunicou</option>
+            </select>
+          </div>
+          <div class="ocor-campo"><label>Motivo</label><input type="text" id="ap-motivo" placeholder="Justificativa..."></div>
+        </div>
+        <button class="btn btn-verde" style="width:100%;padding:11px" onclick="salvarOcorrencia('ajuste_ponto')">✅ Salvar Ajuste de Ponto</button>
+      </div>
+
+      <!-- FORM: SAÍDA PARA SERVIÇO -->
+      <div class="ocor-form" id="form-saida_serv">
+        <div style="font-size:.88rem;font-weight:800;color:#00695C;margin-bottom:14px">🏫 Saída para Serviço (Escola/SMED)</div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Data *</label><input type="date" id="ss-data"></div>
+          <div class="ocor-campo"><label>Horário de Saída *</label><input type="time" id="ss-hora-saida"></div>
+        </div>
+        <div class="ocor-row">
+          <div class="ocor-campo"><label>Horário de Retorno</label><input type="time" id="ss-hora-retorno"></div>
+          <div class="ocor-campo"><label>Destino</label>
+            <select id="ss-destino">
+              <option value="SMED">SMED</option>
+              <option value="Escola">Escola (outra unidade)</option>
+              <option value="Secretaria">Secretaria Municipal</option>
+              <option value="Atividade Pedagógica">Atividade Pedagógica</option>
+              <option value="Formação/Capacitação">Formação / Capacitação</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+        </div>
+        <div class="ocor-campo" style="margin-bottom:12px"><label>Atividade / Descrição *</label><textarea id="ss-atividade" placeholder="Descreva a atividade realizada..."></textarea></div>
+        <button class="btn btn-verde" style="width:100%;padding:11px" onclick="salvarOcorrencia('saida_serv')">✅ Salvar Saída p/ Serviço</button>
+      </div>
+
+      <!-- Histórico + filtros -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        <span style="font-size:.8rem;font-weight:800;color:var(--sub)">HISTÓRICO DE OCORRÊNCIAS</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn-filtro ativo" onclick="filtrarOcorrencias(0,this)">Todos</button>
+          <button class="btn-filtro" onclick="filtrarOcorrencias(15,this)">15 dias</button>
+          <button class="btn-filtro" onclick="filtrarOcorrencias(30,this)">30 dias</button>
+          <button class="btn-filtro" onclick="filtrarOcorrencias(90,this)">90 dias</button>
+          <select id="sel-tipo-filtro" onchange="renderOcorrencias()" style="border:1.5px solid var(--borda);border-radius:8px;padding:5px 10px;font-size:.78rem;font-family:inherit">
+            <option value="">Todos os tipos</option>
+            <option value="atestado">Atestados</option>
+            <option value="saida_part">Saídas Particulares</option>
+            <option value="ajuste_ponto">Ajustes de Ponto</option>
+            <option value="saida_serv">Saídas p/ Serviço</option>
+          </select>
+          <button class="btn btn-verde" style="font-size:.75rem;padding:6px 14px" onclick="gerarRelatorioOcorrencias()">📄 Gerar PDF</button>
+        </div>
+      </div>
+      <div id="ocor-lista"></div>
+    </div>
+
+    <!-- ABA INFO -->
+    <div id="tab-info" class="pasta-body" style="display:none">
+      <div id="ficha-resumo"></div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /container -->
+
+<!-- ══ MODAL VISUALIZAR DOC ══ -->
+<div id="modal-doc" class="hidden">
+  <div id="modal-doc-inner">
+    <div id="modal-doc-head">
+      <span id="modal-doc-titulo" style="font-weight:800;font-size:.95rem;color:#fff">Documento</span>
+      <div style="display:flex;gap:8px">
+        <button onclick="baixarDoc()"
+          style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;
+          padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer">⬇ Baixar</button>
+        <button onclick="fecharModal()"
+          style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;
+          padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer">✕</button>
+      </div>
+    </div>
+    <div id="modal-doc-body">
+      <img id="modal-doc-img" src="" alt="">
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL UPLOAD ══ -->
+<div id="upload-modal" class="hidden">
+  <div id="upload-box">
+    <h3 id="upload-titulo">📄 Enviar Documento</h3>
+    <p id="upload-desc">Escolha um arquivo ou tire uma foto com a câmera</p>
+
+    <!-- Scanner físico -->
+    <button class="scanner-btn" id="btn-scanner" onclick="usarScanner()">
+      <span id="scan-spin" class="scan-spin"></span>
+      🖨️ <span id="btn-scanner-txt">Usar Scanner da Secretaria</span>
+    </button>
+    <div id="scanner-dpi-row" style="display:flex;gap:8px;margin:-4px 0 8px;justify-content:center">
+      <label style="font-size:.72rem;color:var(--sub);display:flex;align-items:center;gap:4px;cursor:pointer">
+        <input type="radio" name="dpi" value="150"> 150 dpi (rápido)
+      </label>
+      <label style="font-size:.72rem;color:var(--sub);display:flex;align-items:center;gap:4px;cursor:pointer">
+        <input type="radio" name="dpi" value="200" checked> 200 dpi (padrão)
+      </label>
+      <label style="font-size:.72rem;color:var(--sub);display:flex;align-items:center;gap:4px;cursor:pointer">
+        <input type="radio" name="dpi" value="300"> 300 dpi (qualidade)
+      </label>
+    </div>
+
+    <button class="camera-btn" onclick="abrirCamera()">📷 Tirar Foto com a Câmera</button>
+    <input type="file" id="inp-camera" accept="image/*" capture="environment"
+      style="display:none" onchange="previewArquivo(this)">
+    <div class="upload-area" onclick="document.getElementById('inp-arquivo').click()">
+      <div class="ua-icon">📎</div>
+      <strong>Clique para selecionar arquivo</strong>
+      <p>JPG, PNG ou PDF — máx. 10MB</p>
+    </div>
+    <input type="file" id="inp-arquivo" accept="image/*,.pdf"
+      style="display:none" onchange="previewArquivo(this)">
+    <div id="preview-upload">
+      <img id="preview-img" src="" alt="">
+      <p id="preview-nome" style="font-size:.75rem;color:var(--sub);margin-top:6px"></p>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn btn-sec" style="flex:1" onclick="fecharUpload()">Cancelar</button>
+      <button class="btn btn-verde" style="flex:1" id="btn-salvar-doc"
+        onclick="salvarDocumento()" disabled>✅ Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Badge status agente scanner -->
+<div id="scanner-status-badge" class="offline" style="display:none">
+  <div class="scanner-dot off" id="scanner-dot"></div>
+  <span id="scanner-status-txt">Scanner: verificando...</span>
+</div>
+
+
+  <script>
+    // ══════════════════════════════════════════════════════════════════
+    // PROTEÇÃO DE ACESSO (Hardened)
+    // ══════════════════════════════════════════════════════════════════
+    (async function init() {
+      const u = await window.PortalAuth.requireLogin(['diretor', 'secretaria', 'coordenacao']);
+      if (!u) return;
+      window.usuarioLogado = u;
+      
+      // Inicializa a página após garantir o login
+      if (typeof carregarDados === 'function') await carregarDados();
+      if (typeof renderForm === 'function') renderForm();
+      if (typeof renderLista === 'function') renderLista();
+      if (typeof renderListaEmitidos === 'function') renderListaEmitidos();
+      if (typeof initPage === 'function') await initPage();
+    })();
+  </script>
+<script>
+// SESSÃO DO PORTAL — Guard (login + permissões)
+PortalAuth.requireLogin(['diretor','secretaria','coordenacao']);
+
+// ─── DOCUMENTOS DO SERVIDOR ──────────────────────────────────────────────────
+const DOCS_CONFIG = [
+  // Identificação
+  {id:'rg_srv',       icon:'🪪', nome:'RG / Identidade',         grupo:'Identificação', req:false},
+  {id:'cpf_srv',      icon:'📋', nome:'CPF',                     grupo:'Identificação', req:false},
+  {id:'foto_3x4',     icon:'📷', nome:'Foto 3×4',                grupo:'Identificação', req:false},
+  {id:'ctps_srv',     icon:'📒', nome:'Carteira de Trabalho',    grupo:'Identificação', req:false},
+  {id:'tit_eleitor',  icon:'🗳️', nome:'Título de Eleitor',       grupo:'Identificação', req:false},
+  {id:'cnh_srv',      icon:'🚗', nome:'CNH (se possuir)',         grupo:'Identificação', req:false},
+  {id:'pis_srv',      icon:'🏦', nome:'PIS / PASEP',             grupo:'Identificação', req:false},
+  // Formação
+  {id:'escolaridade', icon:'🎓', nome:'Diploma / Escolaridade',  grupo:'Formação',      req:false},
+  {id:'especializacao',icon:'📚',nome:'Especialização / Pós',    grupo:'Formação',      req:false},
+  {id:'certif_curso', icon:'🏅', nome:'Certificados de Cursos',  grupo:'Formação',      req:false},
+  // Saúde e outros
+  {id:'atestado_med', icon:'🩺', nome:'Atestado Médico Admissional',grupo:'Saúde',     req:false},
+  {id:'atestado_vacina',icon:'💉',nome:'Comprovante de Vacinação',grupo:'Saúde',       req:false},
+  // Funcional
+  {id:'cert_neg',     icon:'📜', nome:'Certidão Negativa',       grupo:'Funcional',    req:false},
+  {id:'dec_bens',     icon:'💼', nome:'Declaração de Bens',      grupo:'Funcional',    req:false},
+  {id:'contrato_srv', icon:'📝', nome:'Contrato / Portaria',     grupo:'Funcional',    req:false},
+  // Atestados do ano letivo
+  {id:'atest_srv_1',   icon:'📋', nome:'Atestado — Jan/Fev',    grupo:'Atestados 2026', req:false},
+  {id:'atest_srv_2',   icon:'📋', nome:'Atestado — Mar/Abr',    grupo:'Atestados 2026', req:false},
+  {id:'atest_srv_3',   icon:'📋', nome:'Atestado — Mai/Jun',    grupo:'Atestados 2026', req:false},
+  {id:'atest_srv_4',   icon:'📋', nome:'Atestado — Jul/Ago',    grupo:'Atestados 2026', req:false},
+  {id:'atest_srv_5',   icon:'📋', nome:'Atestado — Set/Out',    grupo:'Atestados 2026', req:false},
+  {id:'atest_srv_6',   icon:'📋', nome:'Atestado — Nov/Dez',    grupo:'Atestados 2026', req:false},
+  {id:'atest_srv_extra',icon:'📋', nome:'Atestado Avulso',      grupo:'Atestados 2026', req:false},
+];
+
+// Usando as funções centralizadas do supabase-config.js
+async function lerServidores(){
+  try{
+    const rows=await supaFetch('/rest/v1/servidores?select=id,dados&order=criado_em.asc');
+    return rows.map(r=>({ ...r.dados, _tabela_id: r.id }));
+  } catch(e){ console.error(e); return []; }
+}
+async function lerDocsServidor(srvId){
+  try{
+    const rows=await supaFetch('/rest/v1/pastas_digitais_servidores?servidor_id=eq.'+srvId+'&select=docs');
+    if(rows.length && rows[0].docs) return rows[0].docs;
+    // Pasta ainda não existe — retorna vazio (será criada ao salvar o primeiro doc)
+    return {};
+  } catch(e){ return {}; }
+}
+async function salvarDocsServidor(srvId, docs){
+  try{
+    // Busca dados do servidor para preencher campos denormalizados (tolerante a falha)
+    let d = {};
+    try{
+      const todosServ = await supaFetch('/rest/v1/servidores?select=dados&order=criado_em.asc');
+      const srvEncontrado = todosServ.find(r => r.dados && (r.dados._id === srvId || r.dados.id === srvId));
+      if(srvEncontrado) d = srvEncontrado.dados;
+    } catch(eSrv){ console.warn('salvarDocsServidor: não buscou metadados do servidor, salvando apenas docs.'); }
+
+    // Upsert único — nunca falha por ausência de registro anterior
+    await supaFetch('/rest/v1/pastas_digitais_servidores', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates,return=minimal',
+      body: JSON.stringify({
+        servidor_id:   srvId,
+        nome_servidor: d.nome  || '',
+        cargo:         d.cargo || '',
+        docs:          docs,
+        atualizado_em: new Date().toISOString()
+      })
+    });
+    return true;
+  } catch(e){ console.error('salvarDocsServidor:', e); return false; }
+}
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+let srvAtual        = null;
+let docsAtual       = {};
+let docUploadAtual  = null;
+let arquivoAtual    = null;
+let ocorrenciasAtual = [];
+let ocorFiltro = 0;
+let ocorArquivos = {}; // { sat: File }
+
+// ─── BUSCA / LISTAGEM ────────────────────────────────────────────────────────
+async function buscarServidores(){
+  const busca = document.getElementById('inp-busca').value.toLowerCase().trim();
+  if(!busca){
+    document.getElementById('lista-servidores').innerHTML=
+      '<div class="empty"><span>🗂️</span>Digite o nome para buscar.</div>';
+    return;
+  }
+  const lista = await lerServidores();
+  const filtrada = lista.filter(s=>(s.nome||'').toLowerCase().includes(busca));
+  renderListaServidores(filtrada, busca);
+}
+
+async function carregarTodos(){
+  const lista = await lerServidores();
+  renderListaServidores(lista,'');
+}
+
+function renderListaServidores(lista, termo){
+  const el = document.getElementById('lista-servidores');
+  if(!lista.length){
+    el.innerHTML='<div class="empty"><span>😕</span>'+
+      (termo?`Nenhum servidor encontrado para "<b>${termo}</b>".`:'Nenhum servidor cadastrado ainda.')+
+      '</div>'; return;
+  }
+  el.innerHTML = lista.map(s=>{
+    const fotoHtml = s.fotoBase64
+      ?`<img src="${s.fotoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`
+      :'👤';
+    return `<div class="srv-lista-item" onclick="abrirPasta('${s._id||s.id||s.matriculaFunc||s.cpf}')">
+      <div class="sli-foto">${fotoHtml}</div>
+      <div class="sli-info">
+        <h3>${s.nome||'—'}</h3>
+        <p>${s.cargo||'—'} · ${s.turno||'—'} · ${s.vinculo||'—'}</p>
+        <span class="sli-cargo">${s.cargo||'—'}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="prog-mini" id="prog-${s._id||s.cpf}">
+          <div class="prog-mini-fill" style="width:0%"></div>
+        </div>
+        <span id="pct-${s._id||s.cpf}" style="font-size:.72rem;color:var(--sub)">—</span>
+      </div>
+    </div>`;
+  }).join('');
+  lista.forEach(s=>calcularProgressoMini(s._id||s.id||s.cpf));
+}
+
+async function calcularProgressoMini(id){
+  const docs = await lerDocsServidor(id);
+  const obrig = DOCS_CONFIG.filter(d=>d.req);
+  const ok = obrig.filter(d=>docs[d.id]).length;
+  const pct = Math.round(ok/obrig.length*100);
+  const el  = document.getElementById('prog-'+id);
+  const pctEl = document.getElementById('pct-'+id);
+  if(el) el.querySelector('.prog-mini-fill').style.width=pct+'%';
+  if(pctEl){
+    pctEl.textContent=pct+'%';
+    pctEl.style.color=pct===100?'var(--verde3)':'var(--sub)';
+  }
+}
+
+// ─── ABRIR PASTA ─────────────────────────────────────────────────────────────
+async function abrirPasta(id){
+  const lista = await lerServidores();
+  srvAtual = lista.find(s=>(s._id||s.id||s.matriculaFunc||s.cpf)===id);
+  if(!srvAtual) return;
+  docsAtual = await lerDocsServidor(id);
+  ocorrenciasAtual = await lerOcorrencias(id);
+
+  document.getElementById('pasta-nome').textContent = srvAtual.nome||'—';
+  document.getElementById('pasta-info').textContent =
+    `Matrícula: ${srvAtual.matriculaFunc||'—'} · Admissão: ${srvAtual.dataAdmissao||'—'}`;
+  document.getElementById('pasta-badge').textContent =
+    `${srvAtual.cargo||'—'} · ${srvAtual.turno||'—'}`;
+
+  const fotoEl = document.getElementById('pasta-foto');
+  if(srvAtual.fotoBase64){
+    fotoEl.innerHTML=`<img src="${srvAtual.fotoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`;
+  } else {
+    fotoEl.textContent='👤';
+  }
+
+  renderDocs();
+  renderFichaResumo();
+  document.getElementById('tela-inicial').style.display='none';
+  document.getElementById('tela-pasta').style.display='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function voltarInicial(){
+  document.getElementById('tela-pasta').style.display='none';
+  document.getElementById('tela-inicial').style.display='';
+  srvAtual=null; docsAtual={};
+}
+
+// ─── RENDER DOCUMENTOS ───────────────────────────────────────────────────────
+function renderDocs(){
+  const grid  = document.getElementById('docs-grid');
+  const grupos = [...new Set(DOCS_CONFIG.map(d=>d.grupo))];
+  let html='';
+
+  const total    = DOCS_CONFIG.filter(d=>docsAtual[d.id]).length;
+  const totalDocs = DOCS_CONFIG.length;
+  const pct = Math.round(total/totalDocs*100);
+
+  document.getElementById('status-bar').innerHTML=`
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--sub);margin-bottom:4px">
+        <span><b>Documentos enviados</b></span><span><b>${total}/${totalDocs}</b></span>
+      </div>
+      <div style="background:var(--borda);border-radius:99px;height:7px">
+        <div style="width:${pct}%;height:7px;border-radius:99px;
+          background:${pct===100?'var(--verde3)':'var(--ouro)'};transition:width .4s"></div>
+      </div>
+    </div>
+    <div class="status-item"><div class="dot dot-verde"></div>${total} enviados</div>
+    <div class="status-item"><div class="dot dot-cin"></div>${totalDocs-total} não enviados</div>
+    <div class="status-item" style="font-size:.68rem;color:var(--sub)">Todos opcionais — envie quando disponível</div>`;
+
+  grupos.forEach(grupo=>{
+    const docs = DOCS_CONFIG.filter(d=>d.grupo===grupo);
+    html+=`<div style="grid-column:1/-1;font-size:.72rem;font-weight:800;text-transform:uppercase;
+      letter-spacing:.08em;color:var(--sub);margin-top:8px">${grupo}</div>`;
+    docs.forEach(doc=>{
+      const tem=!!docsAtual[doc.id];
+      if(tem){
+        html+=`<div class="doc-slot tem-doc">
+          <span class="doc-icon">${doc.icon}</span>
+          <div class="doc-nome">${doc.nome}</div>
+          <div class="doc-status-ok">✅ Enviado</div>
+          ${doc.req?'<div class="doc-status-ok" style="font-size:.65rem">★ Obrigatório</div>':''}
+          <div class="acoes-doc">
+            <button class="btn-sm btn-sm-ver" onclick="verDoc('${doc.id}','${doc.nome}')">👁 Ver</button>
+            <button class="btn-sm btn-sm-del" onclick="removerDoc('${doc.id}')">🗑 Remover</button>
+          </div>
+        </div>`;
+      } else {
+        html+=`<div class="doc-slot" onclick="abrirUpload('${doc.id}','${doc.nome}')">
+          <span class="doc-icon">${doc.icon}</span>
+          <div class="doc-nome">${doc.nome}</div>
+          <div class="doc-sub">Clique para enviar</div>
+          <div class="doc-status-pend">${doc.req?'⚠ Obrigatório':'Opcional'}</div>
+        </div>`;
+      }
+    });
+  });
+  grid.innerHTML=html;
+}
+
+// ─── RENDER FICHA RESUMO ─────────────────────────────────────────────────────
+function renderFichaResumo(){
+  const s=srvAtual||{};
+  const v=k=>s[k]||'—';
+  
+  // Renderizar foto 3x4 se disponível
+  const fotoHTML = s.fotoBase64 
+    ? `<div style="grid-column: 1 / -1; display:flex; justify-content:center; margin-bottom:16px;">
+         <div style="width:100px; height:133px; border:2px solid var(--borda); border-radius:8px; overflow:hidden; box-shadow:var(--sombra);">
+           <img src="${s.fotoBase64}" style="width:100%; height:100%; object-fit:cover;">
+         </div>
+       </div>`
+    : '';
+  
+  const campos=[
+    ['Nome Completo',v('nome')],['Data de Nascimento',v('dataNasc')],
+    ['Sexo',v('sexo')],['CPF',v('cpf')],
+    ['RG',v('rg')],['PIS/PASEP',v('pisPasep')],
+    ['Cargo',v('cargo')],['Disciplina/Turma',v('disciplina')||v('turmasLecionadas')],
+    ['Vínculo',v('vinculo')],['Turno',v('turno')],
+    ['Matrícula Funcional',v('matriculaFunc')],['Data de Admissão',v('dataAdmissao')],
+    ['Carga Horária',v('cargaHoraria')],['Escolaridade',v('escolaridade')],
+    ['Telefone',v('telefone')],['E-mail',v('email')],
+    ['Banco',v('banco')],['Agência / Conta',v('agencia')?' '+v('agencia')+' / '+v('conta'):'—'],
+  ];
+  document.getElementById('ficha-resumo').innerHTML=`
+    ${fotoHTML}
+    <div class="ficha-grid">
+      ${campos.map(([l,val])=>`
+        <div class="ficha-item">
+          <label>${l}</label>
+          <span>${val}</span>
+        </div>`).join('')}
+    </div>
+    
+    <!-- Botões de Ação -->
+    <div style="display:flex;gap:12px;margin-top:24px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-verde" onclick="editarFichaServidor('${s._id||s.id}')" 
+        style="display:flex;align-items:center;gap:8px;padding:10px 24px;">
+        ✏️ Editar Ficha
+      </button>
+      <button class="btn btn-sec" onclick="excluirServidor('${s._id||s.id}', '${(s.nome||'').replace(/'/g, "\\'")}')
+
+" 
+        style="display:flex;align-items:center;gap:8px;padding:10px 24px;background:#FEE;color:#C53030;border-color:#FEE;">
+        🗑️ Excluir Cadastro
+      </button>
+    </div>`;
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function mudarTab(tab, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('ativo'));
+  el.classList.add('ativo');
+  document.getElementById('tab-docs').style.display=tab==='docs'?'':'none';
+  document.getElementById('tab-ocorrencias').style.display=tab==='ocorrencias'?'':'none';
+  document.getElementById('tab-info').style.display=tab==='info'?'':'none';
+  if(tab==='ocorrencias') renderOcorrencias();
+}
+
+// ─── UPLOAD ──────────────────────────────────────────────────────────────────
+function abrirUpload(docId, docNome){
+  docUploadAtual=docId; arquivoAtual=null;
+  document.getElementById('upload-titulo').textContent='📄 '+docNome;
+  document.getElementById('upload-desc').textContent='Escolha um arquivo ou tire uma foto';
+  document.getElementById('preview-upload').style.display='none';
+  document.getElementById('btn-salvar-doc').disabled=true;
+  document.getElementById('inp-arquivo').value='';
+  document.getElementById('inp-camera').value='';
+  document.getElementById('upload-modal').classList.remove('hidden');
+}
+function fecharUpload(){
+  document.getElementById('upload-modal').classList.add('hidden');
+  docUploadAtual=null; arquivoAtual=null;
+}
+function abrirCamera(){
+  document.getElementById('inp-camera').click();
+}
+function previewArquivo(inp){
+  const f=inp.files[0]; if(!f) return;
+  const isPDF=f.type==='application/pdf';
+  arquivoAtual=f;
+  const r=new FileReader();
+  r.onload=e=>{
+    const src=e.target.result;
+    document.getElementById('preview-img').src=isPDF
+      ?'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="60" font-size="60">📄</text></svg>'
+      :src;
+    document.getElementById('preview-nome').textContent=f.name+' ('+Math.round(f.size/1024)+'KB)';
+    document.getElementById('preview-upload').style.display='block';
+    document.getElementById('btn-salvar-doc').disabled=false;
+    arquivoAtual._base64=src;
+    arquivoAtual._isPDF=isPDF;
+  };
+  r.readAsDataURL(f);
+}
+/**
+ * Comprime uma imagem base64 antes de salvar para economizar espaço no banco
+ */
+async function comprimirImagem(base64, qualidade = 0.6) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      const MAX_WIDTH = 1200; 
+      if (width > MAX_WIDTH) {
+        height *= MAX_WIDTH / width;
+        width = MAX_WIDTH;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', qualidade));
+    };
+    img.src = base64;
+  });
+}
+
+async function salvarDocumento(){
+  if(!arquivoAtual||!docUploadAtual||!srvAtual) return;
+  const btn=document.getElementById('btn-salvar-doc');
+  btn.textContent='Processando...'; btn.disabled=true;
+  
+  let base64Final = arquivoAtual._base64;
+  let isPDFFinal = arquivoAtual._isPDF;
+  
+  // Otimização: Se for imagem, comprime antes de salvar
+  if(!isPDFFinal && base64Final.startsWith('data:image')) {
+    try { 
+      btn.textContent='Comprimindo...';
+      base64Final = await comprimirImagem(base64Final); 
+    } catch(e) { console.warn('Falha na compressão:', e); }
+  }
+
+  const srvId=srvAtual._id||srvAtual.id||srvAtual.matriculaFunc||srvAtual.cpf;
+  docsAtual[docUploadAtual]={
+    base64:   base64Final,
+    isPDF:    isPDFFinal,
+    nome:     arquivoAtual.name,
+    tamanho:  Math.round(base64Final.length * 0.75 / 1024)+'KB',
+    salvoEm:  new Date().toLocaleString('pt-BR'),
+  };
+  const ok=await salvarDocsServidor(srvId, docsAtual);
+  fecharUpload();
+  renderDocs();
+  showToast(ok?'✅ Documento salvo com sucesso!':'⚠️ Erro ao salvar. Tente novamente.');
+}
+
+// ─── VER / REMOVER ───────────────────────────────────────────────────────────
+function verDoc(docId, docNome){
+  const doc=docsAtual[docId]; if(!doc) return;
+  document.getElementById('modal-doc-titulo').textContent=docNome;
+  const imgEl=document.getElementById('modal-doc-img');
+  imgEl.src=doc.base64;
+  imgEl.dataset.docId=docId;
+  document.getElementById('modal-doc').classList.remove('hidden');
+}
+function fecharModal(){
+  document.getElementById('modal-doc').classList.add('hidden');
+  document.getElementById('modal-doc-img').src='';
+}
+function baixarDoc(){
+  const imgEl=document.getElementById('modal-doc-img');
+  if(!imgEl.src) return;
+  const docId=imgEl.dataset.docId;
+  const doc=docId?docsAtual[docId]:null;
+  const titulo=document.getElementById('modal-doc-titulo').textContent;
+  const ext=(doc&&doc.isPDF)?'.pdf':(doc&&doc.nome?'.'+doc.nome.split('.').pop():'.jpg');
+  const a=document.createElement('a');
+  a.href=imgEl.src;
+  a.download=titulo+ext;
+  a.click();
+}
+async function removerDoc(docId){
+  if(!confirm('Remover este documento?')) return;
+  delete docsAtual[docId];
+  const srvId=srvAtual._id||srvAtual.id||srvAtual.matriculaFunc||srvAtual.cpf;
+  await salvarDocsServidor(srvId, docsAtual);
+  renderDocs();
+  showToast('🗑 Documento removido.');
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'+
+    'background:var(--verde2);color:#fff;padding:12px 24px;border-radius:10px;'+
+    'font-size:.85rem;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);'+
+    'white-space:nowrap';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+
+// ─── CONVERTER IMAGEM PARA PDF ───────────────────────────────────────────────
+async function imagemParaPDF(base64DataUrl){
+  if(!window.jspdf){
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Falha ao carregar jsPDF'));
+      document.head.appendChild(s);
+    });
+  }
+  const { jsPDF } = window.jspdf;
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const landscape = img.width > img.height;
+        const pdf = new jsPDF({ orientation: landscape ? 'landscape' : 'portrait', unit: 'mm' });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const ratio = Math.min(pageW / img.width, pageH / img.height);
+        const w = img.width * ratio;
+        const h = img.height * ratio;
+        const x = (pageW - w) / 2;
+        const y = (pageH - h) / 2;
+        const fmt = base64DataUrl.includes('image/png') ? 'PNG' : 'JPEG';
+        pdf.addImage(base64DataUrl, fmt, x, y, w, h);
+        resolve(pdf.output('datauristring'));
+      } catch(e){ reject(e); }
+    };
+    img.onerror = reject;
+    img.src = base64DataUrl;
+  });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+carregarTodos();
+
+// ══════════════════════════════════════════════════════════════════
+// INTEGRAÇÃO SCANNER LOCAL (Agente Windows — porta 7788)
+// ══════════════════════════════════════════════════════════════════
+const SCANNER_AGENT = 'http://localhost:7788';
+let scannerOnline = false;
+
+async function verificarAgente(){
+  try {
+    const r = await fetch(SCANNER_AGENT + '/ping', { signal: AbortSignal.timeout(1500) });
+    const j = await r.json();
+    scannerOnline = (j.ok === true);
+  } catch(e) {
+    scannerOnline = false;
+  }
+  atualizarBadgeScanner();
+}
+
+function atualizarBadgeScanner(){
+  const badge = document.getElementById('scanner-status-badge');
+  const dot   = document.getElementById('scanner-dot');
+  const txt   = document.getElementById('scanner-status-txt');
+  const btn   = document.getElementById('btn-scanner');
+  badge.style.display = 'flex';
+  if(scannerOnline){
+    badge.classList.remove('offline');
+    dot.classList.remove('off');
+    txt.textContent = 'Scanner: conectado ✓';
+    if(btn){ btn.disabled = false; btn.title = ''; }
+  } else {
+    badge.classList.add('offline');
+    dot.classList.add('off');
+    txt.textContent = 'Scanner: agente offline';
+    if(btn){
+      btn.disabled = true;
+      btn.title = 'Inicie o AGENTE_SCANNER.bat no computador da secretaria';
+    }
+  }
+}
+
+async function usarScanner(){
+  if(!scannerOnline){
+    alert('O agente scanner não está rodando.\nInicie o arquivo "AGENTE_SCANNER.bat" no computador da secretaria.');
+    return;
+  }
+  const dpi = document.querySelector('input[name="dpi"]:checked')?.value || '200';
+  const btn = document.getElementById('btn-scanner');
+  const spin = document.getElementById('scan-spin');
+  const btnTxt = document.getElementById('btn-scanner-txt');
+
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+  btnTxt.textContent = 'Escaneando... aguarde';
+
+  try {
+    const r = await fetch(`${SCANNER_AGENT}/scan?dpi=${dpi}`, {
+      signal: AbortSignal.timeout(60000)
+    });
+    const j = await r.json();
+    if(j.ok && j.base64){
+      const mime = j.mime || 'image/jpeg';
+      const src  = `data:${mime};base64,${j.base64}`;
+      document.getElementById('preview-img').src = src;
+      document.getElementById('preview-nome').textContent =
+        `Escaneado em ${new Date().toLocaleTimeString('pt-BR')} — ${dpi} dpi`;
+      document.getElementById('preview-upload').style.display = 'block';
+      document.getElementById('btn-salvar-doc').disabled = false;
+      const blob = await fetch(src).then(r => r.blob());
+      const file = new File([blob], `scan_${Date.now()}.jpg`, { type: mime });
+      file._base64 = src;
+      file._isPDF  = false;
+      arquivoAtual = file;
+      showToast('✅ Documento escaneado! Clique em Salvar para confirmar.');
+    } else {
+      throw new Error(j.erro || 'Scanner não retornou imagem.');
+    }
+  } catch(e){
+    const msg = (e.message.includes('abort') || e.message.includes('timeout'))
+      ? 'Tempo esgotado. Verifique se o scanner está pronto e tente novamente.'
+      : 'Erro ao escanear: ' + e.message;
+    alert(msg);
+  } finally {
+    btn.disabled = !scannerOnline;
+    spin.style.display = 'none';
+    btnTxt.textContent = 'Usar Scanner da Secretaria';
+  }
+}
+
+verificarAgente();
+setInterval(verificarAgente, 15000);
+
+// ─── EDITAR FICHA SERVIDOR ────────────────────────────────────────────────────
+function editarFichaServidor(servidorId){
+  if(!confirm('Deseja editar a ficha deste servidor?\n\nVocê será redirecionado para o formulário de cadastro.')){
+    return;
+  }
+  // Salva o ID do servidor no sessionStorage para ser carregado no formulário
+  sessionStorage.setItem('editar_servidor_id', servidorId);
+  window.location.href = 'cadastro_servidores.html';
+}
+
+// ─── EXCLUIR SERVIDOR ─────────────────────────────────────────────────────────
+async function excluirServidor(servidorId, nomeServidor){
+  if(!confirm(`⚠️ ATENÇÃO!\n\nDeseja realmente EXCLUIR o cadastro e toda a pasta digital de:\n\n"${nomeServidor}"\n\nEsta ação NÃO pode ser desfeita!\nTodos os documentos serão perdidos permanentemente.`)){
+    return;
+  }
+  
+  // Confirmação dupla para segurança
+  const confirmacao = prompt(`Para confirmar a exclusão, digite: EXCLUIR`);
+  if(confirmacao !== 'EXCLUIR'){
+    showToast('❌ Exclusão cancelada.');
+    return;
+  }
+  
+  try {
+    // 1. Excluir cadastro do servidor
+    const idReal = (srvAtual && srvAtual._tabela_id) || servidorId;
+    await supaFetch(`/rest/v1/servidores?id=eq.${idReal}`, { method: 'DELETE' });
+    
+    // Fallback para IDs diferentes
+    // exclusão já feita acima
+    
+    // 2. Excluir pasta digital
+    await supaFetch(`/rest/v1/pastas_digitais_servidores?servidor_id=eq.${servidorId}`, { method: 'DELETE' });
+    
+    showToast('✅ Cadastro excluído com sucesso!');
+    
+    // Volta para a tela inicial
+    setTimeout(() => {
+      voltarInicial();
+      document.getElementById('inp-busca').value = '';
+      document.getElementById('lista-servidores').innerHTML = 
+        '<div class="empty"><span>🗂️</span>Digite o nome para buscar.</div>';
+    }, 1500);
+    
+  } catch(e) {
+    console.error('Erro ao excluir:', e);
+    showToast('❌ Erro ao excluir. Tente novamente.');
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// OCORRÊNCIAS — Banco de dados
+// ══════════════════════════════════════════════════════════════════
+async function lerOcorrencias(srvId){
+  try{
+    const rows = await supaFetch('/rest/v1/ocorrencias_servidores?servidor_id=eq.'+srvId+'&order=data.desc&select=*');
+    return rows || [];
+  } catch(e){ console.error('lerOcorrencias:', e); return []; }
+}
+
+async function salvarOcorrenciaDB(registro){
+  return await supaFetch('/rest/v1/ocorrencias_servidores', {
+    method: 'POST',
+    prefer: 'return=representation',
+    body: JSON.stringify(registro)
+  });
+}
+
+async function removerOcorrenciaDB(id){
+  return await supaFetch('/rest/v1/ocorrencias_servidores?id=eq.'+id, { method: 'DELETE' });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// OCORRÊNCIAS — UI
+// ══════════════════════════════════════════════════════════════════
+function selecionarTipoOcor(tipo, el){
+  document.querySelectorAll('.ocor-tipo-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  document.querySelectorAll('.ocor-form').forEach(f => f.classList.remove('vis'));
+  document.getElementById('form-'+tipo).classList.add('vis');
+}
+
+function ocorPreviewArquivo(inp, prefixo){
+  const f = inp.files[0]; if(!f) return;
+  ocorArquivos[prefixo] = f;
+  const r = new FileReader();
+  r.onload = e => {
+    ocorArquivos[prefixo]._base64 = e.target.result;
+    ocorArquivos[prefixo]._isPDF  = f.type === 'application/pdf';
+    const nomeEl = document.getElementById(prefixo+'-arquivo-nome');
+    if(nomeEl) nomeEl.textContent = f.name + ' (' + Math.round(f.size/1024) + 'KB)';
+    const area = document.getElementById(prefixo+'-upload-area');
+    if(area){ area.style.borderColor='var(--verde3)'; area.style.background='var(--verde5)'; }
+  };
+  r.readAsDataURL(f);
+}
+
+async function salvarOcorrencia(tipo){
+  const s = srvAtual;
+  if(!s){ alert('Servidor não identificado.'); return; }
+
+  let dados = { tipo, servidor_id: s._id||s.id||s.cpf, servidor_nome: s.nome||'', cargo: s.cargo||'', criado_em: new Date().toISOString() };
+  let erros = [];
+
+  if(tipo === 'atestado'){
+    dados.data = document.getElementById('sat-data').value;
+    dados.dias = parseInt(document.getElementById('sat-dias').value)||0;
+    dados.subtipo = document.getElementById('sat-tipo').value;
+    dados.medico = document.getElementById('sat-medico').value;
+    dados.obs = document.getElementById('sat-obs').value;
+    if(!dados.data) erros.push('Data');
+    if(!dados.dias) erros.push('Dias de afastamento');
+    // anexo
+    if(ocorArquivos.sat && ocorArquivos.sat._base64){
+      let b64 = ocorArquivos.sat._base64;
+      if(!ocorArquivos.sat._isPDF){ try{ b64 = await imagemParaPDF(b64); }catch(e){} }
+      dados.anexo = { base64: b64, isPDF: true, nome: ocorArquivos.sat.name };
+    }
+  } else if(tipo === 'saida_part'){
+    dados.data = document.getElementById('sp-data').value;
+    dados.hora_saida = document.getElementById('sp-hora').value;
+    dados.motivo = document.getElementById('sp-motivo').value;
+    dados.comunicou = document.getElementById('sp-comunicou').value;
+    dados.hora_retorno = document.getElementById('sp-retorno').value;
+    if(!dados.data) erros.push('Data');
+    if(!dados.hora_saida) erros.push('Horário');
+    if(!dados.motivo) erros.push('Motivo');
+  } else if(tipo === 'ajuste_ponto'){
+    dados.data = document.getElementById('ap-data').value;
+    dados.hora_correta = document.getElementById('ap-hora-correta').value;
+    dados.hora_errada = document.getElementById('ap-hora-errada').value;
+    dados.subtipo = document.getElementById('ap-tipo').value;
+    dados.comunicou = document.getElementById('ap-comunicou').value;
+    dados.motivo = document.getElementById('ap-motivo').value;
+    if(!dados.data) erros.push('Data');
+  } else if(tipo === 'saida_serv'){
+    dados.data = document.getElementById('ss-data').value;
+    dados.hora_saida = document.getElementById('ss-hora-saida').value;
+    dados.hora_retorno = document.getElementById('ss-hora-retorno').value;
+    dados.destino = document.getElementById('ss-destino').value;
+    dados.atividade = document.getElementById('ss-atividade').value;
+    if(!dados.data) erros.push('Data');
+    if(!dados.hora_saida) erros.push('Horário de saída');
+    if(!dados.atividade) erros.push('Atividade');
+  }
+
+  if(erros.length){ alert('Preencha: ' + erros.join(', ')); return; }
+
+  try {
+    await salvarOcorrenciaDB(dados);
+    ocorrenciasAtual = await lerOcorrencias(s._id||s.id||s.cpf);
+    // Limpar form
+    document.querySelectorAll('.ocor-form input,.ocor-form textarea').forEach(el => el.value='');
+    document.querySelectorAll('.ocor-form select').forEach(el => el.selectedIndex=0);
+    ocorArquivos = {};
+    renderOcorrencias();
+    showToast('✅ Ocorrência salva com sucesso!');
+  } catch(e){
+    console.error(e);
+    showToast('⚠️ Erro ao salvar. Verifique a conexão ou se a tabela existe.');
+  }
+}
+
+function filtrarOcorrencias(dias, el){
+  ocorFiltro = dias;
+  document.querySelectorAll('#tab-ocorrencias .btn-filtro').forEach(b => b.classList.remove('ativo'));
+  if(el) el.classList.add('ativo');
+  renderOcorrencias();
+}
+
+const TIPO_CONFIG = {
+  atestado:    { icon:'🩺', label:'Atestado', cls:'tag-atestado' },
+  saida_part:  { icon:'🚶', label:'Saída Particular', cls:'tag-saida-part' },
+  ajuste_ponto:{ icon:'🕐', label:'Ajuste de Ponto', cls:'tag-ajuste' },
+  saida_serv:  { icon:'🏫', label:'Saída p/ Serviço', cls:'tag-saida-serv' }
+};
+
+function renderOcorrencias(){
+  const lista = document.getElementById('ocor-lista');
+  let dados = [...ocorrenciasAtual];
+
+  if(ocorFiltro > 0){
+    const corte = new Date(); corte.setDate(corte.getDate() - ocorFiltro);
+    dados = dados.filter(o => new Date(o.data) >= corte);
+  }
+  const tipoFil = document.getElementById('sel-tipo-filtro').value;
+  if(tipoFil) dados = dados.filter(o => o.tipo === tipoFil);
+
+  if(!dados.length){
+    lista.innerHTML = '<div class="empty"><span>📋</span>Nenhuma ocorrência neste período.</div>';
+    return;
+  }
+
+  // Resumo
+  const totalAtestados = dados.filter(o=>o.tipo==='atestado').length;
+  const totalDias = dados.filter(o=>o.tipo==='atestado').reduce((s,o)=>s+(parseInt(o.dias)||0),0);
+  lista.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:14px">
+      <div style="background:var(--verde5);border-radius:10px;padding:10px 14px">
+        <div style="font-size:.65rem;font-weight:700;color:var(--sub);text-transform:uppercase">Total</div>
+        <b style="font-size:1.2rem;color:var(--verde2)">${dados.length}</b>
+      </div>
+      <div style="background:#FFF8E1;border-radius:10px;padding:10px 14px">
+        <div style="font-size:.65rem;font-weight:700;color:var(--sub);text-transform:uppercase">Atestados</div>
+        <b style="font-size:1.2rem;color:#B7950B">${totalAtestados}</b>
+      </div>
+      <div style="background:#EDE7F6;border-radius:10px;padding:10px 14px">
+        <div style="font-size:.65rem;font-weight:700;color:var(--sub);text-transform:uppercase">Dias afastados</div>
+        <b style="font-size:1.2rem;color:#6A1B9A">${totalDias}</b>
+      </div>
+    </div>
+    ${dados.map(o => {
+      const cfg = TIPO_CONFIG[o.tipo] || { icon:'📋', label:o.tipo, cls:'tag-atestado' };
+      const dataFmt = o.data ? new Date(o.data+'T12:00:00').toLocaleDateString('pt-BR') : '—';
+      let detalhe = '';
+      if(o.tipo==='atestado') detalhe = `⏱ ${o.dias} dia(s)${o.subtipo?' · '+o.subtipo:''}${o.medico?' · '+o.medico:''}`;
+      else if(o.tipo==='saida_part') detalhe = `⏰ ${o.hora_saida||'—'}${o.hora_retorno?' → '+o.hora_retorno:''} · ${o.comunicou||''}`;
+      else if(o.tipo==='ajuste_ponto') detalhe = `${o.subtipo||''} · Comunicou: ${o.comunicou||'—'}`;
+      else if(o.tipo==='saida_serv') detalhe = `⏰ ${o.hora_saida||'—'} · ${o.destino||''}`;
+      const obs = o.motivo||o.obs||o.atividade||'';
+      return `<div class="ocor-card">
+        <div class="ocor-card-icon">${cfg.icon}</div>
+        <div class="ocor-card-body">
+          <h5>${cfg.label} — ${dataFmt}</h5>
+          <p>${detalhe}</p>
+          ${obs?`<p style="margin-top:4px;font-style:italic;color:var(--texto)">${obs.substring(0,120)}</p>`:''}
+          <span class="ocor-tag ${cfg.cls}">${cfg.label}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          ${o.anexo?`<button class="btn-sm btn-sm-ver" onclick="verAnexoOcor('${o.id}')">👁 PDF</button>`:''}
+          <button class="btn-sm btn-sm-del" onclick="removerOcorrencia('${o.id}')">🗑</button>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+function verAnexoOcor(id){
+  const o = ocorrenciasAtual.find(x => String(x.id)===String(id));
+  if(!o||!o.anexo||!o.anexo.base64) return;
+  const body = document.getElementById('modal-doc-body');
+  body.innerHTML = '';
+  const iframe = document.createElement('iframe');
+  iframe.src = o.anexo.base64;
+  iframe.style.cssText = 'width:100%;height:70vh;border:none;border-radius:6px';
+  body.appendChild(iframe);
+  document.getElementById('modal-doc-titulo').textContent = 'Atestado — '+(o.data?new Date(o.data+'T12:00:00').toLocaleDateString('pt-BR'):'');
+  document.getElementById('modal-doc').classList.remove('hidden');
+}
+
+async function removerOcorrencia(id){
+  if(!confirm('Remover esta ocorrência?')) return;
+  try{
+    await removerOcorrenciaDB(id);
+    ocorrenciasAtual = await lerOcorrencias(srvAtual._id||srvAtual.id||srvAtual.cpf);
+    renderOcorrencias();
+    showToast('🗑 Ocorrência removida.');
+  }catch(e){ showToast('⚠️ Erro ao remover.'); }
+}
+
+async function gerarRelatorioOcorrencias(){
+  let dados = [...ocorrenciasAtual];
+  if(ocorFiltro > 0){
+    const corte = new Date(); corte.setDate(corte.getDate() - ocorFiltro);
+    dados = dados.filter(o => new Date(o.data) >= corte);
+  }
+  const tipoFil = document.getElementById('sel-tipo-filtro').value;
+  if(tipoFil) dados = dados.filter(o => o.tipo === tipoFil);
+
+  if(!window.jspdf){
+    await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  }
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  const s = srvAtual || {};
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const periodo = ocorFiltro===0?'Todos os registros':`Últimos ${ocorFiltro} dias`;
+
+  // Cabeçalho padrão municipal (texto alinhado ao institucional)
+  const SUBTITULO = 'E.M. Getúlio Vargas — Nova Ubiratã/MT';
+  const EMAIL_FIXO = 'E-mail: em.getuliovargas@novaubirata.edu.mt.gov.br';
+  pdf.setFontSize(14); pdf.setFont(undefined,'bold');
+  pdf.text('Relatório de Ocorrências — Servidor', 105, 12, { align: 'center' });
+  pdf.setFontSize(12); pdf.setFont(undefined,'bold');
+  pdf.text(SUBTITULO, 105, 19, { align: 'center' });
+  pdf.setFontSize(11); pdf.setFont(undefined,'normal');
+  pdf.text(EMAIL_FIXO, 105, 26, { align: 'center' });
+  pdf.setDrawColor(100,100,100);
+  pdf.line(14, 28, 196, 28);
+
+  let y = 40;
+  pdf.setTextColor(0,0,0);
+  pdf.setFillColor(232, 245, 233);
+  pdf.rect(10,y-5,190,24,'F');
+  pdf.setFontSize(11); pdf.setFont(undefined,'bold');
+  pdf.text('Servidor: '+(s.nome||'—'), 14, y+3);
+  pdf.setFontSize(9); pdf.setFont(undefined,'normal');
+  pdf.text('Cargo: '+(s.cargo||'—')+'  |  Turno: '+(s.turno||'—')+'  |  Período: '+periodo, 14, y+11);
+  y += 30;
+
+  const totalAtestados = dados.filter(o=>o.tipo==='atestado').length;
+  const totalDias = dados.filter(o=>o.tipo==='atestado').reduce((sum,o)=>sum+(parseInt(o.dias)||0),0);
+  pdf.setFontSize(10); pdf.setFont(undefined,'bold');
+  pdf.text('Total de ocorrências: '+dados.length, 14, y);
+  pdf.text('Atestados: '+totalAtestados+'  |  Dias afastados: '+totalDias, 100, y);
+  y += 16;
+
+  // Tabela
+  pdf.setFillColor(27,67,50);
+  pdf.rect(10,y-5,190,10,'F');
+  pdf.setTextColor(255,255,255); pdf.setFontSize(9); pdf.setFont(undefined,'bold');
+  pdf.text('Data', 14, y+1);
+  pdf.text('Tipo', 45, y+1);
+  pdf.text('Detalhes', 100, y+1);
+  y += 10;
+
+  pdf.setTextColor(0,0,0); pdf.setFont(undefined,'normal');
+  const LABELS = { atestado:'Atestado', saida_part:'Saída Particular', ajuste_ponto:'Ajuste de Ponto', saida_serv:'Saída p/ Serviço' };
+  const RODAPE_FIXO = 'Distrito de Novo Mato Grosso, Nova Ubiratã - Mato Grosso';
+  function desenharRodape(){
+    pdf.setFontSize(11); pdf.setFont(undefined,'normal');
+    pdf.setTextColor(55,65,81);
+    pdf.text(RODAPE_FIXO, 105, 290, { align: 'center' });
+    pdf.setDrawColor(100,100,100);
+    pdf.line(14, 282, 196, 282);
+  }
+
+  dados.forEach((o, idx) => {
+    if(y > 265){ desenharRodape(); pdf.addPage(); y = 20; }
+    if(idx%2===0){ pdf.setFillColor(240,250,240); pdf.rect(10,y-4,190,10,'F'); }
+    const dataFmt = o.data ? new Date(o.data+'T12:00:00').toLocaleDateString('pt-BR') : '—';
+    const label = LABELS[o.tipo]||o.tipo||'—';
+    let detalhe = '';
+    if(o.tipo==='atestado') detalhe = (o.dias?o.dias+'d ':'')+( o.subtipo||'');
+    else if(o.tipo==='saida_part') detalhe = (o.hora_saida||'')+' '+( o.comunicou||'');
+    else if(o.tipo==='ajuste_ponto') detalhe = (o.subtipo||'')+' '+( o.comunicou||'');
+    else if(o.tipo==='saida_serv') detalhe = (o.destino||'')+' '+(o.hora_saida||'');
+    pdf.text(dataFmt, 14, y+2);
+    pdf.text(label.substring(0,18), 45, y+2);
+    pdf.text(detalhe.substring(0,40), 100, y+2);
+    const obs = (o.motivo||o.atividade||o.obs||'');
+    if(obs){
+      y += 8;
+      pdf.setTextColor(100,100,100); pdf.setFontSize(7.5);
+      pdf.text('   '+obs.substring(0,90), 14, y+2);
+      pdf.setTextColor(0,0,0); pdf.setFontSize(9);
+    }
+    y += 10;
+  });
+
+  desenharRodape();
+  pdf.save('ocorrencias_'+(s.nome||'servidor').replace(/\s/g,'_')+'_'+hoje.replace(/\//g,'-')+'.pdf');
+  showToast('📄 Relatório PDF gerado!');
+}
+
+</script>
+</body>
+</html>
