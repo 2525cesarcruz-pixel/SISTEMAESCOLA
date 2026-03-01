@@ -19,19 +19,24 @@ on conflict (id) do nothing;
 -- RLS mínimo (ajuste conforme sua política de segurança)
 alter table public.documentos_aluno enable row level security;
 
-create policy if not exists "documentos_aluno_select_authenticated"
+-- Compatível com versões do Postgres/Supabase que não aceitam
+-- "create policy if not exists"
+drop policy if exists "documentos_aluno_select_authenticated" on public.documentos_aluno;
+create policy "documentos_aluno_select_authenticated"
 on public.documentos_aluno
 for select
 to authenticated
 using (true);
 
-create policy if not exists "documentos_aluno_insert_authenticated"
+drop policy if exists "documentos_aluno_insert_authenticated" on public.documentos_aluno;
+create policy "documentos_aluno_insert_authenticated"
 on public.documentos_aluno
 for insert
 to authenticated
 with check (true);
 
-create policy if not exists "documentos_aluno_update_authenticated"
+drop policy if exists "documentos_aluno_update_authenticated" on public.documentos_aluno;
+create policy "documentos_aluno_update_authenticated"
 on public.documentos_aluno
 for update
 to authenticated
@@ -39,19 +44,22 @@ using (true)
 with check (true);
 
 -- Storage policies
-create policy if not exists "pastas_digitais_read_authenticated"
+drop policy if exists "pastas_digitais_read_authenticated" on storage.objects;
+create policy "pastas_digitais_read_authenticated"
 on storage.objects
 for select
 to authenticated
 using (bucket_id = 'pastas_digitais');
 
-create policy if not exists "pastas_digitais_insert_authenticated"
+drop policy if exists "pastas_digitais_insert_authenticated" on storage.objects;
+create policy "pastas_digitais_insert_authenticated"
 on storage.objects
 for insert
 to authenticated
 with check (bucket_id = 'pastas_digitais');
 
-create policy if not exists "pastas_digitais_update_authenticated"
+drop policy if exists "pastas_digitais_update_authenticated" on storage.objects;
+create policy "pastas_digitais_update_authenticated"
 on storage.objects
 for update
 to authenticated
