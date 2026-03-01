@@ -49,7 +49,7 @@ as $$
     from public.profiles p
     where p.user_id = auth.uid()
       and p.ativo = true
-      and lower(p.role) in ('diretor','secretaria','admin','adm')
+      and lower(p.role::text) in ('diretor','secretaria','admin','adm')
   );
 $$;
 
