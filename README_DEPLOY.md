@@ -15,6 +15,17 @@ Variável pública opcional para o frontend:
 
 > O site é estático e deve publicar diretamente os arquivos HTML/CSS/JS de `portal_escolar_fix_v5`.
 
+
+### Branch de produção (obrigatório)
+
+Para evitar deploy como **Preview**, configure no Pages:
+
+- **Production branch**: `main`
+
+No painel: **Workers & Pages → Pages → seu projeto → Settings → Builds & deployments → Production branch**.
+
+Somente commits/push na `main` devem ser usados para deploy de produção.
+
 ## 2) Deploy do Worker (API)
 
 A API roda separada em `worker_api/`.
