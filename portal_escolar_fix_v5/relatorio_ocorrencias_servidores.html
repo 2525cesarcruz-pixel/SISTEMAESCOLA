@@ -4,17 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relatório de Ocorrências (Servidores) — E. M. Getúlio Vargas</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="institucional.css">
 <style>
 :root{
-  --verde:#2E7D32; --roxo:#6A1B9A; --roxo2:#EDE7F6;
-  --cinza:#F0F4F9; --borda:#DDE3EC; --texto:#0F1923; --sub:#5A6880;
+  --verde:#2E7D32; --roxo:#2F2F2F; --roxo2:#ECEDEF;
+  --cinza:#F3F3F3; --borda:#C8CDD5; --texto:#0F1923; --sub:#4B5563;
   --sombra:0 4px 24px rgba(15,25,35,.10);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:var(--texto);min-height:100vh}
-.page-header{background:linear-gradient(135deg,var(--roxo),#4A148C);padding:20px 28px;
+body{font-family:'Times New Roman',Times,serif;background:var(--cinza);color:var(--texto);min-height:100vh}
+.page-header{background:linear-gradient(135deg,var(--roxo),#1E1E1E);padding:20px 28px;
   display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .page-header h1{color:#fff;font-size:1.1rem;font-weight:900}
 .page-header p{color:rgba(255,255,255,.78);font-size:.78rem;margin-top:2px}
@@ -22,8 +20,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:va
 .btn{border:none;border-radius:10px;padding:10px 18px;font-size:.82rem;font-weight:900;cursor:pointer;transition:.2s;font-family:inherit}
 .btn-sec{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25)}
 .btn-sec:hover{background:rgba(255,255,255,.22)}
-.btn-branco{background:#fff;color:#4A148C}
-.btn-branco:hover{background:#f2eaff}
+.btn-branco{background:#fff;color:#1E1E1E}
+.btn-branco:hover{background:#ECEDEF}
 .btn-verde{background:var(--verde);color:#fff}
 .btn-verde:hover{filter:brightness(.95)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
@@ -47,7 +45,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:va
 @media(max-width:520px){ .totais-grid{grid-template-columns:1fr} }
 
 #loading{text-align:center;padding:40px 20px}
-.spinner{width:44px;height:44px;border:4px solid var(--borda);border-top-color:var(--roxo);
+.spinner{width:44px;height:44px;border:4px solid var(--borda);border-top-color:#1E1E1E;
   border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .vazio{text-align:center;padding:40px 20px;color:var(--sub)}
@@ -56,17 +54,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:va
 .grp{background:#fff;border:1px solid var(--borda);border-radius:18px;box-shadow:var(--sombra);margin:14px 0;overflow:hidden}
 .grp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;
   background:linear-gradient(135deg,var(--roxo2),#fff)}
-.grp-head h3{font-size:1rem;font-weight:900;color:#3b0a58}
+.grp-head h3{font-size:1rem;font-weight:900;color:#1F2937}
 .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .badge{font-size:.72rem;font-weight:900;border-radius:999px;padding:5px 10px;display:inline-flex;gap:6px;align-items:center}
 .badge-total{background:#111827;color:#fff}
 .badge-cargo{background:#f3f4f6;color:#374151;border:1px solid #e5e7eb}
-.badge-tipo{background:var(--roxo2);color:#4A148C;border:1px solid #e3d2ef}
+.badge-tipo{background:var(--roxo2);color:#1F2937;border:1px solid #d1d5db}
 .lista{padding:10px 16px 16px}
 .item{display:flex;gap:12px;align-items:flex-start;padding:10px 10px;border-radius:12px}
-.item:nth-child(odd){background:#faf7ff}
+.item:nth-child(odd){background:#f7f7f7}
 .item .dt{min-width:110px;font-weight:900;color:#1f2937;font-size:.82rem}
-.item .tp{min-width:140px;font-weight:900;color:#4A148C;font-size:.8rem}
+.item .tp{min-width:140px;font-weight:900;color:#1F2937;font-size:.8rem}
 .item .tx{flex:1;color:#111827;font-size:.86rem}
 .item .sub{color:var(--sub);font-size:.76rem;margin-top:2px}
 .small{font-size:.74rem;color:var(--sub)}
@@ -77,23 +75,25 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:va
   .conteudo{padding:0}
 }
 </style>
+<link rel="stylesheet" href="institucional.css">
+<link rel="stylesheet" href="institucional_documentos.css" data-inst="override">
 </head>
 <body>
 
-<div class="page-header">
+<div class="page-header no-print">
   <div>
     <h1>📋 Relatório Geral de Ocorrências — Servidores</h1>
     <p>E. M. Getúlio Vargas — Nova Ubiratã/MT · <span id="data-geracao"></span></p>
   </div>
   <div class="header-btns">
     <button class="btn btn-sec" onclick="window.location.href='index.html'">🏠 Voltar</button>
-    <button class="btn btn-branco" onclick="exportarCSV()" id="btn-csv" disabled>⬇ Exportar CSV</button>
+    <button class="btn btn-branco" onclick="baixarPDFOcorrenciasServidores()" id="btn-pdf" disabled>⬇ Baixar PDF</button>
     <button class="btn btn-verde" onclick="imprimirRelatorioOcorrenciasServidores()" id="btn-print" disabled>🖨 Imprimir</button>
   </div>
 </div>
 
 <div class="conteudo">
-  <div class="filtros-bar">
+  <div class="filtros-bar no-print">
     <div>
       <label>Data inicial</label><br>
       <input type="date" id="fil-inicio">
@@ -138,33 +138,106 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza);color:va
 </div>
 
 <!-- Container para impressão (padrão municipal): apenas #doc é impresso -->
-<div id="doc" class="doc doc--portrait" style="display:none"></div>
+<div id="doc" class="doc doc-a4 doc--portrait" style="display:none"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-auth.js"></script>
 <script src="supabase-config.js"></script>
 <script src="auth.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="institucional.js"></script>
 <script>
 PortalAuth.requireLogin(['diretor','coordenacao','secretaria']);
 
-function imprimirRelatorioOcorrenciasServidores() {
+function renderDocumentoOcorrenciasServidores(){
   const totaisGrid = document.getElementById('totais-grid');
   const areaRelatorio = document.getElementById('area-relatorio');
-  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') {
-    window.print();
-    return;
-  }
-  const { body } = window.InstitucionalLayout.render({
+  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') return null;
+
+  const rendered = window.InstitucionalLayout.render({
     titulo: 'Relatório de Ocorrências — Servidores',
     orientacao: 'portrait'
   });
-  if (body) {
-    body.textContent = '';
-    if (totaisGrid) body.appendChild(totaisGrid.cloneNode(true));
-    if (areaRelatorio) body.appendChild(areaRelatorio.cloneNode(true));
+  if (!rendered || !rendered.body) return null;
+
+  const body = rendered.body;
+  body.textContent = '';
+  const info = document.createElement('p');
+  info.className = 'small';
+  info.style.margin = '0 0 10px 0';
+  info.textContent = 'Gerado em: ' + new Date().toLocaleString('pt-BR');
+  body.appendChild(info);
+
+  if (totaisGrid) body.appendChild(totaisGrid.cloneNode(true));
+  if (areaRelatorio) body.appendChild(areaRelatorio.cloneNode(true));
+
+  const ass = document.createElement('div');
+  ass.className = 'doc-assinaturas';
+  ass.innerHTML = '<div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Direção Escolar</div></div><div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Secretaria Escolar</div></div>';
+  body.appendChild(ass);
+  return rendered.doc;
+}
+
+async function imprimirRelatorioOcorrenciasServidores() {
+  await carregarOcorrencias();
+  const doc = renderDocumentoOcorrenciasServidores();
+  if (!doc) {
+    window.print();
+    return;
   }
   window.InstitucionalLayout.preparePrint();
+}
+
+async function baixarPDFOcorrenciasServidores(){
+  const btn = document.getElementById('btn-pdf');
+  const txt = btn ? btn.textContent : '⬇ Baixar PDF';
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Gerando...'; }
+  try{
+    await carregarOcorrencias();
+    const doc = renderDocumentoOcorrenciasServidores();
+    if(!doc || !window.jspdf || !window.html2canvas) throw new Error('Dependências de PDF indisponíveis.');
+
+    const clone = doc.cloneNode(true);
+    clone.style.display = 'block';
+    clone.style.position = 'fixed';
+    clone.style.left = '-10000px';
+    clone.style.top = '0';
+    clone.style.width = doc.offsetWidth ? doc.offsetWidth + 'px' : '794px';
+    clone.style.maxWidth = 'none';
+    document.body.appendChild(clone);
+
+    const canvas = await window.html2canvas(clone, { scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false });
+    clone.remove();
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const W = pdf.internal.pageSize.getWidth();
+    const H = pdf.internal.pageSize.getHeight();
+    const margin = 8;
+    const usableW = W - margin*2;
+    const usableH = H - margin*2;
+    const pageSlicePx = Math.floor((usableH * canvas.width) / usableW);
+
+    let srcY = 0;
+    while(srcY < canvas.height){
+      const sliceH = Math.min(pageSlicePx, canvas.height - srcY);
+      const slice = document.createElement('canvas');
+      slice.width = canvas.width;
+      slice.height = sliceH;
+      slice.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+      if(srcY > 0) pdf.addPage();
+      const outH = (sliceH * usableW) / canvas.width;
+      pdf.addImage(slice.toDataURL('image/png'), 'PNG', margin, margin, usableW, outH);
+      srcY += sliceH;
+    }
+
+    pdf.save('relatorio_ocorrencias_servidores_' + new Date().toISOString().slice(0,10) + '.pdf');
+  }catch(e){
+    alert('Erro ao gerar PDF: ' + (e.message || e));
+  }finally{
+    if(btn){ btn.disabled = filtradas.length===0; btn.textContent = txt; }
+  }
 }
 
 let todas = [];
@@ -246,14 +319,28 @@ function renderTotais(){
   const topTipoN = topTipo ? topTipo[1] : 0;
 
   grid.innerHTML = `
-    <div class="total-card"><div class="k">Ocorrências</div><div class="v">${total}</div><div class="s">no período filtrado</div></div>
-    <div class="total-card"><div class="k">Servidores</div><div class="v">${servidores}</div><div class="s">com ocorrência</div></div>
-    <div class="total-card"><div class="k">Tipo mais comum</div><div class="v" style="font-size:1.05rem">${topTipoTxt}</div><div class="s">${topTipoN} registro(s)</div></div>
-    <div class="total-card"><div class="k">Gerado em</div><div class="v" style="font-size:1.05rem">${new Date().toLocaleDateString('pt-BR')}</div><div class="s">${new Date().toLocaleTimeString('pt-BR')}</div></div>
+    <table class="tbl-institucional">
+      <thead>
+        <tr>
+          <th>Ocorrências</th>
+          <th>Servidores</th>
+          <th>Tipo mais comum</th>
+          <th>Gerado em</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>${total}</strong></td>
+          <td><strong>${servidores}</strong></td>
+          <td><strong>${topTipoTxt}</strong> (${topTipoN} registro(s))</td>
+          <td><strong>${new Date().toLocaleDateString('pt-BR')}</strong> ${new Date().toLocaleTimeString('pt-BR')}</td>
+        </tr>
+      </tbody>
+    </table>
   `;
-  grid.style.display = 'grid';
+  grid.style.display = 'block';
 
-  document.getElementById('btn-csv').disabled = total===0;
+  document.getElementById('btn-pdf').disabled = total===0;
   document.getElementById('btn-print').disabled = total===0;
 }
 
@@ -287,89 +374,46 @@ function renderLista(){
     return;
   }
 
-  const grupos = agruparPorServidor(filtradas);
+  const linhas = filtradas
+    .slice()
+    .sort((a,b)=> String(b.criado_em||b.data||'').localeCompare(String(a.criado_em||a.data||'')))
+    .map((o, idx) => {
+      const dataBase = (o.data ? String(o.data).slice(0,10) : (o.criado_em ? String(o.criado_em).slice(0,10) : ''));
+      const dataFmt = dataBase ? dataBase.split('-').reverse().join('/') : '—';
+      const tipo = LABEL_TIPO[o.tipo] || o.tipo || '—';
+      const servidor = o.servidor_nome || '—';
+      const cargo = o.cargo || '—';
+      const detalhe = detalheOcorrencia(o) || '—';
+      const obs = observacao(o) || '—';
+      return `<tr>
+        <td><strong>${idx + 1}</strong></td>
+        <td><strong>${dataFmt}</strong></td>
+        <td><strong>${servidor}</strong><br><span class="small">${cargo}</span></td>
+        <td><strong>${tipo}</strong></td>
+        <td>${detalhe}</td>
+        <td>${obs}</td>
+      </tr>`;
+    }).join('');
 
-  area.innerHTML = grupos.map(g => {
-    const tipos = {};
-    g.itens.forEach(x => tipos[x.tipo||'N/I'] = (tipos[x.tipo||'N/I']||0)+1);
-    const top = Object.entries(tipos).sort((a,b)=>b[1]-a[1]).slice(0,3);
-
-    const badges = `
-      <div class="badges">
-        <span class="badge badge-total">📌 ${g.itens.length} ocorrência(s)</span>
-        ${g.cargo ? `<span class="badge badge-cargo">👔 ${g.cargo}</span>` : ''}
-        ${top.map(t => `<span class="badge badge-tipo">${LABEL_TIPO[t[0]]||t[0]}: ${t[1]}</span>`).join('')}
-      </div>
-    `;
-
-    const itens = g.itens
-      .sort((a,b)=> String(b.criado_em||b.data||'').localeCompare(String(a.criado_em||a.data||'')))
-      .map(o => {
-        const dt = (o.data ? String(o.data).slice(0,10) : (o.criado_em ? String(o.criado_em).slice(0,10) : '—'));
-        const tipo = LABEL_TIPO[o.tipo] || o.tipo || '—';
-        const det = detalheOcorrencia(o);
-        const obs = observacao(o);
-        return `
-          <div class="item">
-            <div class="dt">${dt ? dt.split('-').reverse().join('/') : '—'}</div>
-            <div class="tp">${tipo}</div>
-            <div class="tx">
-              <div>${det || '<span class="small">—</span>'}</div>
-              ${obs ? `<div class="sub">📝 ${obs}</div>` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-    return `
-      <div class="grp">
-        <div class="grp-head">
-          <div>
-            <h3>${g.nome}</h3>
-            ${badges}
-          </div>
-        </div>
-        <div class="lista">${itens}</div>
-      </div>
-    `;
-  }).join('');
+  area.innerHTML = `
+    <div class="card" style="padding:0;overflow:auto">
+      <table class="tbl-institucional">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Data</th>
+            <th>Servidor</th>
+            <th>Tipo</th>
+            <th>Detalhamento</th>
+            <th>Observação</th>
+          </tr>
+        </thead>
+        <tbody>${linhas}</tbody>
+      </table>
+    </div>
+  `;
 }
 
-function csvEscape(v){
-  const s = String(v ?? '');
-  if(/[",\n]/.test(s)) return '"' + s.replaceAll('"','""') + '"';
-  return s;
-}
-
-function exportarCSV(){
-  if(!filtradas.length) return;
-  const header = ['servidor_nome','cargo','data','tipo','detalhe','observacao','criado_em'];
-  const lines = [header.join(',')];
-
-  filtradas.forEach(o => {
-    const data = (o.data ? String(o.data).slice(0,10) : (o.criado_em ? String(o.criado_em).slice(0,10) : ''));
-    const row = [
-      o.servidor_nome||'',
-      o.cargo||'',
-      data,
-      LABEL_TIPO[o.tipo] || o.tipo || '',
-      detalheOcorrencia(o),
-      observacao(o),
-      o.criado_em||''
-    ].map(csvEscape).join(',');
-    lines.push(row);
-  });
-
-  const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'relatorio_ocorrencias_servidores_'+new Date().toISOString().slice(0,10)+'.csv';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
 
 document.getElementById('fil-inicio').addEventListener('change', aplicarFiltros);
 document.getElementById('fil-fim').addEventListener('change', aplicarFiltros);

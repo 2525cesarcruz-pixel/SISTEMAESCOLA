@@ -235,8 +235,14 @@ header { justify-content:space-between; }
 
 /* ── PRINT ── */
 @media print {
-  body > *:not(#impressao) { display:none !important; }
-  #impressao { display:block !important; }
+  body.print-doc-only * { visibility:hidden !important; }
+  body.print-doc-only #impressao,
+  body.print-doc-only #impressao * { visibility:visible !important; }
+  body.print-doc-only #impressao {
+    display:block !important;
+    position:absolute; left:0; top:0; width:100%;
+  }
+  .no-print { display:none !important; }
 }
 #impressao { display:none; }
 .hidden { display:none !important; }
@@ -526,7 +532,7 @@ header { justify-content:space-between; }
     <div class="pv-head">
       <h2>📋 Ficha do Servidor — Prévia</h2>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-verde" onclick="window.print()">🖨 Imprimir</button>
+        <button class="btn btn-verde" onclick="imprimirPreviaServidor()">🖨 Imprimir</button>
         <button class="btn btn-sec" onclick="voltarForm()">← Editar</button>
         <button class="btn btn-ouro" onclick="abrirPainel()" style="font-size:.8rem">🗄️ Ver Servidores</button>
       </div>
@@ -571,7 +577,7 @@ header { justify-content:space-between; }
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center">
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-sec" onclick="voltarParaForm()">← Editar Cadastro</button>
-            <button class="btn btn-verde" onclick="renderImpressaoFicha();window.print()">🖨 Imprimir Ficha</button>
+            <button class="btn btn-verde" onclick="imprimirPreviaServidor()">🖨 Imprimir Ficha</button>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn" style="background:var(--verde5);color:var(--verde);font-weight:700;border:1.5px solid var(--verde4)" onclick="pularUploadSrv()">Fazer upload depois →</button>
@@ -638,10 +644,6 @@ header { justify-content:space-between; }
           <p style="color:var(--verde4);font-size:.75rem;margin-top:2px">E. M. Getúlio Vargas — 2026</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button onclick="exportarCSV()"
-            style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
-            color:#fff;border-radius:8px;padding:7px 14px;font-size:.78rem;
-            font-weight:700;cursor:pointer;">⬇ CSV</button>
           <button onclick="fecharPainel()"
             style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
             color:#fff;border-radius:8px;padding:7px 14px;font-size:.78rem;
@@ -720,6 +722,44 @@ const S = {
 const PILLS_V  = {};
 let etapaAtual = 1;
 let painelLogado = false;
+const SERVIDOR_FLOW_KEY = 'servidor_flow_mode';
+const SERVIDOR_STEP_KEY = 'servidor_step_atual';
+
+function setServidorFlowMode(mode){
+  const form = document.getElementById('form-area');
+  const preview = document.getElementById('preview-area');
+  const fim = document.getElementById('area-finalizacao');
+  if(!form || !preview || !fim) return;
+  form.classList.toggle('hidden', mode !== 'form');
+  preview.classList.toggle('hidden', mode !== 'preview');
+  fim.classList.toggle('hidden', mode !== 'finalizacao');
+  try{ sessionStorage.setItem(SERVIDOR_FLOW_KEY, mode); }catch(_e){}
+}
+
+function restaurarEstadoFluxoServidor(){
+  let etapaSalva = 1;
+  try{ etapaSalva = Number(sessionStorage.getItem(SERVIDOR_STEP_KEY) || '1') || 1; }catch(_e){}
+  etapaSalva = Math.min(4, Math.max(1, etapaSalva));
+  for(let i=1;i<=4;i++){
+    const sec = document.getElementById('etapa-'+i);
+    if(sec) sec.classList.toggle('hidden', i !== etapaSalva);
+  }
+  etapaAtual = etapaSalva;
+  const pct = Math.round(etapaAtual/4*100);
+  const fill = document.getElementById('prog-fill');
+  const pctEl = document.getElementById('prog-pct');
+  const txt = document.getElementById('prog-txt');
+  if(fill) fill.style.width = pct+'%';
+  if(pctEl) pctEl.textContent = pct+'%';
+  if(txt) txt.textContent = 'Etapa '+etapaAtual+' de 4';
+  buildStepper();
+
+  let modo = 'form';
+  try{ modo = sessionStorage.getItem(SERVIDOR_FLOW_KEY) || 'form'; }catch(_e){}
+  if(!['form','preview','finalizacao'].includes(modo)) modo = 'form';
+  if(modo !== 'finalizacao') modo = 'form';
+  setServidorFlowMode(modo);
+}
 const SENHA_PAINEL = '1234'; // fallback local alinhado com o banco
 
 // ─── STEPPER ─────────────────────────────────────────────────────────────────
@@ -751,6 +791,7 @@ function ir(n){
   document.getElementById('prog-pct').textContent  = pct+'%';
   document.getElementById('prog-txt').textContent  = 'Etapa '+n+' de 4';
   buildStepper();
+  try{ sessionStorage.setItem(SERVIDOR_STEP_KEY, String(etapaAtual)); }catch(_e){}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -1000,45 +1041,68 @@ function gerarFichaHTML(){
 </div>`;
 }
 
-/** Monta #impressao com #doc (cabeçalho/rodapé municipal) + ficha no .doc-body */
-function renderImpressaoFicha(){
-  const impressao = document.getElementById('impressao');
-  if (!impressao) return;
-  impressao.textContent = '';
+function montarFichaServidorInstitucional(){
   const doc = document.createElement('div');
-  doc.id = 'doc';
-  doc.className = 'doc doc--portrait';
+  doc.className = 'doc doc-a4 doc--portrait ficha-servidor-doc';
+
   const header = document.createElement('div');
-  header.id = 'doc-header';
-  const contentWrapper = document.createElement('div');
-  contentWrapper.id = 'doc-content';
-  const body = document.createElement('div');
-  body.id = 'doc-body';
-  body.className = 'doc-body';
+  header.className = 'doc-header-wrap';
+  const bodyWrap = document.createElement('div');
+  bodyWrap.className = 'doc-body';
   const footer = document.createElement('div');
-  footer.id = 'doc-footer';
-  contentWrapper.appendChild(body);
-  doc.appendChild(header);
-  doc.appendChild(contentWrapper);
-  doc.appendChild(footer);
-  if (window.InstitucionalLayout) {
-    if (typeof window.InstitucionalLayout.renderHeader === 'function')
-      window.InstitucionalLayout.renderHeader(header, { titulo: 'Ficha do Servidor' });
-    if (typeof window.InstitucionalLayout.renderFooter === 'function')
-      window.InstitucionalLayout.renderFooter(footer);
+  footer.className = 'doc-footer-wrap';
+
+  if (window.InstitucionalLayout && typeof window.InstitucionalLayout.renderHeader === 'function') {
+    window.InstitucionalLayout.renderHeader(header, { titulo: 'Ficha do Servidor' });
   }
-  body.innerHTML = gerarFichaHTML();
-  impressao.appendChild(doc);
+  if (window.InstitucionalLayout && typeof window.InstitucionalLayout.renderFooter === 'function') {
+    window.InstitucionalLayout.renderFooter(footer);
+  }
+
+  bodyWrap.innerHTML = gerarFichaHTML();
+  doc.appendChild(header);
+  doc.appendChild(bodyWrap);
+  doc.appendChild(footer);
+  return doc;
+}
+
+function renderImpressaoFicha(){
+  const preview = document.getElementById('preview-inner');
+  const impressao = document.getElementById('impressao');
+  if (!preview || !impressao) return;
+
+  const docPreview = montarFichaServidorInstitucional();
+  preview.innerHTML = '';
+  preview.appendChild(docPreview);
+
+  const docPrint = docPreview.cloneNode(true);
+  impressao.innerHTML = '';
+  impressao.appendChild(docPrint);
+}
+
+function imprimirPreviaServidor(){
+  const cleanup = () => {
+    document.body.classList.remove('print-doc-only');
+    document.documentElement.classList.remove('print-doc-only');
+  };
+
+  renderImpressaoFicha();
+  document.body.classList.add('print-doc-only');
+  document.documentElement.classList.add('print-doc-only');
+
+  window.addEventListener('afterprint', cleanup, { once:true });
+  try {
+    window.print();
+  } finally {
+    setTimeout(cleanup, 1200);
+  }
 }
 
 // ─── VISUALIZAR ───────────────────────────────────────────────────────────────
 async function visualizar(){
   salvarTudo();
-  const html = gerarFichaHTML();
-  document.getElementById('preview-inner').innerHTML = html;
   renderImpressaoFicha();
-  document.getElementById('form-area').classList.add('hidden');
-  document.getElementById('preview-area').classList.remove('hidden');
+  setServidorFlowMode('preview');
   window.scrollTo({top:0,behavior:'smooth'});
   // Auto-save
   if(S.nome.trim()){
@@ -1046,14 +1110,11 @@ async function visualizar(){
   }
 }
 function voltarForm(){
-  document.getElementById('preview-area').classList.add('hidden');
-  document.getElementById('area-finalizacao').classList.add('hidden');
-  document.getElementById('form-area').classList.remove('hidden');
+  setServidorFlowMode('form');
 }
 
 function voltarParaForm(){
-  document.getElementById('area-finalizacao').classList.add('hidden');
-  document.getElementById('form-area').classList.remove('hidden');
+  setServidorFlowMode('form');
 }
 
 function confirmarVoltarInicio(){
@@ -1068,9 +1129,7 @@ async function finalizarCadastro(){
   if(S.nome.trim()){
     try{ await salvarServidor(); }catch(e){}
   }
-  document.getElementById('form-area').classList.add('hidden');
-  document.getElementById('preview-area').classList.add('hidden');
-  document.getElementById('area-finalizacao').classList.remove('hidden');
+  setServidorFlowMode('finalizacao');
   document.getElementById('nome-servidor-finalizado').textContent = S.nome ? '👤 ' + S.nome : '';
   buildDocsSrvUpload();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1090,6 +1149,47 @@ const DOCS_SERVIDOR = [
   {id:'foto_3x4',    icon:'📷', nome:'Foto 3x4'},
 ];
 const DOCS_SRV_ARQUIVOS = {};
+
+const BUCKET_PASTA_SERVIDOR = 'pastas-digitais';
+
+function bytesToKB(size){
+  return Math.max(1, Math.round((Number(size)||0)/1024)) + 'KB';
+}
+
+async function getSrvAccessTokenHeader(){
+  if(window.SupabaseAuth && typeof window.SupabaseAuth.getAccessToken === 'function'){
+    const token = await window.SupabaseAuth.getAccessToken();
+    if(token) return 'Bearer ' + token;
+  }
+  return '';
+}
+
+async function uploadDocumentoServidorStorage(file, servidorId, tipo){
+  const safeName = String(file.name||'arquivo').replace(/[^a-zA-Z0-9._-]/g,'_');
+  const path = `servidores/${servidorId}/${Date.now()}_${tipo}_${safeName}`;
+  const auth = await getSrvAccessTokenHeader();
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('bucket', BUCKET_PASTA_SERVIDOR);
+  fd.append('path', path);
+
+  const res = await window.apiFetch('/upload', {
+    method: 'POST',
+    headers: {
+      ...(auth ? { Authorization: auth } : {})
+    },
+    body: fd
+  });
+
+  if(!res.ok){
+    const body = await res.text().catch(()=> '');
+    throw new Error(`Upload de documento falhou (${res.status}): ${body || res.statusText}`);
+  }
+
+  const payload = await res.json().catch(()=>null);
+  if(!payload || !payload.url) throw new Error('Upload sem URL retornada pelo worker.');
+  return { path: payload.path || path, url: payload.url, size: payload.size || file.size || 0 };
+}
 
 function buildDocsSrvUpload(){
   const grid = document.getElementById('docs-srv-grid');
@@ -1141,10 +1241,69 @@ function atualizarContadorSrv(){
   document.getElementById('srv-docs-barra').style.width = (enviados/total*100)+'%';
 }
 
-function salvarDossie(){
+async function salvarDossie(){
+  const btn = document.getElementById('btn-salvar-dossie');
   const toast = document.getElementById('toast-dossie');
-  toast.classList.remove('hidden');
-  setTimeout(()=>{ window.location.href='pasta_digital_servidor.html'; }, 2200);
+
+  if(!S._id){
+    alert('Salve/Finalize o servidor antes de enviar o dossiê digital.');
+    return;
+  }
+
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Salvando...'; }
+
+  try{
+    let docsExistentes = [];
+    try {
+      const ex = await supaFetch('/rest/v1/pastas_digitais_servidores?servidor_id=eq.' + encodeURIComponent(S._id) + '&select=docs&limit=1');
+      docsExistentes = Array.isArray(ex) && ex[0] && Array.isArray(ex[0].docs) ? ex[0].docs : [];
+    } catch(eBusca){
+      console.warn('Não foi possível buscar dossiê atual:', eBusca.message || eBusca);
+    }
+
+    const novos = [];
+    for(const [tipo,file] of Object.entries(DOCS_SRV_ARQUIVOS)){
+      if(!file) continue;
+      const up = await uploadDocumentoServidorStorage(file, S._id, tipo);
+      novos.push({
+        nome: file.name,
+        url: up.url,
+        tipo,
+        data: new Date().toISOString(),
+        tamanho: bytesToKB(up.size)
+      });
+    }
+
+    const porTipo = {};
+    [...docsExistentes, ...novos].forEach(d => { if(d && d.tipo) porTipo[d.tipo] = d; });
+    const docsParaSalvar = Object.values(porTipo);
+
+    const upsertRes = await window.apiFetch('/supabase/rest/v1/pastas_digitais_servidores?on_conflict=servidor_id', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=representation'
+      },
+      body: JSON.stringify({
+        servidor_id: S._id,
+        docs: docsParaSalvar,
+        atualizado_em: new Date().toISOString()
+      })
+    });
+
+    if(!upsertRes.ok){
+      const errTxt = await upsertRes.text().catch(()=> '');
+      throw new Error(`Upsert dossiê (${upsertRes.status}): ${errTxt || upsertRes.statusText}`);
+    }
+
+    toast.classList.remove('hidden');
+    setTimeout(()=>{ window.location.href='pasta_digital_servidor.html?servidor=' + encodeURIComponent(S._id); }, 2200);
+  } catch(e){
+    console.error('salvarDossie:', e);
+    alert('Erro ao salvar dossiê digital: ' + (e.message || e));
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = '💾 Salvar Dossiê Digital'; }
+  }
 }
 
 function pularUploadSrv(){
@@ -1172,11 +1331,15 @@ async function salvarServidor(){
     const ehNovo = !S._id;
     const registro = {...S, _id: S._id || ('srv_'+Date.now()), _salvoEm: new Date().toLocaleString('pt-BR'), turno: S.turno || null};
     S._id = registro._id;
-    await supaFetch('/rest/v1/servidores', {
+    const salvarRes = await window.apiFetch('/supabase/rest/v1/servidores', {
       method: 'POST',
-      prefer: 'resolution=merge-duplicates,return=minimal',
+      headers: {
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
       body: JSON.stringify({ id: registro._id, dados: registro, atualizado_em: new Date().toISOString() })
     });
+    if(!salvarRes.ok){ const errTxt = await salvarRes.text().catch(()=> ''); throw new Error(`Erro ao salvar servidor (${salvarRes.status}): ${errTxt || salvarRes.statusText}`); }
     showToast((ehNovo ? '✅ Servidor salvo: ' : '🔄 Servidor atualizado: ') + S.nome);
   } catch(e){ console.error(e); showToast('❌ Erro ao salvar. Verifique a conexão.'); }
 }
@@ -1186,7 +1349,8 @@ async function excluirServidor(id){
     // Busca o id real da tabela pelo id do objeto
     const srvRows = await supaFetch('/rest/v1/servidores?select=id,dados&dados->>_id=eq.'+id);
     const idReal = (srvRows && srvRows[0]) ? srvRows[0].id : id;
-    await supaFetch('/rest/v1/servidores?id=eq.' + idReal, { method: 'DELETE' });
+    const delRes = await window.apiFetch('/supabase/rest/v1/servidores?id=eq.' + idReal, { method: 'DELETE' });
+    if(!delRes.ok){ const errTxt = await delRes.text().catch(()=> ''); throw new Error(`Erro ao excluir servidor (${delRes.status}): ${errTxt || delRes.statusText}`); }
     renderPainel();
   } catch(e){ console.error(e); }
 }
@@ -1288,18 +1452,8 @@ async function verServidor(id){
   renderImpressaoFicha();
   Object.assign(S,Stmp);
   fecharPainel();
-  window.print();
+  imprimirPreviaServidor();
 }
-async function exportarCSV(){
-  const lista=await lerServidores(); if(!lista.length){alert('Nenhum servidor.'); return;}
-  const cols=['nome','dataNasc','sexo','cpf','rg','cargo','turno','vinculo','matriculaFunc','dataAdmissao','cargaHoraria','telefone','email','naturalidade','_salvoEm'];
-  const csv='﻿'+[cols.join(';'),...lista.map(s=>cols.map(c=>'"'+(s[c]||'').replace(/"/g,'""')+'"').join(';'))].join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download='servidores_'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.csv';
-  a.click();
-}
-
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 function showToast(msg){
   const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
@@ -1308,7 +1462,7 @@ function showToast(msg){
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 populaEstado('natEstado'); populaEstado('endEstado');
-buildStepper();
+restaurarEstadoFluxoServidor();
 // Data de cadastro automática
 document.getElementById('dataCadastro').value = new Date().toLocaleDateString('pt-BR');
 
@@ -1392,6 +1546,7 @@ document.getElementById('dataCadastro').value = new Date().toLocaleDateString('p
         
         // Vai para etapa 1
         ir(1);
+        setServidorFlowMode('form');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
         // Mostra aviso

@@ -124,6 +124,27 @@ async function fazerLogoutAuth() {
   window.location.href = 'index.html';
 }
 
+
+async function getSupabaseUploadContext() {
+  const auth = window.SupabaseAuth || {};
+  const token = (typeof auth.getAccessToken === 'function') ? (await auth.getAccessToken()) : null;
+  return {
+    url: auth.SUPA_URL || 'https://efhiwhdnlqipknkmputt.supabase.co',
+    anonKey: auth.SUPA_ANON || '',
+    token: token || ''
+  };
+}
+
+async function getSupabaseStorageHeaders(extra = {}) {
+  const ctx = await getSupabaseUploadContext();
+  const headers = {
+    apikey: ctx.anonKey,
+    ...(ctx.token ? { Authorization: 'Bearer ' + ctx.token } : {}),
+    ...(extra || {})
+  };
+  return headers;
+}
+
 window.PortalAuth = {
   getSessaoPortal,
   getSessaoPortalAsync,
@@ -131,7 +152,9 @@ window.PortalAuth = {
   clearSessaoPortal,
   requireLogin,
   isPaginaLogin,
-  fazerLogoutAuth
+  fazerLogoutAuth,
+  getSupabaseUploadContext,
+  getSupabaseStorageHeaders
 };
 
 document.addEventListener('DOMContentLoaded', async () => {

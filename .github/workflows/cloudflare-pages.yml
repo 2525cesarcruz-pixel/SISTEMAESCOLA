@@ -1,0 +1,46 @@
+name: Deploy Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install YAML dependency
+        run: pip install pyyaml
+
+      - name: Testing (JSON + YAML)
+        run: |
+          python -m json.tool pages.config.json >/dev/null
+          python -m json.tool worker_api/wrangler.jsonc >/dev/null
+          python -m json.tool worker_api/package.json >/dev/null
+          python -m json.tool .cloudflare/pages.json >/dev/null
+          python -c "import yaml,sys; yaml.safe_load(open('.github/workflows/deploy-worker.yml'))"
+          python -c "import yaml,sys; yaml.safe_load(open('.github/workflows/cloudflare-pages.yml'))"
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Deploy static assets to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: wrangler pages deploy portal_escolar_fix_v5

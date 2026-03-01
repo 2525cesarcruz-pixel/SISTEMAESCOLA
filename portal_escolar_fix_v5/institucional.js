@@ -8,7 +8,7 @@
 
   const SUBTITULO_FIXO = 'E.M. Getúlio Vargas — Nova Ubiratã/MT';
   const EMAIL_FIXO = 'E-mail: em.getuliovargas@novaubirata.edu.mt.gov.br';
-  const RODAPE_FIXO = 'Distrito de Novo Mato Grosso, Nova Ubiratã - Mato Grosso';
+  const RODAPE_FIXO = 'Distrito de Novo Mato Grosso — Nova Ubiratã / Mato Grosso';
   const base = (typeof document !== 'undefined' && document.baseURI) ? new URL('.', document.baseURI).href : '';
   const LOGO_ESQUERDA = base + 'assets/logo_escola.png';
   const LOGO_DIREITA = base + 'assets/logo_prefeitura.png';
@@ -93,11 +93,11 @@
     if (!doc) {
       doc = document.createElement('div');
       doc.id = 'doc';
-      doc.className = 'doc doc--' + (orientacao === 'landscape' ? 'landscape' : 'portrait');
+      doc.className = 'doc doc-a4 doc--' + (orientacao === 'landscape' ? 'landscape' : 'portrait');
       const parent = document.querySelector('.conteudo') || document.querySelector('main') || document.body;
       parent.appendChild(doc);
     } else {
-      doc.className = 'doc doc--' + (orientacao === 'landscape' ? 'landscape' : 'portrait');
+      doc.className = 'doc doc-a4 doc--' + (orientacao === 'landscape' ? 'landscape' : 'portrait');
     }
 
     // Preservar conteúdo do body antes de reconstruir (evita perda em re-render)
@@ -138,8 +138,13 @@
    */
   function preparePrint() {
     document.body.classList.add('print-doc-only');
-    window.print();
-    document.body.classList.remove('print-doc-only');
+    document.documentElement.classList.add('print-doc-only');
+    try {
+      window.print();
+    } finally {
+      document.body.classList.remove('print-doc-only');
+      document.documentElement.classList.remove('print-doc-only');
+    }
   }
 
   window.InstitucionalLayout = {

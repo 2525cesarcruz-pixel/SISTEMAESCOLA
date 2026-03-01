@@ -7,11 +7,87 @@
     // Garante também aliases globais
     window.supaFetch = window.supaFetch || window.SupabasePortal.supaFetch;
     window.lerTabelaGenerica = window.lerTabelaGenerica || window.SupabasePortal.lerTabelaGenerica;
+    window.apiFetch = window.apiFetch || window.SupabasePortal.apiFetch;
     return;
   }
 
   const SUPA_URL = "https://efhiwhdnlqipknkmputt.supabase.co";
   const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmaGl3aGRubHFpcGtua21wdXR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjU0NzUsImV4cCI6MjA4NzEwMTQ3NX0.TzLZiRtHeBSVTSVaZ9RnNNNigD-mZ5ZsZp-jTglurNw";
+
+
+  const isPages = location.hostname.endsWith(".pages.dev");
+  const DEFAULT_WORKER = "https://escolagetuliovargas.2525cesarcruz.workers.dev";
+  window.API_BASE = isPages ? DEFAULT_WORKER : (window.API_BASE || DEFAULT_WORKER);
+
+  async function getPortalAccessToken() {
+    try {
+      if (window.SupabaseAuth && typeof window.SupabaseAuth.getAccessToken === 'function') {
+        const tk = await window.SupabaseAuth.getAccessToken();
+        if (tk) return tk;
+      }
+    } catch (_) {}
+
+    const lsKeys = ['sb-access-token', 'portal_token'];
+    for (const k of lsKeys) {
+      const v = localStorage.getItem(k);
+      if (v) return v;
+    }
+
+    for (const k of lsKeys) {
+      const v = sessionStorage.getItem(k);
+      if (v) return v;
+    }
+
+    return '';
+  }
+
+  function isWriteMethod(method) {
+    const m = String(method || 'GET').toUpperCase();
+    return m === 'POST' || m === 'PUT' || m === 'PATCH' || m === 'DELETE';
+  }
+
+  function joinApiUrl(base, path) {
+    const safeBase = String(base || DEFAULT_WORKER).replace(/\/+$/, '');
+    const safePath = String(path || '/').startsWith('/') ? String(path || '/') : ('/' + String(path || '/'));
+    return safeBase + safePath;
+  }
+
+  async function apiFetch(path, options = {}) {
+    const fullPath = String(path || '');
+    const method = String((options && options.method) || 'GET').toUpperCase();
+    const token = await getPortalAccessToken();
+
+    const headers = {
+      ...(options.headers || {}),
+      ...(token ? { Authorization: 'Bearer ' + token } : {})
+    };
+
+    if (!token && isWriteMethod(method)) {
+      console.warn('[apiFetch] Tentativa de escrita sem token de autenticação:', method, fullPath);
+    }
+
+    const reqOptions = {
+      ...options,
+      headers
+    };
+
+    const baseUrl = String(window.API_BASE || DEFAULT_WORKER || '').trim();
+    const targetUrl = /^https?:\/\//i.test(fullPath) ? fullPath : joinApiUrl(baseUrl, fullPath);
+
+    const res = await fetch(targetUrl, reqOptions);
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      console.error('[apiFetch] Erro de requisição:', {
+        url: targetUrl,
+        method,
+        status: res.status,
+        body: errBody
+      });
+      throw new Error(`apiFetch (${res.status}): ${errBody || res.statusText}`);
+    }
+
+    return res;
+  }
 
   async function supaFetch(path, options = {}) {
     const { prefer, headers: extraHeaders, ...rest } = options || {};
@@ -97,8 +173,10 @@
   window.SupabasePortal = {
     supaFetch,
     lerTabelaGenerica,
-    buscarUsuarioPortalPorUsuario
+    buscarUsuarioPortalPorUsuario,
+    apiFetch
   };
   window.supaFetch = supaFetch;
   window.lerTabelaGenerica = lerTabelaGenerica;
+  window.apiFetch = apiFetch;
 })();

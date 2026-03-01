@@ -1,0 +1,129 @@
+:root{
+  --inst-bg:#f6f6f6;
+  --inst-paper:#ffffff;
+  --inst-border:#222;
+  --inst-border-soft:#666;
+  --inst-text:#111;
+}
+
+body{
+  font-family:'Times New Roman', Times, serif !important;
+  background:var(--inst-bg) !important;
+  color:var(--inst-text) !important;
+}
+
+.page-header,
+header.page-header,
+body > header{
+  background:#2a2a2a !important;
+  color:#fff !important;
+  border-bottom:1px solid #000;
+}
+
+.btn,.btn-sec,.btn-branco,.btn-azul,.btn-verde{
+  font-family:'Times New Roman', Times, serif !important;
+}
+
+.card,.filtros,.filtros-bar,.totais-grid .total-card,.kpi,.grp{
+  border:1px solid #c7c7c7 !important;
+  border-radius:4px !important;
+  box-shadow:none !important;
+  background:#fff !important;
+}
+
+.turma-header,.grp-head{background:#ececec !important;color:#111 !important;}
+.turma-header h3,.grp-head h3{color:#111 !important;}
+.tbadge,.badge{background:#efefef !important;color:#111 !important;border:1px solid #c7c7c7 !important;}
+
+.doc-a4,.doc{
+  width:100%;
+  max-width:210mm;
+  margin:16px auto;
+  background:#fff;
+  color:#111;
+  border:1px solid #c7c7c7;
+  display:flex;
+  flex-direction:column;
+  font-family:'Times New Roman', Times, serif !important;
+}
+
+.doc-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  border-bottom:1px solid #111;
+  padding:12px 14px;
+}
+.doc-header .doc-logo-wrap{min-width:110px;height:90px;display:flex;align-items:center;justify-content:center;}
+.doc-header .doc-logo-esquerda,.doc-header .doc-logo-direita{height:88px;max-width:150px;object-fit:contain;}
+.doc-header .doc-centro{text-align:center;flex:1;}
+.doc-header .doc-titulo{font-size:15pt;font-weight:700;}
+.doc-header .doc-subtitulo{font-size:12pt;font-weight:700;}
+.doc-header .doc-email{font-size:11pt;}
+
+.doc-body{padding:14px 16px 18px;font-size:12pt;line-height:1.5;text-align:justify;}
+.doc-body p{margin:0 0 12px 0;text-indent:2em;}
+.doc-body p:first-of-type{ text-indent:0; }
+
+.doc-table,.tbl-institucional,table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11pt;
+}
+.doc-table th,.doc-table td,.tbl-institucional th,.tbl-institucional td,table th,table td{
+  border:1px solid var(--inst-border-soft);
+  padding:6px 8px;
+  vertical-align:top;
+  text-align:left;
+}
+.doc-table th,.tbl-institucional th,table th{
+  background:#efefef !important;
+  color:#111 !important;
+  font-weight:700;
+}
+
+.doc-assinaturas{display:flex;gap:20px;justify-content:space-between;align-items:flex-end;margin-top:34px;}
+.doc-assinatura-item{flex:1;min-width:180px;text-align:center;}
+.doc-assinatura-linha{width:220px;max-width:100%;border-bottom:1px solid #111;margin:0 auto 6px;}
+.doc-assinatura-img{max-height:48px;max-width:170px;object-fit:contain;margin-bottom:6px;}
+.doc-assinatura-nome{font-weight:700;font-size:11pt;}
+.doc-assinatura-carimbo{font-size:10pt;}
+
+.doc-footer{border-top:1px solid #111;padding:8px 14px;text-align:center;font-size:10pt;}
+
+strong{font-weight:700;}
+
+/* neutralização total de dashboard/cards nas páginas de relatório */
+.totais-grid{display:block !important;gap:0 !important;margin:0 0 14px 0 !important;}
+.total-card,.turma-sec,.kpi,.grp,.card{
+  border:1px solid #666 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  background:#fff !important;
+}
+.turma-header,.grp-head,.turma-footer,thead tr,tbody tr:hover,.item:nth-child(odd){
+  background:#fff !important;
+  color:#111 !important;
+}
+.tbadge,.badge,.badge-total,.badge-cargo,.badge-tipo,.badge-mat,.badge-rema,.badge-m,.badge-f,.badge-nee{
+  background:#fff !important;
+  color:#111 !important;
+  border:1px solid #666 !important;
+}
+
+@media print {
+  @page{ size:A4 portrait; margin:20mm 15mm; }
+  body{ background:#fff !important; margin:0; padding:0; }
+  .no-print{ display:none !important; }
+  body.print-doc-only .doc-a4,
+  body.print-doc-only .doc{ display:flex !important; margin:0 auto !important; border:none !important; box-shadow:none !important; }
+  body.print-doc-only #preview-area,
+  body.print-doc-only #doc{ display:block !important; }
+  .doc-a4,.doc{ box-shadow:none !important; border:none !important; }
+  .doc-header,.doc-body,.doc-footer{ padding-left:0 !important; padding-right:0 !important; }
+}
+
+@media print and (orientation: landscape) {
+  @page{ size:A4 landscape; margin:15mm; }
+}

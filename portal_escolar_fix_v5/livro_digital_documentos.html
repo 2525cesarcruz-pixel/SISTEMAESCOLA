@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Livro Digital de Documentos — E.M. Getúlio Vargas</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="institucional.css">
-  <style>
-    :root { --azul:#1565C0; --azul2:#0D47A1; --borda:#DDE3EC; --cinza:#F0F4F9; --texto:#0F1923; --sub:#5A6880; --erro:#C62828; }
+    <style>
+    :root { --primario:#2F2F2F; --primario2:#1E1E1E; --borda:#C8CDD5; --cinza:#F3F3F3; --texto:#0F1923; --sub:#4B5563; --erro:#8B1E1E; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--cinza); color: var(--texto); min-height: 100vh; padding-bottom: 40px; }
-    .page-header { background: linear-gradient(135deg, var(--azul), var(--azul2)); color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    body { font-family: 'Times New Roman', Times, serif; background: var(--cinza); color: var(--texto); min-height: 100vh; padding-bottom: 40px; }
+    .page-header { background: linear-gradient(135deg, var(--primario), var(--primario2)); color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
     .page-header h1 { font-size: 1.1rem; font-weight: 800; }
     .page-header p { font-size: .8rem; opacity: .9; margin-top: 2px; }
     .btn { border: none; border-radius: 10px; padding: 8px 14px; font-size: .82rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: .2s; }
@@ -39,6 +37,8 @@
     .modal-box textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 14px; font-family: inherit; }
     .modal-box .btns { display: flex; gap: 10px; justify-content: flex-end; }
   </style>
+<link rel="stylesheet" href="institucional.css">
+<link rel="stylesheet" href="institucional_documentos.css" data-inst="override">
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -54,16 +54,16 @@
     })();
   </script>
 
-  <div class="page-header">
+  <div class="page-header no-print">
     <div>
       <h1>📒 Livro Digital de Documentos</h1>
-      <p>E.M. Getúlio Vargas — Nova Ubiratã/MT · Registro municipal · Visualizar, reimprimir e inutilizar</p>
+      <p>E.M. Getúlio Vargas — Nova Ubiratã/MT · Registro municipal · Ações: visualizar, baixar e excluir</p>
     </div>
     <button class="btn btn-sec" onclick="window.location.href='index.html'">🏠 Voltar ao Portal</button>
   </div>
 
   <div class="conteudo">
-    <div class="filtros">
+    <div class="filtros no-print">
       <label>Tipo</label>
       <select id="fil-tipo">
         <option value="">Todos</option>
@@ -78,6 +78,10 @@
       <select id="fil-ano">
         <option value="">Todos</option>
       </select>
+      <label>Aluno ID</label>
+      <input type="text" id="fil-aluno-id" placeholder="ID do aluno">
+      <label>Servidor ID</label>
+      <input type="text" id="fil-servidor-id" placeholder="ID do servidor">
       <label>Status</label>
       <select id="fil-status">
         <option value="">Todos</option>
@@ -102,7 +106,7 @@
         <button class="btn btn-verde" onclick="imprimirReimpressao()">🖨 Imprimir / PDF</button>
         <button class="btn btn-sec" onclick="fecharPreview()">Fechar</button>
       </div>
-      <div id="doc"></div>
+      <div id="doc" class="doc doc-a4 doc--portrait"></div>
     </div>
   </div>
 
@@ -143,6 +147,16 @@
       return new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
     }
 
+    function escHtml(v) {
+      return String(v || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    }
+
+    function pHtml(html) {
+      const p = document.createElement('p');
+      p.innerHTML = html;
+      return p;
+    }
+
     function popularAnos() {
       const sel = document.getElementById('fil-ano');
       const ano = new Date().getFullYear();
@@ -156,7 +170,7 @@
 
     async function carregarLista() {
       try {
-        const rows = await window.supaFetch('/rest/v1/documentos_emitidos?select=id,tipo,numero,ano,referencia_id,dados,criado_em,status&order=criado_em.desc');
+        const rows = await window.supaFetch('/rest/v1/livro_digital_arquivos?select=id,tipo,aluno_id,servidor_id,url,created_at,meta&order=created_at.desc');
         listaDocumentos = Array.isArray(rows) ? rows : [];
         aplicarFiltros();
       } catch (e) {
@@ -165,7 +179,7 @@
         area.textContent = '';
         const p = document.createElement('p');
         p.style.color = 'var(--erro)';
-        p.textContent = 'Erro ao carregar: ' + (e.message || '');
+        p.textContent = 'Erro ao carregar: ' + (e.message || '') + ' — Se a tabela não existir, execute: portal_escolar_fix_v5/sql/20260228_livro_digital_arquivos.sql';
         area.appendChild(p);
       }
     }
@@ -174,23 +188,32 @@
       const tipo = document.getElementById('fil-tipo').value;
       const ano = document.getElementById('fil-ano').value;
       const status = document.getElementById('fil-status').value;
+      const alunoId = (document.getElementById('fil-aluno-id').value || '').trim();
+      const servidorId = (document.getElementById('fil-servidor-id').value || '').trim();
       const dataInicio = document.getElementById('fil-data-inicio').value;
       const dataFim = document.getElementById('fil-data-fim').value;
       const busca = (document.getElementById('fil-busca').value || '').trim().toLowerCase();
 
       let filtrados = listaDocumentos.filter(function(d) {
         if (tipo && d.tipo !== tipo) return false;
-        if (ano && String(d.ano) !== ano) return false;
-        if (status && d.status !== status) return false;
-        const criado = (d.criado_em || '').slice(0, 10);
+        const meta = d.meta || {};
+        const anoReg = String(meta.ano || '').trim();
+        const statusReg = String(meta.status || 'ATIVO').trim();
+        if (ano && anoReg !== ano) return false;
+        if (status && statusReg !== status) return false;
+        if (alunoId && String(d.aluno_id || '') !== alunoId) return false;
+        if (servidorId && String(d.servidor_id || '') !== servidorId) return false;
+        const criado = (d.created_at || '').slice(0, 10);
         if (dataInicio && criado < dataInicio) return false;
         if (dataFim && criado > dataFim) return false;
         if (busca) {
-          const numAno = (d.numero + '/' + d.ano).toLowerCase();
-          const dados = d.dados || {};
+          const numAno = ((meta.numero || '') + '/' + (meta.ano || '')).toLowerCase();
+          const dados = meta.dados || {};
           const nome = (dados.nome || '').toLowerCase();
           const dest = (dados.destinatario || '').toLowerCase();
-          if (numAno.indexOf(busca) === -1 && nome.indexOf(busca) === -1 && dest.indexOf(busca) === -1) return false;
+          const aid = String(d.aluno_id || '').toLowerCase();
+          const sid = String(d.servidor_id || '').toLowerCase();
+          if (numAno.indexOf(busca) === -1 && nome.indexOf(busca) === -1 && dest.indexOf(busca) === -1 && aid.indexOf(busca)===-1 && sid.indexOf(busca)===-1) return false;
         }
         return true;
       });
@@ -208,7 +231,7 @@
       const table = document.createElement('table');
       const thead = document.createElement('thead');
       const thr = document.createElement('tr');
-      ['Nº', 'Tipo', 'Ano', 'Data', 'Status', 'Ações'].forEach(function(t) {
+      ['ID', 'Tipo', 'Ano', 'Data', 'Status', 'Ações'].forEach(function(t) {
         const th = document.createElement('th');
         th.textContent = t;
         thr.appendChild(th);
@@ -222,42 +245,72 @@
       filtrados.forEach(function(d) {
         const tr = document.createElement('tr');
         const tdNum = document.createElement('td');
-        tdNum.textContent = d.numero + '/' + d.ano;
+        const meta = d.meta || {};
+        tdNum.textContent = d.id;
         tr.appendChild(tdNum);
         const tdTipo = document.createElement('td');
         tdTipo.textContent = TIPOS_LABEL[d.tipo] || d.tipo;
         tr.appendChild(tdTipo);
         const tdAno = document.createElement('td');
-        tdAno.textContent = d.ano;
+        tdAno.textContent = meta.ano || '—';
         tr.appendChild(tdAno);
         const tdData = document.createElement('td');
-        tdData.textContent = (d.criado_em || '').slice(0, 10);
+        tdData.textContent = (d.created_at || '').slice(0, 10);
         tr.appendChild(tdData);
         const tdStatus = document.createElement('td');
         const badge = document.createElement('span');
-        badge.className = 'badge ' + (d.status === 'ATIVO' ? 'badge-ativo' : 'badge-inutilizado');
-        badge.textContent = d.status || 'ATIVO';
+        const statusReg = (meta.status || 'ATIVO');
+        badge.className = 'badge ' + (statusReg === 'ATIVO' ? 'badge-ativo' : 'badge-inutilizado');
+        badge.textContent = statusReg;
         tdStatus.appendChild(badge);
         tr.appendChild(tdStatus);
         const tdAcoes = document.createElement('td');
         const btnVer = document.createElement('button');
         btnVer.className = 'btn btn-sec';
-        btnVer.textContent = 'Ver / Reimprimir';
-        btnVer.onclick = function() { abrirReimpressao(d); };
+        btnVer.textContent = 'Visualizar';
+        btnVer.onclick = function() { if (d.url) window.open(d.url, '_blank'); };
         tdAcoes.appendChild(btnVer);
-        if (d.status === 'ATIVO' && podeInutilizar) {
-          const btnInut = document.createElement('button');
-          btnInut.className = 'btn btn-vermelho';
-          btnInut.style.marginLeft = '8px';
-          btnInut.textContent = 'Inutilizar';
-          btnInut.onclick = function() { abrirModalInutilizar(d); };
-          tdAcoes.appendChild(btnInut);
+
+        const btnBaixar = document.createElement('button');
+        btnBaixar.className = 'btn btn-verde';
+        btnBaixar.style.marginLeft = '8px';
+        btnBaixar.textContent = 'Baixar';
+        btnBaixar.onclick = function() { baixarRegistro(d); };
+        tdAcoes.appendChild(btnBaixar);
+
+        if (podeInutilizar) {
+          const btnExc = document.createElement('button');
+          btnExc.className = 'btn btn-vermelho';
+          btnExc.style.marginLeft = '8px';
+          btnExc.textContent = 'Excluir';
+          btnExc.onclick = function() { excluirRegistro(d); };
+          tdAcoes.appendChild(btnExc);
         }
         tr.appendChild(tdAcoes);
         tbody.appendChild(tr);
       });
       table.appendChild(tbody);
       area.appendChild(table);
+    }
+
+    function baixarRegistro(reg) {
+      if (!reg || !reg.url) return;
+      const a = document.createElement('a');
+      a.href = reg.url;
+      a.download = (reg.tipo || 'documento') + '_' + ((reg.meta && reg.meta.ano) || new Date().getFullYear()) + '.json';
+      a.click();
+    }
+
+    async function excluirRegistro(reg) {
+      if (!reg || !reg.id) return;
+      if (!confirm('Excluir este registro do livro digital?')) return;
+      try {
+        const delRes = await window.apiFetch('/supabase/rest/v1/livro_digital_arquivos?id=eq.' + encodeURIComponent(reg.id), { method: 'DELETE' });
+        if(!delRes.ok){ const errTxt = await delRes.text().catch(()=> ''); throw new Error(`Excluir registro (${delRes.status}): ${errTxt || delRes.statusText}`); }
+        await carregarLista();
+      } catch (e) {
+        alert('Erro ao excluir registro: ' + (e.message || e));
+      }
     }
 
     function abrirReimpressao(doc) {
@@ -280,54 +333,37 @@
       const dados = doc.dados || {};
       const dataAtual = dataAtualStr();
 
-      let paragrafo = '';
+      let paragrafos = [];
       if (doc.tipo === 'atestado_vagas') {
-        paragrafo = TEXTOS_FIXOS.atestado_vagas
-          .replace(/\{NOME\}/g, dados.nome || '')
-          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
-          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
-          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
-          .replace(/\{ANO_SERIE\}/g, dados.ano_serie || '')
-          .replace(/\{TURNO\}/g, dados.turno || '')
-          .replace(/\{ANO_LETIVO\}/g, dados.ano_letivo || '')
-          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+        paragrafos = [
+          'Atesto, para os devidos fins e efeitos legais, que há vaga nesta Instituição de Ensino para o(a) aluno(a) <strong>' + escHtml(dados.nome) + '</strong>, nascido(a) em <strong>' + escHtml(dados.data_nasc) + '</strong>, filho(a) de <strong>' + escHtml(dados.nome_pai) + '</strong> e <strong>' + escHtml(dados.nome_mae) + '</strong>, a ser matriculado(a) no <strong>' + escHtml(dados.ano_serie) + '</strong>, no período <strong>' + escHtml(dados.turno) + '</strong>, referente ao ano letivo de <strong>' + escHtml(dados.ano_letivo) + '</strong>.',
+          'Por ser verdade, firmo o presente atestado em <strong>' + escHtml(dataAtual) + '</strong>.'
+        ];
       } else if (doc.tipo === 'atestado_matricula') {
-        paragrafo = TEXTOS_FIXOS.atestado_matricula
-          .replace(/\{NOME\}/g, dados.nome || '')
-          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
-          .replace(/\{NATURALIDADE\}/g, dados.naturalidade || '')
-          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
-          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
-          .replace(/\{DATA_MATRICULA\}/g, dados.data_matricula || '')
-          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
-          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+        paragrafos = [
+          'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) <strong>' + escHtml(dados.nome) + '</strong>, nascido(a) em <strong>' + escHtml(dados.data_nasc) + '</strong>, natural de <strong>' + escHtml(dados.naturalidade) + '</strong>, filho(a) de <strong>' + escHtml(dados.nome_pai) + '</strong> e <strong>' + escHtml(dados.nome_mae) + '</strong>, encontra-se regularmente matriculado(a) nesta unidade educacional desde <strong>' + escHtml(dados.data_matricula) + '</strong>.',
+          'Informamos que o(a) referido(a) aluno(a) está cursando <strong>' + escHtml(dados.etapa_serie) + '</strong>. Nova Ubiratã/MT, <strong>' + escHtml(dataAtual) + '</strong>.'
+        ];
       } else if (doc.tipo === 'declaracao_matricula') {
-        paragrafo = TEXTOS_FIXOS.declaracao_matricula
-          .replace(/\{NOME\}/g, dados.nome || '')
-          .replace(/\{DATA_NASC\}/g, dados.data_nasc || '')
-          .replace(/\{NOME_PAI\}/g, dados.nome_pai || '')
-          .replace(/\{NOME_MAE\}/g, dados.nome_mae || '')
-          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
-          .replace(/\{TURNO\}/g, dados.turno || '')
-          .replace(/\{ANO_LETIVO\}/g, dados.ano_letivo || '')
-          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+        paragrafos = [
+          'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) <strong>' + escHtml(dados.nome) + '</strong>, nascido(a) em <strong>' + escHtml(dados.data_nasc) + '</strong>, filho(a) de <strong>' + escHtml(dados.nome_pai) + '</strong> e <strong>' + escHtml(dados.nome_mae) + '</strong>, encontra-se regularmente matriculado(a) nesta unidade escolar, cursando <strong>' + escHtml(dados.etapa_serie) + '</strong>, no turno <strong>' + escHtml(dados.turno) + '</strong>, no ano letivo de <strong>' + escHtml(dados.ano_letivo) + '</strong>.',
+          'Nova Ubiratã/MT, <strong>' + escHtml(dataAtual) + '</strong>.'
+        ];
       } else if (doc.tipo === 'declaracao_frequencia') {
-        paragrafo = TEXTOS_FIXOS.declaracao_frequencia
-          .replace(/\{NOME\}/g, dados.nome || '')
-          .replace(/\{DATA_INICIO\}/g, dados.data_inicio || '')
-          .replace(/\{DATA_FIM\}/g, dados.data_fim || '')
-          .replace(/\{ETAPA_SERIE\}/g, dados.etapa_serie || '')
-          .replace(/\{DATA_ATUAL\}/g, dataAtual);
+        paragrafos = [
+          'Declaramos, para os devidos fins e efeitos legais, que o(a) aluno(a) <strong>' + escHtml(dados.nome) + '</strong> esteve presente às aulas no período de <strong>' + escHtml(dados.data_inicio) + '</strong> a <strong>' + escHtml(dados.data_fim) + '</strong>, cursando <strong>' + escHtml(dados.etapa_serie) + '</strong> nesta unidade escolar.',
+          'Nova Ubiratã/MT, <strong>' + escHtml(dataAtual) + '</strong>.'
+        ];
       } else if (doc.tipo === 'oficio') {
-        paragrafo = TEXTOS_FIXOS.oficio
-          .replace(/\{NUMERO\}/g, String(doc.numero))
-          .replace(/\{ANO\}/g, String(doc.ano))
-          .replace(/\{DATA_ATUAL\}/g, dataAtual)
-          .replace(/\{DESTINATARIO\}/g, dados.destinatario || '')
-          .replace(/\{CARGO_DESTINATARIO\}/g, dados.cargo_destinatario || '')
-          .replace(/\{INSTITUICAO\}/g, dados.instituicao || '')
-          .replace(/\{ASSUNTO\}/g, dados.assunto || '')
-          .replace(/\{CORPO_DO_OFICIO\}/g, (dados.corpo_oficio || '').replace(/\n/g, '\n\n'));
+        paragrafos = [
+          'OFÍCIO Nº <strong>' + escHtml(doc.numero + '/' + doc.ano) + '</strong>',
+          'Nova Ubiratã/MT, <strong>' + escHtml(dataAtual) + '</strong>.',
+          'Ao(À) <strong>' + escHtml(dados.destinatario) + '</strong><br><strong>' + escHtml(dados.cargo_destinatario) + '</strong><br><strong>' + escHtml(dados.instituicao) + '</strong>',
+          'Assunto: <strong>' + escHtml(dados.assunto) + '</strong>',
+          'Senhor(a),',
+          escHtml(dados.corpo_oficio || '').replaceAll('\n', '<br>'),
+          'Atenciosamente,'
+        ];
       } else if (doc.tipo === 'documento_livre') {
         const tit = document.createElement('div');
         tit.style.cssText = 'font-size:14px;font-weight:700;margin-bottom:12px;';
@@ -342,12 +378,10 @@
         });
       }
 
-      if (paragrafo) {
-        paragrafo.split(/\n\n+/).forEach(function(bloco) {
-          const p = document.createElement('p');
-          p.style.marginBottom = '10px';
-          p.textContent = bloco;
-          body.appendChild(p);
+      if (paragrafos.length) {
+        paragrafos.forEach(function(bloco) {
+          if (!bloco || !String(bloco).trim()) return;
+          body.appendChild(pHtml(bloco));
         });
       }
 

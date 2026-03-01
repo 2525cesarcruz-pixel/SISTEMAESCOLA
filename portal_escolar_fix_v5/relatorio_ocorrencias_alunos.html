@@ -4,31 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relatório de Ocorrências — Alunos</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="institucional.css">
 <style>
 :root{
-  --azul:#1565C0; --azul2:#1976D2; --azul3:#42A5F5;
-  --verde:#2E7D32; --lar:#E65100; --cinza-bg:#F5F7FA; --borda:#E0E4EC;
+  --primario:#2F2F2F; --primario2:#1E1E1E;
+  --verde:#2E7D32; --lar:#6B4F1D; --cinza-bg:#F3F3F3; --borda:#C8CDD5;
   --texto:#1A1A2E; --sub:#64748B; --sombra:0 2px 16px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:'Plus Jakarta Sans',sans-serif;background:var(--cinza-bg);color:var(--texto)}
-header{background:linear-gradient(135deg,var(--azul),var(--azul2));color:#fff;padding:18px 20px}
+body{margin:0;font-family:'Times New Roman',Times,serif;background:var(--cinza-bg);color:var(--texto)}
+header{background:linear-gradient(135deg,var(--primario),var(--primario2));color:#fff;padding:18px 20px}
 header h1{margin:0;font-size:1.05rem;font-weight:900}
-header p{margin:4px 0 0;color:#BBDEFB;font-size:.8rem}
+header p{margin:4px 0 0;color:#E5E7EB;font-size:.8rem}
 .container{max-width:1100px;margin:0 auto;padding:18px 16px 50px}
 .card{background:#fff;border:1px solid var(--borda);border-radius:14px;box-shadow:var(--sombra);padding:14px 16px;margin-bottom:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .btn{border:none;border-radius:10px;padding:10px 16px;font-size:.82rem;font-weight:800;cursor:pointer}
-.btn-azul{background:var(--azul);color:#fff}
+.btn-azul{background:var(--primario2);color:#fff}
 .btn-sec{background:#fff;border:2px solid var(--borda);color:var(--sub)}
 input{border:2px solid var(--borda);border-radius:10px;padding:10px 12px;font-size:.85rem}
 table{width:100%;border-collapse:collapse}
 th,td{padding:10px 10px;border-bottom:1px solid var(--borda);text-align:left;font-size:.82rem;vertical-align:top}
 th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06em}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.7rem;font-weight:900}
-.b-at{background:#E3F2FD;color:#0D47A1}
+.b-at{background:#ECEDEF;color:#1F2937}
 .b-tr{background:#FFF3E0;color:#E65100}
 .b-fj{background:#FEF2F2;color:#991B1B}
 .small{font-size:.74rem;color:var(--sub)}
@@ -37,6 +35,7 @@ th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06
 .kpi .n{font-size:1.4rem;font-weight:900}
 .kpi .l{font-size:.72rem;color:var(--sub);font-weight:800}
 </style>
+<link rel="stylesheet" href="institucional_documentos.css" data-inst="override">
 </head>
 <body>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -51,21 +50,21 @@ th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06
     }
   })();
 </script>
-<header>
+<header class="no-print">
   <h1>📋 Relatório de Ocorrências — Alunos</h1>
   <p id="subtitulo">Carregando...</p>
 </header>
 
 <div class="container">
 
-  <div class="card">
+  <div class="card no-print">
     <div class="row">
       <label class="small"><b>Início</b></label>
       <input type="date" id="ini">
       <label class="small"><b>Fim</b></label>
       <input type="date" id="fim">
       <button class="btn btn-azul" onclick="carregar()">Aplicar</button>
-      <button class="btn btn-sec" onclick="baixarCSV()">⬇ CSV</button>
+      <button class="btn btn-sec" id="btn-pdf" onclick="baixarPDFOcorrenciasAlunos()">⬇ Baixar PDF</button>
       <button class="btn btn-sec" onclick="imprimirRelatorioOcorrenciasAlunos()">🖨 Imprimir</button>
       <div style="flex:1"></div>
       <button class="btn btn-sec" onclick="window.location.href='index.html'">🏠 Portal</button>
@@ -97,8 +96,10 @@ th{font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06
 </div>
 
 <!-- Container para impressão (padrão municipal): apenas #doc é impresso -->
-<div id="doc" class="doc doc--portrait" style="display:none"></div>
+<div id="doc" class="doc doc-a4 doc--portrait" style="display:none"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="institucional.js"></script>
 <script>
 // Guard já executado no início; requireLogin é assíncrono
@@ -159,12 +160,17 @@ async function carregar(){
   const alertas = Object.entries(faltasPorAlunoMes).filter(([k,v])=>v>=5).length;
 
   document.getElementById('kpis').innerHTML = `
-    <div class="kpi"><div class="n">${tot}</div><div class="l">Total de ocorrências</div></div>
-    <div class="kpi"><div class="n">${nAt}</div><div class="l">Atestados/Afastamentos</div></div>
-    <div class="kpi"><div class="n">${nTr}</div><div class="l">Transporte não rodou</div></div>
-    <div class="kpi"><div class="n">${nFj}</div><div class="l">Faltas não justificadas</div></div>
-    <div class="kpi"><div class="n">${alertas}</div><div class="l">Alertas (≥5 faltas/mês)</div></div>
+    <div class="card" style="padding:0;overflow:auto;flex:1 1 100%">
+      <table class="tbl-institucional">
+        <thead><tr><th>Total de ocorrências</th><th>Atestados/Afastamentos</th><th>Transporte não rodou</th><th>Faltas não justificadas</th><th>Alertas (≥5 faltas/mês)</th></tr></thead>
+        <tbody><tr><td><strong>${tot}</strong></td><td><strong>${nAt}</strong></td><td><strong>${nTr}</strong></td><td><strong>${nFj}</strong></td><td><strong>${alertas}</strong></td></tr></tbody>
+      </table>
+    </div>
   `;
+
+  const hasDados = dados.length > 0;
+  const btnPdf = document.getElementById('btn-pdf');
+  if(btnPdf) btnPdf.disabled = !hasDados;
 
   // tabela
   const tb = document.getElementById('tbody');
@@ -180,48 +186,101 @@ async function carregar(){
     const det = esc(JSON.stringify(o.detalhes||{}));
     return `<tr>
       <td><b>${dt}</b></td>
-      <td>${aluno}</td>
-      <td class="small">${turma}</td>
+      <td><strong>${aluno}</strong></td>
+      <td class="small"><strong>${turma}</strong></td>
       <td>${badgeTipo(o.tipo)}</td>
-      <td class="small"><code>${det}</code></td>
+      <td class="small"><strong><code>${det}</code></strong></td>
     </tr>`;
   }).join('');
 }
 
-function imprimirRelatorioOcorrenciasAlunos() {
+function renderDocumentoOcorrenciasAlunos(){
   const kpis = document.getElementById('kpis');
   const container = document.querySelector('.container');
   const cards = container ? container.querySelectorAll('.card') : [];
   const cardLista = cards.length >= 2 ? cards[1] : null;
-  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') {
-    window.print();
-    return;
-  }
-  const { body } = window.InstitucionalLayout.render({
+  if (!window.InstitucionalLayout || typeof window.InstitucionalLayout.render !== 'function') return null;
+
+  const rendered = window.InstitucionalLayout.render({
     titulo: 'Relatório de Ocorrências — Alunos',
     orientacao: 'portrait'
   });
-  if (body) {
-    body.textContent = '';
-    if (kpis) body.appendChild(kpis.cloneNode(true));
-    if (cardLista) body.appendChild(cardLista.cloneNode(true));
-  }
+  if (!rendered || !rendered.body) return null;
+
+  const body = rendered.body;
+  body.textContent = '';
+  const info = document.createElement('p');
+  info.className = 'small';
+  info.style.margin = '0 0 10px 0';
+  info.textContent = 'Gerado em: ' + new Date().toLocaleString('pt-BR');
+  body.appendChild(info);
+
+  if (kpis) body.appendChild(kpis.cloneNode(true));
+  if (cardLista) body.appendChild(cardLista.cloneNode(true));
+
+  const ass = document.createElement('div');
+  ass.className = 'doc-assinaturas';
+  ass.innerHTML = '<div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Direção Escolar</div></div><div class="doc-assinatura-item"><div class="doc-assinatura-linha"></div><div class="doc-assinatura-nome">Secretaria Escolar</div></div>';
+  body.appendChild(ass);
+  return rendered.doc;
+}
+
+async function imprimirRelatorioOcorrenciasAlunos() {
+  await carregar();
+  const doc = renderDocumentoOcorrenciasAlunos();
+  if (!doc) { window.print(); return; }
   window.InstitucionalLayout.preparePrint();
 }
 
-function baixarCSV(){
-  if(!dados.length){ alert('Sem dados para exportar.'); return; }
-  const header = ['id','aluno_id','aluno_nome','tipo','data','turma','turno','etapa','detalhes_json','criado_em'];
-  const lines = [header.join(';')].concat(dados.map(o=>{
-    const det = JSON.stringify(o.detalhes||{}).replaceAll('"','""');
-    const vals = [o.id,o.aluno_id,o.aluno_nome,o.tipo,o.data,o.turma,o.turno,o.etapa,`"${det}"`,o.criado_em];
-    return vals.map(v=>String(v??'').replaceAll('\n',' ').replaceAll('\r',' ')).join(';');
-  }));
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'relatorio_ocorrencias_alunos.csv';
-  a.click();
+async function baixarPDFOcorrenciasAlunos(){
+  const btn = document.getElementById('btn-pdf');
+  const txt = btn ? btn.textContent : '⬇ Baixar PDF';
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Gerando...'; }
+  try{
+    await carregar();
+    const doc = renderDocumentoOcorrenciasAlunos();
+    if(!doc || !window.jspdf || !window.html2canvas) throw new Error('Dependências de PDF indisponíveis.');
+
+    const clone = doc.cloneNode(true);
+    clone.style.display = 'block';
+    clone.style.position = 'fixed';
+    clone.style.left = '-10000px';
+    clone.style.top = '0';
+    clone.style.width = doc.offsetWidth ? doc.offsetWidth + 'px' : '794px';
+    clone.style.maxWidth = 'none';
+    document.body.appendChild(clone);
+
+    const canvas = await window.html2canvas(clone, { scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false });
+    clone.remove();
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const W = pdf.internal.pageSize.getWidth();
+    const H = pdf.internal.pageSize.getHeight();
+    const margin = 8;
+    const usableW = W - margin*2;
+    const usableH = H - margin*2;
+    const pageSlicePx = Math.floor((usableH * canvas.width) / usableW);
+
+    let srcY = 0;
+    while(srcY < canvas.height){
+      const sliceH = Math.min(pageSlicePx, canvas.height - srcY);
+      const slice = document.createElement('canvas');
+      slice.width = canvas.width;
+      slice.height = sliceH;
+      slice.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+      if(srcY > 0) pdf.addPage();
+      const outH = (sliceH * usableW) / canvas.width;
+      pdf.addImage(slice.toDataURL('image/png'), 'PNG', margin, margin, usableW, outH);
+      srcY += sliceH;
+    }
+
+    pdf.save('relatorio_ocorrencias_alunos_' + new Date().toISOString().slice(0,10) + '.pdf');
+  }catch(e){
+    alert('Erro ao gerar PDF: ' + (e.message || e));
+  }finally{
+    if(btn){ btn.disabled = dados.length===0; btn.textContent = txt; }
+  }
 }
 
 // init
