@@ -23,11 +23,17 @@
       if (token) authBearer = token;
     }
 
+    const body = rest.body;
+    const isFormData = (typeof FormData !== 'undefined') && (body instanceof FormData);
+    const isBlob = (typeof Blob !== 'undefined') && (body instanceof Blob);
+    const isArrayBuffer = (typeof ArrayBuffer !== 'undefined') && (body instanceof ArrayBuffer);
+    const hasCustomContentType = !!(extraHeaders && (extraHeaders['Content-Type'] || extraHeaders['content-type']));
+
     const headers = {
       apikey: SUPA_KEY,
       Authorization: 'Bearer ' + authBearer,
-      'Content-Type': 'application/json',
       ...(prefer ? { Prefer: prefer } : {}),
+      ...((!isFormData && !isBlob && !isArrayBuffer && !hasCustomContentType) ? { 'Content-Type': 'application/json' } : {}),
       ...(extraHeaders || {})
     };
 
